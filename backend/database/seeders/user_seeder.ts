@@ -1,4 +1,4 @@
-import User from '#models/user'
+import User from '../../backend/app/models/user.js'
 
 export default class UserSeeder {
   async run() {

@@ -1,4 +1,4 @@
-import Deck from '#models/deck'
+import Deck from '../../backend/app/models/deck.js'
 
 export default class DeckSeeder {
   async run() {

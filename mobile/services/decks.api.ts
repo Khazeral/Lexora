@@ -1,9 +1,32 @@
-export async function fetchDecks() {
-  const res = await fetch("http://localhost:3333/decks");
+import { fetchAPI } from "./api";
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch decks");
-  }
+export async function getDecks() {
+  return fetchAPI("/decks");
+}
 
-  return res.json();
+export async function getDeck(id: number) {
+  return fetchAPI(`/decks/${id}`);
+}
+
+export async function createDeck(payload: { name: string }) {
+  return fetchAPI("/decks", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateDeck(
+  id: number,
+  payload: { name?: string; description?: string },
+) {
+  return fetchAPI(`/decks/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteDeck(id: number) {
+  return fetchAPI(`/decks/${id}`, {
+    method: "DELETE",
+  });
 }

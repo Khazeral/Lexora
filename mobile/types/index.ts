@@ -12,6 +12,23 @@ export interface Deck {
   createdAt: string;
 }
 
+export interface DeckDetail {
+  id: number;
+  name: string;
+  cards: {
+    id: number;
+    word: string;
+    translation: string;
+    progress: {
+      successCount: number;
+      failureCount: number;
+      currentStreak: number;
+      maxStreak: number;
+      status: string;
+    };
+  }[];
+}
+
 export interface Card {
   id: string;
   deckId: string;

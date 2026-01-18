@@ -12,8 +12,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { Link, router } from "expo-router";
-import { useAuth } from "../../services/auth_context";
+import { router } from "expo-router";
+import { useAuth } from "@/services/auth_context";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -29,9 +29,11 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      //call to login user
-      login(email, password);
-      router.replace("/(tabs)");
+      await login(email, password);
+      // Attends un tick avant de naviguer
+      setTimeout(() => {
+        router.replace("/(tabs)");
+      }, 100);
     } catch (error) {
       Alert.alert("Error", "Invalid credentials");
     } finally {
@@ -82,11 +84,9 @@ export default function LoginScreen() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Don&apos;t have an account? </Text>
-          <Link href="/(auth)/signup" asChild>
-            <TouchableOpacity>
-              <Text style={styles.linkText}>Sign Up</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+            <Text style={styles.linkText}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>

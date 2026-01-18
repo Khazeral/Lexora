@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useAuth } from "@/services/auth_context";
 
 export default function SignupScreen() {
@@ -36,7 +36,9 @@ export default function SignupScreen() {
     setLoading(true);
     try {
       await signup(username, email, password);
-      router.replace("/(tabs)");
+      setTimeout(() => {
+        router.replace("/(tabs)");
+      }, 100);
     } catch (error) {
       Alert.alert("Erreur", "Impossible de créer le compte");
     } finally {
@@ -102,9 +104,9 @@ export default function SignupScreen() {
 
         <View style={styles.footer}>
           <Text>Déjà un compte ? </Text>
-          <Link href="/(auth)/login">
+          <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
             <Text style={styles.link}>Se connecter</Text>
-          </Link>
+          </TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>

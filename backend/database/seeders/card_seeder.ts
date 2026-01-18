@@ -1,5 +1,5 @@
-import Deck from '../../backend/app/models/deck.js'
-import Card from '../../backend/app/models/card.js'
+import Card from '#models/card'
+import Deck from '#models/deck'
 
 export default class CardSeeder {
   async run() {

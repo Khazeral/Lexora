@@ -1,37 +1,97 @@
 import Deck from '#models/deck'
 
 export default class DecksService {
-  async create(payload: { name: string; description?: string }) {
-    const existing = await Deck.query().where('name', payload.name).first()
-    if (existing) {
-      throw new Error('Deck name already in use')
-    }
-    return Deck.create(payload)
+  async listForUser(userId: number) {
+    const decks = await Deck.query().where('user_id', userId).preload('cards')
+    return decks.map((deck) => ({
+      id: deck.id,
+      name: deck.name,
+      cardCount: deck.cards.length,
+    }))
   }
 
-  async findById(id: number) {
-    return Deck.find(id)
+  async getDeckForTraining(deckId: number, userId: number) {
+    const deck = await Deck.query()
+      .where('id', deckId)
+      .andWhere('user_id', userId)
+      .preload('cards', (query) => {
+        query.preload('progress', (q) => q.where('user_id', userId))
+      })
+      .first()
+
+    if (!deck) return null
+
+    return {
+      id: deck.id,
+      name: deck.name,
+      cards: deck.cards.map((card) => ({
+        id: card.id,
+        word: card.word,
+        translation: card.translation,
+        progress: card.progress[0] || {
+          successCount: 0,
+          failureCount: 0,
+          currentStreak: 0,
+          maxStreak: 0,
+          status: 'bronze',
+        },
+      })),
+    }
   }
 
-  async update(id: number, payload: { name?: string; description?: string }) {
-    const deck = await Deck.findOrFail(id)
-    if (payload.name) {
-      const existing = await Deck.query().where('name', payload.name).whereNot('id', id).first()
-      if (existing) {
-        throw new Error('Deck name already in use')
-      }
+  async create(payload: { name: string; description?: string; userId: number }) {
+    const deck = await Deck.create({
+      name: payload.name,
+      userId: payload.userId,
+    })
+    await deck.load('cards')
+    return {
+      id: deck.id,
+      name: deck.name,
+      cardCount: deck.cards.length,
     }
+  }
+
+  async update(
+    deckId: number,
+    userId: number,
+    payload: Partial<{ name: string; description: string }>
+  ) {
+    const deck = await Deck.query().where('id', deckId).andWhere('user_id', userId).first()
+
+    if (!deck) return null
+
     deck.merge(payload)
     await deck.save()
-    return deck
+
+    return {
+      id: deck.id,
+      name: deck.name,
+    }
   }
 
-  async delete(id: number) {
-    const deck = await Deck.findOrFail(id)
-    await deck.delete()
+  async delete(deckId: number, userId: number) {
+    const deck = await Deck.query().where('id', deckId).andWhere('user_id', userId).first()
+
+    if (deck) {
+      await deck.delete()
+    }
   }
 
-  async list() {
-    return Deck.all()
+  async getHomeData(userId: number) {
+    const decks = await Deck.query().where('user_id', userId).preload('cards')
+
+    const totalCards = decks.reduce((sum, d) => sum + d.cards.length, 0)
+    const recentDecks = decks.slice(-3).map((deck) => ({
+      id: deck.id,
+      name: deck.name,
+      cardCount: deck.cards.length,
+    }))
+
+    return {
+      totalDecks: decks.length,
+      totalCards,
+      recentDecks,
+    }
   }
 }

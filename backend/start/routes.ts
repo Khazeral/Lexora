@@ -1,54 +1,36 @@
 import router from '@adonisjs/core/services/router'
+import { middleware } from './kernel.js'
 
+const AuthController = () => import('#controllers/auth_controller')
 const UsersController = () => import('#controllers/users_controller')
 const DecksController = () => import('#controllers/decks_controller')
 const CardsController = () => import('#controllers/cards_controller')
-const ProgressController = () => import('#controllers/progress_controller')
-const SecretsController = () => import('#controllers/secrets_controller')
-const LeaderboardController = () => import('#controllers/leaderboard_controller')
+
+router.post('/login', [AuthController, 'login'])
+router.post('/signup', [AuthController, 'signup'])
 
 router
   .group(() => {
-    router.post('/', [UsersController, 'create'])
-    router.get('/:id', [UsersController, 'get'])
-    router.put('/:id', [UsersController, 'update'])
-    router.delete('/:id', [UsersController, 'delete'])
-  })
-  .prefix('/users')
+    router.post('/logout', [AuthController, 'logout'])
+    router.get('/me', [AuthController, 'me'])
 
-router
-  .group(() => {
-    router.get('/', [DecksController, 'index'])
-    router.get('/:id', [DecksController, 'show'])
-    router.post('/', [DecksController, 'create'])
-    router.put('/:id', [DecksController, 'update'])
-    router.delete('/:id', [DecksController, 'delete'])
-    router.get('/:id/cards', [DecksController, 'cards'])
-  })
-  .prefix('/decks')
+    router.get('/users/:id', [UsersController, 'get'])
+    router.put('/users/:id', [UsersController, 'update'])
+    router.delete('/users/:id', [UsersController, 'delete'])
 
-router
-  .group(() => {
-    router.get('/:id', [CardsController, 'show'])
-    router.post('/', [CardsController, 'create'])
-    router.put('/:id', [CardsController, 'update'])
-    router.delete('/:id', [CardsController, 'delete'])
-  })
-  .prefix('/cards')
+    // Decks
+    router.get('/decks', [DecksController, 'index'])
+    router.get('/decks/home', [DecksController, 'home'])
+    router.get('/decks/:deckId/training', [DecksController, 'training'])
+    router.get('/decks/:id', [DecksController, 'show'])
+    router.post('/decks', [DecksController, 'create'])
+    router.put('/decks/:id', [DecksController, 'update'])
+    router.delete('/decks/:id', [DecksController, 'delete'])
+    router.get('/decks/:id/cards', [CardsController, 'byDeck'])
 
-router
-  .group(() => {
-    router.get('/:userId', [ProgressController, 'index'])
-    router.get('/:userId/:cardId', [ProgressController, 'show'])
-    router.patch('/:userId/:cardId', [ProgressController, 'update'])
-    router.get('/:userId/decks/:deckId', [ProgressController, 'byDeck'])
+    router.get('/cards/:id', [CardsController, 'show'])
+    router.post('/cards', [CardsController, 'create'])
+    router.put('/cards/:id', [CardsController, 'update'])
+    router.delete('/cards/:id', [CardsController, 'delete'])
   })
-  .prefix('/progress')
-
-router
-  .group(() => {
-    router.get('/users/:userId', [SecretsController, 'index'])
-  })
-  .prefix('/secrets')
-
-router.get('/leaderboard', [LeaderboardController, 'index'])
+  .use(middleware.auth({ guards: ['api'] }))

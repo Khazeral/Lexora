@@ -1,98 +1,222 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+"use client";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+} from "react-native";
+import { router } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/services/auth_context";
+import { Deck } from "@/types";
+import { fetchDecks } from "@/services/decks.api";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { user } = useAuth();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const {
+    data: decks = [],
+    isLoading,
+    refetch,
+  } = useQuery<Deck[]>({
+    queryKey: ["decks"],
+    queryFn: fetchDecks,
+    enabled: !!user,
+  });
+
+  const totalCards = decks.reduce((sum, deck) => sum + deck.cardCount, 0);
+
+  const recentDecks = decks.slice(0, 3);
+
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
+    >
+      <View style={styles.header}>
+        <Text style={styles.greeting}>
+          Hello, {user?.username || "Learner"}!
+        </Text>
+        <Text style={styles.subtitle}>Ready to learn today?</Text>
+      </View>
+
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{decks.length}</Text>
+          <Text style={styles.statLabel}>Decks</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{totalCards}</Text>
+          <Text style={styles.statLabel}>Cards</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>0</Text>
+          <Text style={styles.statLabel}>Streak</Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent Decks</Text>
+          <TouchableOpacity onPress={() => router.push("/")}>
+            <Text style={styles.seeAll}>See All</Text>
+          </TouchableOpacity>
+        </View>
+
+        {recentDecks.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>No decks yet</Text>
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={() => router.push("/")}
+            >
+              <Text style={styles.createButtonText}>
+                Create Your First Deck
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          recentDecks.map((deck) => (
+            <TouchableOpacity
+              key={deck.id}
+              style={styles.deckCard}
+              onPress={() => router.push(`/`)}
+            >
+              <Text style={styles.deckTitle}>{deck.name}</Text>
+              <Text style={styles.deckInfo}>{deck.cardCount} cards</Text>
+            </TouchableOpacity>
+          ))
+        )}
+      </View>
+
+      <TouchableOpacity
+        style={styles.trainButton}
+        onPress={() => router.push("/")}
+      >
+        <Text style={styles.trainButtonText}>Start Training</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 16,
+  },
+  greeting: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#64748b",
+    marginTop: 4,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 24,
+    gap: 12,
+    marginBottom: 24,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    alignItems: "center",
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#3b82f6",
+  },
+  statLabel: {
+    fontSize: 14,
+    color: "#64748b",
+    marginTop: 4,
+  },
+  section: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+  },
+  seeAll: {
+    color: "#3b82f6",
+  },
+  emptyState: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 24,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#64748b",
+    marginBottom: 16,
+  },
+  createButton: {
+    backgroundColor: "#3b82f6",
+    padding: 12,
+    borderRadius: 8,
+  },
+  createButtonText: {
+    color: "#fff",
+  },
+  deckCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  deckTitle: {
+    fontWeight: "600",
+  },
+  deckInfo: {
+    color: "#64748b",
+  },
+  trainButton: {
+    backgroundColor: "#3b82f6",
+    marginHorizontal: 24,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  trainButtonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });

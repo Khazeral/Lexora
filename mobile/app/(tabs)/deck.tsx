@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { getDecks } from "@/services/decks.api";
 import { Link, Href } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DecksScreen() {
   const {
@@ -25,7 +26,7 @@ export default function DecksScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <FlatList
         data={decks}
         keyExtractor={(item) => item.id.toString()}
@@ -60,7 +61,7 @@ export default function DecksScreen() {
           <Ionicons name="add" size={28} color="#fff" />
         </TouchableOpacity>
       </Link>
-    </View>
+    </SafeAreaView>
   );
 }
 

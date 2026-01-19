@@ -10,6 +10,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DeckDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -36,7 +37,7 @@ export default function DeckDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -90,28 +91,26 @@ export default function DeckDetailScreen() {
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: "auto",
     backgroundColor: "#f8fafc",
   },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#f8fafc",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 16,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",

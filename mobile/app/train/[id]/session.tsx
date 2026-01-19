@@ -10,12 +10,13 @@ import {
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
+import { answerCard } from "@/services/progress.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
-import { answerCard } from "@/services/progress.api";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TrainingSessionScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, shuffle, reverse } = useLocalSearchParams();
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -59,8 +60,20 @@ export default function TrainingSessionScreen() {
     );
   }
 
-  const currentCard = deck.cards[currentIndex];
-  const progress = ((currentIndex + 1) / deck.cards.length) * 100;
+  const cards =
+    shuffle === "true"
+      ? [...deck.cards].sort(() => Math.random() - 0.5)
+      : deck.cards;
+
+  const currentCard = cards[currentIndex];
+  const progress = ((currentIndex + 1) / cards.length) * 100;
+
+  const frontText =
+    reverse === "true" ? currentCard.translation : currentCard.word;
+  const backText =
+    reverse === "true" ? currentCard.word : currentCard.translation;
+  const frontLabel = reverse === "true" ? "Translation" : "Word";
+  const backLabel = reverse === "true" ? "Word" : "Translation";
 
   const flipCard = () => {
     Animated.timing(flipAnim, {
@@ -77,12 +90,11 @@ export default function TrainingSessionScreen() {
       success,
     });
 
-    if (currentIndex < deck.cards.length - 1) {
+    if (currentIndex < cards.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setIsFlipped(false);
       flipAnim.setValue(0);
     } else {
-      // Fin de la session
       router.replace({
         pathname: "/train/[id]/complete",
         params: { id },
@@ -102,7 +114,6 @@ export default function TrainingSessionScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -110,22 +121,28 @@ export default function TrainingSessionScreen() {
         >
           <Ionicons name="close" size={24} color="#1e293b" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{deck.name}</Text>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>{deck.name}</Text>
+          {reverse === "true" && (
+            <View style={styles.reverseBadge}>
+              <Ionicons name="swap-horizontal" size={12} color="#10b981" />
+              <Text style={styles.reverseBadgeText}>Reverse</Text>
+            </View>
+          )}
+        </View>
         <View style={styles.placeholder} />
       </View>
 
-      {/* Progress */}
       <View style={styles.progressContainer}>
         <Text style={styles.progressText}>
-          {currentIndex + 1} / {deck.cards.length}
+          {currentIndex + 1} / {cards.length}
         </Text>
         <View style={styles.progressBar}>
           <View style={[styles.progressFill, { width: `${progress}%` }]} />
         </View>
       </View>
 
-      {/* Flashcard */}
-      <View style={styles.cardContainer}>
+      <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
         <TouchableOpacity onPress={flipCard} activeOpacity={0.9}>
           <Animated.View
             style={[
@@ -136,8 +153,8 @@ export default function TrainingSessionScreen() {
               !isFlipped && styles.cardVisible,
             ]}
           >
-            <Text style={styles.cardLabel}>Question</Text>
-            <Text style={styles.cardText}>{currentCard.word}</Text>
+            <Text style={styles.cardLabel}>{frontLabel}</Text>
+            <Text style={styles.cardText}>{frontText}</Text>
             <View style={styles.tapHint}>
               <Ionicons name="hand-left" size={20} color="#94a3b8" />
               <Text style={styles.tapHintText}>Tap to flip</Text>
@@ -154,13 +171,16 @@ export default function TrainingSessionScreen() {
               isFlipped && styles.cardVisible,
             ]}
           >
-            <Text style={styles.cardLabel}>Answer</Text>
-            <Text style={styles.cardText}>{currentCard.translation}</Text>
+            <Text style={[styles.cardLabel, styles.cardLabelBack]}>
+              {backLabel}
+            </Text>
+            <Text style={[styles.cardText, styles.cardTextBack]}>
+              {backText}
+            </Text>
           </Animated.View>
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
 
-      {/* Answer Buttons */}
       {isFlipped && (
         <View style={styles.answerButtons}>
           <TouchableOpacity
@@ -168,8 +188,14 @@ export default function TrainingSessionScreen() {
             onPress={() => handleAnswer(false)}
             disabled={answerMutation.isPending}
           >
-            <Ionicons name="close-circle" size={32} color="#fff" />
-            <Text style={styles.answerButtonText}>Wrong</Text>
+            {answerMutation.isPending ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="close-circle" size={32} color="#fff" />
+                <Text style={styles.answerButtonText}>Wrong</Text>
+              </>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -177,8 +203,14 @@ export default function TrainingSessionScreen() {
             onPress={() => handleAnswer(true)}
             disabled={answerMutation.isPending}
           >
-            <Ionicons name="checkmark-circle" size={32} color="#fff" />
-            <Text style={styles.answerButtonText}>Correct</Text>
+            {answerMutation.isPending ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="checkmark-circle" size={32} color="#fff" />
+                <Text style={styles.answerButtonText}>Correct</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       )}
@@ -196,6 +228,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 16,
+    backgroundColor: "#f8fafc",
   },
   header: {
     flexDirection: "row",
@@ -211,10 +244,29 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 8,
   },
+  headerCenter: {
+    flex: 1,
+    alignItems: "center",
+    gap: 4,
+  },
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#1e293b",
+  },
+  reverseBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#d1fae5",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  reverseBadgeText: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#10b981",
   },
   placeholder: {
     width: 40,
@@ -244,24 +296,20 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignSelf: "center",
     padding: 24,
   },
   card: {
-    width: 320,
+    width: "100%",
+    maxWidth: 340,
     height: 400,
     backgroundColor: "#fff",
     borderRadius: 24,
     padding: 32,
     justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
-    backfaceVisibility: "hidden",
+    alignSelf: "center",
     position: "absolute",
+    backfaceVisibility: "hidden",
   },
   cardBack: {
     backgroundColor: "#3b82f6",
@@ -274,17 +322,26 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#94a3b8",
     textTransform: "uppercase",
+    alignSelf: "center",
     marginBottom: 24,
+  },
+  cardLabelBack: {
+    color: "#bfdbfe",
+    alignSelf: "center",
   },
   cardText: {
     fontSize: 32,
     fontWeight: "bold",
     color: "#1e293b",
     textAlign: "center",
+    alignSelf: "center",
+  },
+  cardTextBack: {
+    color: "#fff",
   },
   tapHint: {
+    alignSelf: "center",
     flexDirection: "row",
-    alignItems: "center",
     gap: 8,
     marginTop: 32,
   },
@@ -305,6 +362,11 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 20,
     borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
   wrongButton: {
     backgroundColor: "#ef4444",

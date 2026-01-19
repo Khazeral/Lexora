@@ -16,8 +16,12 @@ export default class ProgressController {
   }
 
   async answer({ params, request, response }: HttpContext) {
-    const { success } = request.body()
-    const progress = await this.service.answer(params.userId, params.cardId, success)
+    const { success } = request.only(['success'])
+    const progress = await this.service.answer(
+      Number.parseInt(params.userId),
+      Number.parseInt(params.cardId),
+      success
+    )
     return response.ok(progress)
   }
 

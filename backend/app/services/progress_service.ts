@@ -11,6 +11,7 @@ export default class CardProgressService {
 
   async answer(userId: number, cardId: number, success: boolean) {
     let progress = await this.findByUserAndCard(userId, cardId)
+
     if (!progress) {
       progress = await CardProgress.create({
         userId,
@@ -36,6 +37,7 @@ export default class CardProgressService {
       progress.currentStreak = 0
     }
 
+    // Mise à jour du statut selon la streak
     if (progress.maxStreak >= 10) progress.status = 'ruby'
     else if (progress.maxStreak >= 7) progress.status = 'platinum'
     else if (progress.maxStreak >= 5) progress.status = 'gold'

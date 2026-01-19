@@ -37,7 +37,6 @@ export default function CardDetailScreen() {
     );
   }
 
-  // Trouve le progress ou crée un objet par défaut
   const progress = card.progress?.find((p) => p.userId === user?.id) || {
     userId: user?.id || 0,
     successCount: 0,
@@ -100,7 +99,6 @@ export default function CardDetailScreen() {
       </View>
 
       <ScrollView style={styles.content}>
-        {/* Flashcard Display */}
         <View style={styles.flashcard}>
           <View style={styles.cardSide}>
             <Text style={styles.sideLabel}>Front</Text>
@@ -113,7 +111,6 @@ export default function CardDetailScreen() {
           </View>
         </View>
 
-        {/* Status Badge */}
         <View style={styles.statusContainer}>
           <View
             style={[
@@ -132,7 +129,6 @@ export default function CardDetailScreen() {
           </View>
         </View>
 
-        {/* Statistics */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Statistics</Text>
 
@@ -162,7 +158,6 @@ export default function CardDetailScreen() {
             </View>
           </View>
 
-          {/* Success Rate */}
           <View style={styles.progressBar}>
             <View style={styles.progressHeader}>
               <Text style={styles.progressLabel}>Success Rate</Text>
@@ -186,7 +181,6 @@ export default function CardDetailScreen() {
             </View>
           </View>
 
-          {/* Next Milestone */}
           <View style={styles.milestone}>
             <Text style={styles.milestoneTitle}>Next Milestone</Text>
             {progress.maxStreak < 3 && (
@@ -211,7 +205,7 @@ export default function CardDetailScreen() {
             )}
             {progress.maxStreak >= 10 && (
               <Text style={styles.milestoneText}>
-                🎉 You've reached the maximum rank!
+                🎉 You&apos;ve reached the maximum rank!
               </Text>
             )}
           </View>

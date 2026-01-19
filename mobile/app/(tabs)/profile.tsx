@@ -13,13 +13,11 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
       </View>
 
       <ScrollView style={styles.content}>
-        {/* User Info Card */}
         <View style={styles.userCard}>
           <View style={styles.avatarContainer}>
             <Ionicons name="person-circle" size={80} color="#3b82f6" />
@@ -28,7 +26,6 @@ export default function ProfileScreen() {
           <Text style={styles.email}>{user?.email}</Text>
         </View>
 
-        {/* Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
 
@@ -78,7 +75,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 24,
-    paddingTop: 60, // Safe area
+    paddingTop: 60,
     paddingBottom: 16,
     backgroundColor: "#fff",
     borderBottomWidth: 1,

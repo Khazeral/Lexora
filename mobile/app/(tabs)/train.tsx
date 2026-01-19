@@ -45,7 +45,7 @@ export default function TrainScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.deckCard}
-            onPress={() => router.push(`/train/${item.id}`)}
+            onPress={() => router.push(`/train/${item.id}/settings`)}
           >
             <View style={styles.deckIcon}>
               <Ionicons name="school" size={32} color="#3b82f6" />

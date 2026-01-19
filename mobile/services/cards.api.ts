@@ -21,7 +21,7 @@ export async function createCard(payload: {
 
 export async function updateCard(
   cardId: number,
-  payload: { word?: string; translation?: string }
+  payload: { word?: string; translation?: string },
 ) {
   return fetchAPI(`/cards/${cardId}`, {
     method: "PUT",

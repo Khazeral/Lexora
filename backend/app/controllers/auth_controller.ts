@@ -5,16 +5,10 @@ export default class AuthController {
   async login({ request, response }: HttpContext) {
     const { email, password } = request.only(['email', 'password'])
 
-    console.log('=== LOGIN ATTEMPT ===')
-    console.log('Email:', email)
-    console.log('Password:', password)
-
     try {
       const user = await User.verifyCredentials(email, password)
-      console.log('User verified:', user.email)
 
       const token = await User.accessTokens.create(user)
-      console.log('Token created')
 
       return response.ok({
         token: token.value!.release(),

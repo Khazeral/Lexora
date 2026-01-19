@@ -29,12 +29,21 @@ export interface DeckDetail {
   }[];
 }
 
+export interface CardProgress {
+  userId: number;
+  successCount: number;
+  failureCount: number;
+  currentStreak: number;
+  maxStreak: number;
+  status: string;
+}
+
 export interface Card {
-  id: string;
-  deckId: string;
+  id: number;
   word: string;
   translation: string;
-  createdAt: string;
+  deckId: number;
+  progress?: CardProgress[];
 }
 
 export interface UserProgress {

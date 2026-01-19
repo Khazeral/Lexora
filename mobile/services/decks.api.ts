@@ -8,7 +8,14 @@ export async function getDeck(id: number) {
   return fetchAPI(`/decks/${id}`);
 }
 
-export async function createDeck(payload: { name: string }) {
+export async function getHomeData() {
+  return fetchAPI("/decks/home");
+}
+
+export async function createDeck(payload: {
+  name: string;
+  description?: string;
+}) {
   return fetchAPI("/decks", {
     method: "POST",
     body: JSON.stringify(payload),

@@ -14,8 +14,10 @@ export default class DecksService {
     const deck = await Deck.query()
       .where('id', deckId)
       .andWhere('user_id', userId)
-      .preload('cards', (query) => {
-        query.preload('progress', (q) => q.where('user_id', userId))
+      .preload('cards', (cardsQuery) => {
+        cardsQuery.preload('progress', (progressQuery) => {
+          progressQuery.where('user_id', userId)
+        })
       })
       .first()
 
@@ -28,27 +30,21 @@ export default class DecksService {
         id: card.id,
         word: card.word,
         translation: card.translation,
-        progress: card.progress[0] || {
-          successCount: 0,
-          failureCount: 0,
-          currentStreak: 0,
-          maxStreak: 0,
-          status: 'bronze',
-        },
+        progress: card.progress[0] || null,
       })),
     }
   }
 
-  async create(payload: { name: string; description?: string; userId: number }) {
+  async create(payload: { name: string; userId: number }) {
     const deck = await Deck.create({
       name: payload.name,
       userId: payload.userId,
     })
-    await deck.load('cards')
+
     return {
       id: deck.id,
       name: deck.name,
-      cardCount: deck.cards.length,
+      cardCount: 0,
     }
   }
 

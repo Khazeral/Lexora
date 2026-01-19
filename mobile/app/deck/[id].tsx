@@ -65,7 +65,10 @@ export default function DeckDetailScreen() {
           </View>
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => router.push(`/card/${item.id}`)}
+          >
             <View style={styles.cardContent}>
               <Text style={styles.word}>{item.word}</Text>
               <Text style={styles.translation}>{item.translation}</Text>
@@ -77,7 +80,7 @@ export default function DeckDetailScreen() {
                 </Text>
               </View>
             )}
-          </View>
+          </TouchableOpacity>
         )}
       />
 
@@ -94,6 +97,7 @@ export default function DeckDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: "auto",
     backgroundColor: "#f8fafc",
   },
   center: {

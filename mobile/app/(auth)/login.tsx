@@ -22,22 +22,39 @@ export default function LoginScreen() {
   const { login } = useAuth();
 
   const handleLogin = async () => {
+    console.log("=== DÉBUT LOGIN ===");
+    console.log("📝 Email saisi:", email);
+    console.log("📝 Password saisi:", password ? "***" + password.slice(-3) : "vide");
+    
     if (!email || !password) {
+      console.log("❌ Champs vides détectés");
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
     setLoading(true);
+    console.log("⏳ Chargement activé");
+    
     try {
+      console.log("🚀 Appel de la fonction login...");
       await login(email, password);
-      // Attends un tick avant de naviguer
+      
+      console.log("✅ Login réussi ! Redirection...");
       setTimeout(() => {
         router.replace("/(tabs)");
       }, 100);
     } catch (error) {
-      Alert.alert("Error", "Invalid credentials");
+      console.log("❌ ERREUR CAPTURÉE dans handleLogin:");
+      console.error("Type:", error?.constructor?.name);
+      console.error("Message:", error instanceof Error ? error.message : String(error));
+      console.error("Stack:", error instanceof Error ? error.stack : "N/A");
+      
+      const message = error instanceof Error ? error.message : "Invalid credentials";
+      Alert.alert("Error", message);
     } finally {
       setLoading(false);
+      console.log("⏳ Chargement désactivé");
+      console.log("=== FIN LOGIN ===\n");
     }
   };
 

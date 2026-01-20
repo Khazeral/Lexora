@@ -24,7 +24,6 @@ export default function TrainingCompleteScreen() {
   });
 
   useEffect(() => {
-    // Animation d'entrée
     Animated.parallel([
       Animated.spring(scaleAnim, {
         toValue: 1,
@@ -40,16 +39,15 @@ export default function TrainingCompleteScreen() {
     ]).start();
   }, []);
 
-  // Calculer les statistiques
   const totalCards = deck?.cards.length || 0;
   const cardsWithProgress = deck?.cards.filter((card) => card.progress) || [];
   const totalCorrect = cardsWithProgress.reduce(
     (sum, card) => sum + (card.progress?.successCount || 0),
-    0,
+    0
   );
   const totalIncorrect = cardsWithProgress.reduce(
     (sum, card) => sum + (card.progress?.failureCount || 0),
-    0,
+    0
   );
   const successRate =
     totalCorrect + totalIncorrect > 0
@@ -59,8 +57,83 @@ export default function TrainingCompleteScreen() {
   const getBestStreak = () => {
     return Math.max(
       ...cardsWithProgress.map((card) => card.progress?.currentStreak || 0),
-      0,
+      0
     );
+  };
+
+    const getNextLevel = (maxStreak: number) => {
+    if (maxStreak >= 100)
+      return {
+        level: "max",
+        name: "Ruby",
+        icon: "diamond",
+        color: "#dc2626",
+        required: 100,
+      };
+    if (maxStreak >= 70)
+      return {
+        level: "ruby",
+        name: "Ruby",
+        icon: "diamond",
+        color: "#dc2626",
+        required: 100,
+      };
+    if (maxStreak >= 50)
+      return {
+        level: "platinum",
+        name: "Platinum",
+        icon: "medal",
+        color: "#94a3b8",
+        required: 70,
+      };
+    if (maxStreak >= 30)
+      return {
+        level: "gold",
+        name: "Gold",
+        icon: "trophy",
+        color: "#f59e0b",
+        required: 50,
+      };
+    if (maxStreak >= 10)
+      return {
+        level: "silver",
+        name: "Silver",
+        icon: "ribbon",
+        color: "#d1d5db",
+        required: 30,
+      };
+    return {
+      level: "bronze",
+      name: "Bronze",
+      icon: "help-circle",
+      color: "#cd7f32",
+      required: 3,
+    };
+  };
+
+  const getAlmostUpgradeCards = () => {
+    return cardsWithProgress
+      .map((card) => {
+        const maxStreak = card.progress?.maxStreak || 0;
+        const nextLevel = getNextLevel(maxStreak);
+
+        if (nextLevel.level === "max") return null;
+
+        const remaining = nextLevel.required - maxStreak;
+        const percentToNext = ((nextLevel.required - remaining) / nextLevel.required) * 100;
+
+        return {
+          ...card,
+          remaining,
+          nextLevel,
+          percentToNext,
+        };
+      })
+      .filter(
+        (card) => card !== null && card.remaining > 0 && card.remaining <= 3
+      )
+      .sort((a, b) => a.remaining - b.remaining)
+      .slice(0, 3);
   };
 
   const getPerformanceMessage = () => {
@@ -77,9 +150,12 @@ export default function TrainingCompleteScreen() {
     return "#ef4444";
   };
 
+  const almostUpgradeCards = getAlmostUpgradeCards();
+
+  console.log(almostUpgradeCards)
+
   return (
     <View style={styles.container}>
-      {/* Header avec gradient */}
       <LinearGradient
         colors={["#3b82f6", "#2563eb"]}
         style={styles.headerGradient}
@@ -87,9 +163,7 @@ export default function TrainingCompleteScreen() {
         <Animated.View
           style={[
             styles.iconContainer,
-            {
-              transform: [{ scale: scaleAnim }],
-            },
+            { transform: [{ scale: scaleAnim }] },
           ]}
         >
           <Ionicons name="trophy" size={64} color="#fff" />
@@ -99,7 +173,6 @@ export default function TrainingCompleteScreen() {
       </LinearGradient>
 
       <ScrollView style={styles.content}>
-        {/* Performance Message */}
         <Animated.View style={[styles.performanceCard, { opacity: fadeAnim }]}>
           <Text style={styles.performanceMessage}>
             {getPerformanceMessage()}
@@ -130,7 +203,6 @@ export default function TrainingCompleteScreen() {
           </View>
         </Animated.View>
 
-        {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <View style={[styles.statIcon, { backgroundColor: "#dcfce7" }]}>
@@ -165,23 +237,64 @@ export default function TrainingCompleteScreen() {
           </View>
         </View>
 
-        {/* Motivational Tips */}
-        <View style={styles.tipsCard}>
-          <Ionicons name="bulb" size={24} color="#f59e0b" />
-          <View style={styles.tipsContent}>
-            <Text style={styles.tipsTitle}>💡 Study Tips</Text>
-            <Text style={styles.tipsText}>
-              {successRate >= 80
-                ? "Excellent work! Try increasing difficulty or learning new material."
-                : successRate >= 60
-                  ? "Good progress! Review the cards you missed and try again."
-                  : "Don't give up! Consistent practice is the key to mastery."}
-            </Text>
+        {almostUpgradeCards.length > 0 && (
+          <View style={styles.levelUpSection}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="trending-up" size={24} color="#3b82f6" />
+              <Text style={styles.sectionTitle}>Almost There! 🚀</Text>
+            </View>
+
+            {almostUpgradeCards.map((card) => (
+              <TouchableOpacity
+                key={card.id}
+                style={styles.levelUpCard}
+                onPress={() => router.push(`/card/${card.id}`)}
+              >
+                <View style={styles.levelUpCardHeader}>
+                  <View style={styles.levelUpCardInfo}>
+                    <Text style={styles.levelUpCardQuestion} numberOfLines={1}>
+                      {card.word}
+                    </Text>
+                    <Text style={styles.levelUpCardTranslation} numberOfLines={1}>
+                      {card.translation}
+                    </Text>
+                  </View>
+                  <View style={styles.levelUpRemaining}>
+                    <Ionicons
+                      name={card.nextLevel.icon as any}
+                      size={16}
+                      color={card.nextLevel.color}
+                    />
+                    <Text style={styles.levelUpRemainingText}>
+                      {card.remaining} more
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.levelProgressContainer}>
+                  <View style={styles.levelProgressTrack}>
+                    <View
+                      style={[
+                        styles.levelProgressFill,
+                        {
+                          width: `${card.percentToNext}%`,
+                          backgroundColor: card.nextLevel.color,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.levelProgressText}>
+                    → {card.nextLevel.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
-        </View>
+        )}
+
+
       </ScrollView>
 
-      {/* Action Buttons */}
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.secondaryButton}
@@ -223,106 +336,102 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingTop: 60,
-    paddingBottom: 40,
+    paddingBottom: 32,
+    paddingHorizontal: 24,
     alignItems: "center",
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
   },
   iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: 16,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: "#bfdbfe",
+    color: "#fff",
+    opacity: 0.9,
   },
   content: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   performanceCard: {
     backgroundColor: "#fff",
-    margin: 16,
-    padding: 24,
     borderRadius: 16,
-    alignItems: "center",
+    padding: 24,
+    marginTop: -20,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 3,
   },
   performanceMessage: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#1e293b",
-    marginBottom: 24,
+    textAlign: "center",
+    marginBottom: 16,
   },
   successRateContainer: {
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   successRateLabel: {
     fontSize: 14,
     color: "#64748b",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   successRateValue: {
     fontSize: 48,
     fontWeight: "bold",
   },
   progressBarContainer: {
-    width: "100%",
+    marginTop: 8,
   },
   progressBarTrack: {
-    height: 12,
+    height: 8,
     backgroundColor: "#e2e8f0",
-    borderRadius: 6,
+    borderRadius: 4,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    borderRadius: 6,
+    borderRadius: 4,
   },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    padding: 16,
     gap: 12,
+    marginBottom: 16,
   },
   statCard: {
     flex: 1,
     minWidth: "45%",
     backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 16,
+    borderRadius: 12,
+    padding: 16,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowRadius: 4,
     elevation: 2,
   },
   statIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   statValue: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#1e293b",
     marginBottom: 4,
@@ -331,37 +440,120 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#64748b",
   },
-  tipsCard: {
-    backgroundColor: "#fffbeb",
-    margin: 16,
+  levelUpSection: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
     padding: 16,
-    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  sectionHeader: {
     flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  levelUpCard: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+  },
+  levelUpCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  levelUpCardInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  levelUpCardQuestion: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1e293b",
+    marginBottom: 2,
+  },
+  levelUpCardTranslation: {
+    fontSize: 13,
+    color: "#64748b",
+  },
+  levelUpRemaining: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#eff6ff",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  levelUpRemainingText: {
+    fontSize: 12,
+    color: "#3b82f6",
+    fontWeight: "600",
+  },
+  levelProgressContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  levelProgressTrack: {
+    flex: 1,
+    height: 6,
+    backgroundColor: "#e2e8f0",
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  levelProgressFill: {
+    height: "100%",
+    borderRadius: 3,
+  },
+  levelProgressText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748b",
+    minWidth: 70,
+    textAlign: "right",
+  },
+  tipsCard: {
+    flexDirection: "row",
+    backgroundColor: "#fffbeb",
+    borderRadius: 12,
+    padding: 16,
     gap: 12,
-    borderWidth: 1,
-    borderColor: "#fef3c7",
+    marginBottom: 100,
   },
   tipsContent: {
     flex: 1,
   },
   tipsTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#92400e",
-    marginBottom: 8,
+    fontWeight: "bold",
+    color: "#1e293b",
+    marginBottom: 4,
   },
   tipsText: {
     fontSize: 14,
-    color: "#92400e",
+    color: "#64748b",
     lineHeight: 20,
   },
   footer: {
+    position: "absolute",
+    bottom: 80,
+    left: 16,
+    right: 16,
     flexDirection: "row",
-    padding: 16,
     gap: 12,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
   },
   secondaryButton: {
     flex: 1,
@@ -369,16 +561,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    paddingVertical: 16,
+    backgroundColor: "#fff",
+    paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: "#eff6ff",
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: "#3b82f6",
   },
   secondaryButtonText: {
-    color: "#3b82f6",
     fontSize: 16,
     fontWeight: "600",
+    color: "#3b82f6",
   },
   primaryButton: {
     flex: 1,
@@ -386,31 +578,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    paddingVertical: 16,
-    borderRadius: 12,
     backgroundColor: "#3b82f6",
-    shadowColor: "#3b82f6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    paddingVertical: 14,
+    borderRadius: 12,
   },
   primaryButtonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    color: "#fff",
   },
   homeButton: {
+    position: "absolute",
+    bottom: 24,
+    left: 16,
+    right: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     paddingVertical: 12,
-    backgroundColor: "#fff",
   },
   homeButtonText: {
-    color: "#64748b",
     fontSize: 14,
-    fontWeight: "500",
+    color: "#64748b",
   },
 });

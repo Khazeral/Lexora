@@ -30,8 +30,8 @@ export default function TrainingSettingsScreen() {
       pathname: "/train/[id]/session",
       params: {
         id,
-        shuffle: shuffleCards ? "true" : "false",
-        reverse: reverseMode ? "true" : "false",
+        isShuffle: shuffleCards ? "true" : "false",
+        isReverse: reverseMode ? "true" : "false",
       },
     });
   };

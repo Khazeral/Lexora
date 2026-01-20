@@ -22,29 +22,33 @@ export default function SignupScreen() {
 
   const { signup } = useAuth();
 
-  async function handleSignup() {
-    if (!username || !email || !password || !confirmPassword) {
-      Alert.alert("Erreur", "Tous les champs sont obligatoires");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert("Erreur", "Les mots de passe ne correspondent pas");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await signup(username, email, password);
-      setTimeout(() => {
-        router.replace("/(tabs)");
-      }, 100);
-    } catch (error) {
-      Alert.alert("Erreur", "Impossible de créer le compte");
-    } finally {
-      setLoading(false);
-    }
+  const handleSignup = async () => {
+  if (!username || !email || !password || !confirmPassword) {
+    Alert.alert("Erreur", "Tous les champs sont obligatoires");
+    return;
   }
+
+  if (password !== confirmPassword) {
+    Alert.alert("Erreur", "Les mots de passe ne correspondent pas");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    console.log("📤 Envoi signup:", { username, email });
+    await signup(username, email, password);
+    console.log("✅ Signup réussi");
+    setTimeout(() => {
+      router.replace("/(tabs)");
+    }, 100);
+  } catch (error) {
+    console.error("❌ Erreur complète:", error);
+    const message = error instanceof Error ? error.message : "Impossible de créer le compte";
+    Alert.alert("Erreur", message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView

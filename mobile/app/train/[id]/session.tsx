@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import {
   View,
@@ -14,11 +14,30 @@ import { answerCard } from "@/services/progress.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Card } from "@/types";
+
+const shuffle = (array) => {
+  const copy = [...array];
+  let currentIndex = copy.length;
+
+  while (currentIndex !== 0) {
+    const randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [copy[currentIndex], copy[randomIndex]] = [
+      copy[randomIndex],
+      copy[currentIndex],
+    ];
+  }
+
+  return copy;
+};
 
 export default function TrainingSessionScreen() {
-  const { id, shuffle, reverse } = useLocalSearchParams();
+  const { id, isShuffle, isReverse } = useLocalSearchParams();
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [cards, setCards] = useState<Card[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipAnim] = useState(new Animated.Value(0));
   const queryClient = useQueryClient();
@@ -28,22 +47,32 @@ export default function TrainingSessionScreen() {
     queryFn: () => getDeck(Number(id)),
   });
 
+  useEffect(() => {
+    if (!deck) return;
+
+    const sessionCards =
+      isShuffle === "true"
+        ? shuffle(deck.cards)
+        : deck.cards;
+
+    setCards(sessionCards);
+    setCurrentIndex(0);
+  }, [deck, isShuffle]);
+
   const answerMutation = useMutation({
     mutationFn: ({ cardId, success }: { cardId: number; success: boolean }) =>
       answerCard(user!.id, cardId, success),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["deck", id] });
-      queryClient.invalidateQueries({ queryKey: ["home"] });
-    },
+
   });
 
-  if (isLoading) {
+  if (isLoading || (cards.length === 0 || currentIndex >= cards.length)) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
   }
+
 
   if (!deck || deck.cards.length === 0) {
     return (
@@ -60,20 +89,20 @@ export default function TrainingSessionScreen() {
     );
   }
 
-  const cards =
-    shuffle === "true"
-      ? [...deck.cards].sort(() => Math.random() - 0.5)
-      : deck.cards;
 
   const currentCard = cards[currentIndex];
   const progress = ((currentIndex + 1) / cards.length) * 100;
 
+  console.log(cards)
+  console.log(currentIndex)
+  console.log(currentCard)
+
   const frontText =
-    reverse === "true" ? currentCard.translation : currentCard.word;
+    isReverse === "true" ? currentCard.translation : currentCard.word;
   const backText =
-    reverse === "true" ? currentCard.word : currentCard.translation;
-  const frontLabel = reverse === "true" ? "Translation" : "Word";
-  const backLabel = reverse === "true" ? "Word" : "Translation";
+    isReverse === "true" ? currentCard.word : currentCard.translation;
+  const frontLabel = isReverse === "true" ? "Translation" : "Word";
+  const backLabel = isReverse === "true" ? "Word" : "Translation";
 
   const flipCard = () => {
     Animated.timing(flipAnim, {
@@ -123,7 +152,7 @@ export default function TrainingSessionScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>{deck.name}</Text>
-          {reverse === "true" && (
+          {isReverse === "true" && (
             <View style={styles.reverseBadge}>
               <Ionicons name="swap-horizontal" size={12} color="#10b981" />
               <Text style={styles.reverseBadgeText}>Reverse</Text>

@@ -6,11 +6,75 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getCard } from "@/services/cards.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
+import {
+  Canvas,
+  LinearGradient,
+  Rect,
+  vec,
+  Turbulence,
+  Blend,
+} from "@shopify/react-native-skia";
+import { useEffect } from "react";
+import { useSharedValue, withRepeat, withTiming, Easing } from "react-native-reanimated";
+
+const { width } = Dimensions.get("window");
+
+function ShinyCard({ children, status }: { children: React.ReactNode; status?: string }) {
+  const progress = useSharedValue(0);
+
+  useEffect(() => {
+    progress.value = withRepeat(
+      withTiming(1, { duration: 3000, easing: Easing.linear }),
+      -1,
+      false
+    );
+  }, []);
+
+  const getStatusGradientColors = (status?: string) => {
+    switch (status) {
+      case "ruby":
+        return ["#dc2626", "#991b1b", "#dc2626"];
+      case "platinum":
+        return ["#cbd5e1", "#64748b", "#cbd5e1"];
+      case "gold":
+        return ["#fbbf24", "#d97706", "#fbbf24"];
+      case "silver":
+        return ["#e5e7eb", "#9ca3af", "#e5e7eb"];
+      default:
+        return ["#d4a574", "#8b6f47", "#d4a574"];
+    }
+  };
+
+  const colors = getStatusGradientColors(status);
+
+  return (
+    <View style={styles.flashcard}>
+      <Canvas style={StyleSheet.absoluteFill}>
+        <Rect x={0} y={0} width={width - 32} height={300}>
+          <LinearGradient
+            start={vec(0, progress.value * 400)}
+            end={vec(width - 32, progress.value * 400 + 200)}
+            colors={colors}
+          />
+          <Blend mode="overlay">
+            <Turbulence
+              freqX={0.02}
+              freqY={0.02}
+              octaves={4}
+            />
+          </Blend>
+        </Rect>
+      </Canvas>
+      <View style={styles.cardContent}>{children}</View>
+    </View>
+  );
+}
 
 export default function CardDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -99,16 +163,18 @@ export default function CardDetailScreen() {
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.flashcard}>
-          <View style={styles.cardSide}>
-            <Text style={styles.sideLabel}>Front</Text>
-            <Text style={styles.cardText}>{card.word}</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.cardSide}>
-            <Text style={styles.sideLabel}>Back</Text>
-            <Text style={styles.cardText}>{card.translation}</Text>
-          </View>
+        <View style={styles.cardContainer}>
+          <ShinyCard status={progress.status}>
+            <View style={styles.cardSide}>
+              <Text style={styles.sideLabel}>Front</Text>
+              <Text style={styles.cardText}>{card.word}</Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.cardSide}>
+              <Text style={styles.sideLabel}>Back</Text>
+              <Text style={styles.cardText}>{card.translation}</Text>
+            </View>
+          </ShinyCard>
         </View>
 
         <View style={styles.statusContainer}>
@@ -210,7 +276,6 @@ export default function CardDetailScreen() {
             )}
           </View>
 
-          {/* Message si nouvelle carte */}
           {progress.successCount === 0 && progress.failureCount === 0 && (
             <View style={styles.newCardBanner}>
               <Ionicons name="sparkles" size={24} color="#3b82f6" />
@@ -260,16 +325,25 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  cardContainer: {
+    margin: 16,
+  },
   flashcard: {
     backgroundColor: "#fff",
-    margin: 16,
-    padding: 24,
     borderRadius: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    overflow: "hidden",
+    height: 300,
+  },
+  cardContent: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    justifyContent: "center",
   },
   cardSide: {
     alignItems: "center",

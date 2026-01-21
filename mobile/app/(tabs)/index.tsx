@@ -21,7 +21,6 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Hello,</Text>
@@ -29,7 +28,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Stats Cards */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Ionicons name="albums" size={32} color="#3b82f6" />
@@ -44,7 +42,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Recent Decks */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Decks</Text>
@@ -86,7 +83,6 @@ export default function HomeScreen() {
         )}
       </View>
 
-      {/* Quick Actions */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>

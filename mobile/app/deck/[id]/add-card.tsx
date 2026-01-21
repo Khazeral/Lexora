@@ -25,6 +25,7 @@ export default function AddCardScreen() {
     mutationFn: createCard,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deck", id] });
+      queryClient.invalidateQueries({queryKey: ["decks"]})
       router.back();
     },
     onError: (error) => {

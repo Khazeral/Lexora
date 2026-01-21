@@ -4,17 +4,44 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { getDecks } from "@/services/decks.api";
+import { Deck } from "@/types";
 
 export default function TrainScreen() {
-  const { data: decks = [] } = useQuery({
+  const { data: decks = [], isSuccess, isLoading } = useQuery<Deck[]>({
     queryKey: ["decks"],
     queryFn: getDecks,
   });
+
+  const sortDecksByCardCount = (decks: Deck[]): Deck[] => {
+    return [...decks].sort((a, b) => {
+      if (a.cardCount > 0 && b.cardCount <= 0) return -1;
+      if (a.cardCount <= 0 && b.cardCount > 0) return 1;
+      return 0;
+    });
+  };
+
+  const sortedDecks = sortDecksByCardCount(decks);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Practice</Text>
+          <Text style={styles.subtitle}>Choose a deck to practice</Text>
+        </View>
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#3b82f6" />
+          <Text style={styles.loaderText}>Loading decks...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -24,7 +51,7 @@ export default function TrainScreen() {
       </View>
 
       <FlatList
-        data={decks}
+        data={sortedDecks}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
@@ -44,8 +71,10 @@ export default function TrainScreen() {
         }
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.deckCard}
+            style={item.cardCount > 0 ? styles.deckCard : styles.deckCardDisabled}
+            disabled={item.cardCount === 0}
             onPress={() => router.push(`/train/${item.id}/settings`)}
+            activeOpacity={item.cardCount > 0 ? 0.7 : 1}
           >
             <View style={styles.deckIcon}>
               <Ionicons name="school" size={32} color="#3b82f6" />
@@ -54,10 +83,14 @@ export default function TrainScreen() {
               <Text style={styles.deckName}>{item.name}</Text>
               <Text style={styles.deckCards}>{item.cardCount} cards</Text>
             </View>
-            <View style={styles.startButton}>
+            {
+              item.cardCount > 0 &&
+              <View style={styles.startButton}>
               <Text style={styles.startButtonText}>Start</Text>
               <Ionicons name="arrow-forward" size={20} color="#fff" />
             </View>
+            }
+            
           </TouchableOpacity>
         )}
       />
@@ -102,6 +135,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+  },
+  deckCardDisabled: {
+    backgroundColor: "#f2f2f2",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 0,
+    opacity: 0.6,
   },
   deckIcon: {
     width: 56,
@@ -165,5 +212,15 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loaderText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#64748b",
   },
 });

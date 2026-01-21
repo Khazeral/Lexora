@@ -6,11 +6,180 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getCard } from "@/services/cards.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
+import { LinearGradient } from "expo-linear-gradient";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  interpolate,
+  Extrapolation,
+} from "react-native-reanimated";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const CARD_WIDTH = SCREEN_WIDTH - 32;
+const CARD_HEIGHT = SCREEN_HEIGHT * 0.6;
+
+function ShinyCard({
+  children,
+  status,
+}: {
+  children: React.ReactNode;
+  status?: string;
+}) {
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  const pan = Gesture.Pan()
+    .onChange((event) => {
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
+    })
+    .onEnd(() => {
+      translateX.value = withSpring(0, { damping: 15 });
+      translateY.value = withSpring(0, { damping: 15 });
+    });
+
+  const getStatusColors = (status?: string) => {
+    switch (status) {
+      case "ruby":
+        return {
+          base: ["#7f1d1d", "#dc2626", "#991b1b"],
+          shine: "rgba(255, 255, 255, 0.4)",
+        };
+      case "platinum":
+        return {
+          base: ["#334155", "#94a3b8", "#475569"],
+          shine: "rgba(255, 255, 255, 0.5)",
+        };
+      case "gold":
+        return {
+          base: ["#92400e", "#fbbf24", "#b45309"],
+          shine: "rgba(255, 255, 255, 0.4)",
+        };
+      case "silver":
+        return {
+          base: ["#64748b", "#e2e8f0", "#94a3b8"],
+          shine: "rgba(255, 255, 255, 0.5)",
+        };
+      default:
+        return {
+          base: ["#78350f", "#d97706", "#92400e"],
+          shine: "rgba(255, 255, 255, 0.35)",
+        };
+    }
+  };
+
+  const colors = getStatusColors(status);
+
+  const cardAnimatedStyle = useAnimatedStyle(() => {
+    const rotateX = interpolate(translateY.value, [-150, 0, 150], [-15, 0, 15]);
+    const rotateY = interpolate(translateX.value, [-150, 0, 150], [15, 0, -15]);
+
+    return {
+      transform: [
+        { perspective: 1000 },
+        { rotateX: `${rotateX}deg` },
+        { rotateY: `${rotateY}deg` },
+      ],
+    };
+  });
+
+  const shineAnimatedStyle = useAnimatedStyle(() => {
+    const translateXValue = interpolate(
+      translateX.value + translateY.value,
+      [-300, 0, 300],
+      [-CARD_WIDTH * 1.5, 0, CARD_WIDTH * 1.5],
+      Extrapolation.CLAMP,
+    );
+
+    const opacity = interpolate(
+      Math.abs(translateX.value) + Math.abs(translateY.value),
+      [0, 30, 100],
+      [0, 0.2, 0.6],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity,
+      transform: [{ translateX: translateXValue }, { rotate: "25deg" }],
+    };
+  });
+
+  const holoAnimatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      Math.abs(translateX.value) + Math.abs(translateY.value),
+      [0, 100, 200],
+      [0, 0.3, 0.6],
+      Extrapolation.CLAMP,
+    );
+
+    const rotate = interpolate(
+      translateX.value + translateY.value,
+      [-300, 0, 300],
+      [-15, 0, 15],
+    );
+
+    return {
+      opacity,
+      transform: [{ rotate: `${rotate}deg` }],
+    };
+  });
+
+  return (
+    <GestureDetector gesture={pan}>
+      <Animated.View style={[styles.flashcard, cardAnimatedStyle]}>
+        <LinearGradient
+          colors={colors.base as any}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+
+        <Animated.View style={[styles.holoContainer, holoAnimatedStyle]}>
+          <LinearGradient
+            colors={[
+              "rgba(255, 0, 0, 0.12)",
+              "rgba(255, 127, 0, 0.12)",
+              "rgba(255, 255, 0, 0.12)",
+              "rgba(0, 255, 0, 0.12)",
+              "rgba(0, 127, 255, 0.12)",
+              "rgba(139, 0, 255, 0.12)",
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.holoGradient}
+          />
+        </Animated.View>
+
+        <View style={styles.shineWrapper}>
+          <Animated.View style={[styles.shineBand, shineAnimatedStyle]}>
+            <LinearGradient
+              colors={[
+                "transparent",
+                colors.shine,
+                "rgba(255, 255, 255, 0.6)",
+                colors.shine,
+                "transparent",
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
+        </View>
+
+        <View style={styles.cardContent}>{children}</View>
+      </Animated.View>
+    </GestureDetector>
+  );
+}
 
 export default function CardDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -45,15 +214,6 @@ export default function CardDetailScreen() {
     maxStreak: 0,
     status: "bronze",
   };
-
-  const successRate =
-    progress.successCount + progress.failureCount > 0
-      ? Math.round(
-          (progress.successCount /
-            (progress.successCount + progress.failureCount)) *
-            100,
-        )
-      : 0;
 
   const getStatusColor = (status?: string) => {
     switch (status) {
@@ -99,16 +259,18 @@ export default function CardDetailScreen() {
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.flashcard}>
-          <View style={styles.cardSide}>
-            <Text style={styles.sideLabel}>Front</Text>
-            <Text style={styles.cardText}>{card.word}</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.cardSide}>
-            <Text style={styles.sideLabel}>Back</Text>
-            <Text style={styles.cardText}>{card.translation}</Text>
-          </View>
+        <View style={styles.cardContainer}>
+          <ShinyCard status={progress.status}>
+            <View style={styles.cardSide}>
+              <Text style={styles.sideLabel}>Front</Text>
+              <Text style={styles.cardText}>{card.word}</Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.cardSide}>
+              <Text style={styles.sideLabel}>Back</Text>
+              <Text style={styles.cardText}>{card.translation}</Text>
+            </View>
+          </ShinyCard>
         </View>
 
         <View style={styles.statusContainer}>
@@ -158,29 +320,6 @@ export default function CardDetailScreen() {
             </View>
           </View>
 
-          <View style={styles.progressBar}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Success Rate</Text>
-              <Text style={styles.progressPercentage}>{successRate}%</Text>
-            </View>
-            <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${successRate}%`,
-                    backgroundColor:
-                      successRate >= 70
-                        ? "#10b981"
-                        : successRate >= 40
-                          ? "#f59e0b"
-                          : "#ef4444",
-                  },
-                ]}
-              />
-            </View>
-          </View>
-
           <View style={styles.milestone}>
             <Text style={styles.milestoneTitle}>Next Milestone</Text>
             {progress.maxStreak < 3 && (
@@ -210,7 +349,6 @@ export default function CardDetailScreen() {
             )}
           </View>
 
-          {/* Message si nouvelle carte */}
           {progress.successCount === 0 && progress.failureCount === 0 && (
             <View style={styles.newCardBanner}>
               <Ionicons name="sparkles" size={24} color="#3b82f6" />
@@ -260,16 +398,48 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  flashcard: {
-    backgroundColor: "#fff",
+  cardContainer: {
     margin: 16,
-    padding: 24,
+    minHeight: CARD_HEIGHT,
+  },
+  flashcard: {
+    backgroundColor: "#1a1a2e",
     borderRadius: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
+    overflow: "hidden",
+    height: CARD_HEIGHT,
+  },
+  holoContainer: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: "hidden",
+  },
+  holoGradient: {
+    width: "150%",
+    height: "150%",
+    position: "absolute",
+    top: "-25%",
+    left: "-25%",
+  },
+  shineWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: "hidden",
+  },
+  shineBand: {
+    position: "absolute",
+    width: 40,
+    height: CARD_HEIGHT * 2,
+    top: -CARD_HEIGHT / 2,
+    left: CARD_WIDTH / 2 - 20,
+  },
+  cardContent: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    justifyContent: "center",
   },
   cardSide: {
     alignItems: "center",
@@ -278,19 +448,22 @@ const styles = StyleSheet.create({
   sideLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#94a3b8",
+    color: "rgba(255, 255, 255, 0.7)",
     textTransform: "uppercase",
     marginBottom: 8,
   },
   cardText: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: "#ffffff",
     textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 4,
   },
   divider: {
     height: 1,
-    backgroundColor: "#e2e8f0",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     marginVertical: 8,
   },
   statusContainer: {

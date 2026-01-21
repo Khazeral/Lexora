@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Animated,
+  Dimensions,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
@@ -15,8 +16,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Card } from "@/types";
+import { LinearGradient } from "expo-linear-gradient";
 
-const shuffle = (array) => {
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CARD_WIDTH = SCREEN_WIDTH - 48;
+const CARD_HEIGHT = 500;
+
+const shuffle = (array: Card[]) => {
   const copy = [...array];
   let currentIndex = copy.length;
 
@@ -32,6 +38,72 @@ const shuffle = (array) => {
 
   return copy;
 };
+
+const getStatusColors = (status?: string): [string, string, string] => {
+  switch (status) {
+    case "ruby":
+      return ["#7f1d1d", "#dc2626", "#991b1b"];
+    case "platinum":
+      return ["#334155", "#94a3b8", "#475569"];
+    case "gold":
+      return ["#92400e", "#fbbf24", "#b45309"];
+    case "silver":
+      return ["#64748b", "#e2e8f0", "#94a3b8"];
+    default:
+      return ["#78350f", "#d97706", "#92400e"];
+  }
+};
+
+const getTextColor = (status?: string): string => {
+  switch (status) {
+    case "silver":
+    case "platinum":
+      return "#1e293b";
+    default:
+      return "#ffffff";
+  }
+};
+
+const getSubtextColor = (status?: string): string => {
+  switch (status) {
+    case "silver":
+    case "platinum":
+      return "#64748b";
+    default:
+      return "rgba(255, 255, 255, 0.7)";
+  }
+};
+
+interface ColoredCardProps {
+  status?: string;
+  isBack?: boolean;
+  children: React.ReactNode;
+  style?: any;
+}
+
+function ColoredCard({ status, isBack, children, style }: ColoredCardProps) {
+  const colors = getStatusColors(status);
+
+  if (isBack) {
+    return (
+      <Animated.View style={[styles.card, styles.cardBack, style]}>
+        {children}
+      </Animated.View>
+    );
+  }
+
+  return (
+    <Animated.View style={[styles.card, style]}>
+      <LinearGradient
+        colors={colors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={styles.cardInner}>{children}</View>
+    </Animated.View>
+  );
+}
 
 export default function TrainingSessionScreen() {
   const { id, isShuffle, isReverse } = useLocalSearchParams();
@@ -51,9 +123,7 @@ export default function TrainingSessionScreen() {
     if (!deck) return;
 
     const sessionCards =
-      isShuffle === "true"
-        ? shuffle(deck.cards)
-        : deck.cards;
+      isShuffle === "true" ? shuffle(deck.cards) : deck.cards;
 
     setCards(sessionCards);
     setCurrentIndex(0);
@@ -62,17 +132,15 @@ export default function TrainingSessionScreen() {
   const answerMutation = useMutation({
     mutationFn: ({ cardId, success }: { cardId: number; success: boolean }) =>
       answerCard(user!.id, cardId, success),
-
   });
 
-  if (isLoading || (cards.length === 0 || currentIndex >= cards.length)) {
+  if (isLoading || cards.length === 0 || currentIndex >= cards.length) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
   }
-
 
   if (!deck || deck.cards.length === 0) {
     return (
@@ -89,13 +157,16 @@ export default function TrainingSessionScreen() {
     );
   }
 
-
   const currentCard = cards[currentIndex];
   const progress = ((currentIndex + 1) / cards.length) * 100;
 
-  console.log(cards)
-  console.log(currentIndex)
-  console.log(currentCard)
+  const cardProgress = Array.isArray(currentCard.progress)
+    ? currentCard.progress.find((p) => p.userId === user?.id)
+    : currentCard.progress;
+  const cardStatus = cardProgress?.status || "bronze";
+
+  const textColor = getTextColor(cardStatus);
+  const subtextColor = getSubtextColor(cardStatus);
 
   const frontText =
     isReverse === "true" ? currentCard.translation : currentCard.word;
@@ -171,43 +242,51 @@ export default function TrainingSessionScreen() {
         </View>
       </View>
 
-      <SafeAreaView edges={["top", "left", "right"]} style={styles.container}>
-        <TouchableOpacity onPress={flipCard} activeOpacity={0.9}>
-          <Animated.View
-            style={[
-              styles.card,
-              {
-                transform: [{ rotateY: frontInterpolate }],
-              },
-              !isFlipped && styles.cardVisible,
-            ]}
+      <SafeAreaView edges={["top", "left", "right"]} style={styles.cardArea}>
+        <View style={styles.cardContainer}>
+          <TouchableOpacity
+            onPress={flipCard}
+            activeOpacity={0.9}
+            style={styles.cardTouchable}
           >
-            <Text style={styles.cardLabel}>{frontLabel}</Text>
-            <Text style={styles.cardText}>{frontText}</Text>
-            <View style={styles.tapHint}>
-              <Ionicons name="hand-left" size={20} color="#94a3b8" />
-              <Text style={styles.tapHintText}>Tap to flip</Text>
-            </View>
-          </Animated.View>
+            <ColoredCard
+              status={cardStatus}
+              style={[
+                { transform: [{ rotateY: frontInterpolate }] },
+                !isFlipped && styles.cardVisible,
+              ]}
+            >
+              <Text style={[styles.cardLabel, { color: subtextColor }]}>
+                {frontLabel}
+              </Text>
+              <Text style={[styles.cardText, { color: textColor }]}>
+                {frontText}
+              </Text>
+              <View style={styles.tapHint}>
+                <Ionicons name="hand-left" size={20} color={subtextColor} />
+                <Text style={[styles.tapHintText, { color: subtextColor }]}>
+                  Tap to flip
+                </Text>
+              </View>
+            </ColoredCard>
 
-          <Animated.View
-            style={[
-              styles.card,
-              styles.cardBack,
-              {
-                transform: [{ rotateY: backInterpolate }],
-              },
-              isFlipped && styles.cardVisible,
-            ]}
-          >
-            <Text style={[styles.cardLabel, styles.cardLabelBack]}>
-              {backLabel}
-            </Text>
-            <Text style={[styles.cardText, styles.cardTextBack]}>
-              {backText}
-            </Text>
-          </Animated.View>
-        </TouchableOpacity>
+            <ColoredCard
+              status={cardStatus}
+              isBack
+              style={[
+                { transform: [{ rotateY: backInterpolate }] },
+                isFlipped && styles.cardVisible,
+              ]}
+            >
+              <Text style={[styles.cardLabel, styles.cardLabelBack]}>
+                {backLabel}
+              </Text>
+              <Text style={[styles.cardText, styles.cardTextBack]}>
+                {backText}
+              </Text>
+            </ColoredCard>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
 
       {isFlipped && (
@@ -322,26 +401,43 @@ const styles = StyleSheet.create({
     backgroundColor: "#3b82f6",
     borderRadius: 4,
   },
+  cardArea: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
   cardContainer: {
     flex: 1,
     justifyContent: "center",
-    alignSelf: "center",
-    padding: 24,
+    alignItems: "center",
+  },
+  cardTouchable: {
+    width: CARD_WIDTH,
+    maxWidth: 340,
+    height: CARD_HEIGHT,
   },
   card: {
     width: "100%",
-    maxWidth: 340,
-    height: 400,
-    backgroundColor: "#fff",
+    height: "100%",
     borderRadius: 24,
-    padding: 32,
-    justifyContent: "center",
-    alignSelf: "center",
+    overflow: "hidden",
     position: "absolute",
     backfaceVisibility: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  cardInner: {
+    flex: 1,
+    padding: 32,
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
   },
   cardBack: {
     backgroundColor: "#3b82f6",
+    padding: 32,
+    justifyContent: "center",
   },
   cardVisible: {
     zIndex: 1,
@@ -349,7 +445,6 @@ const styles = StyleSheet.create({
   cardLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#94a3b8",
     textTransform: "uppercase",
     alignSelf: "center",
     marginBottom: 24,
@@ -361,7 +456,6 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#1e293b",
     textAlign: "center",
     alignSelf: "center",
   },
@@ -376,7 +470,6 @@ const styles = StyleSheet.create({
   },
   tapHintText: {
     fontSize: 14,
-    color: "#94a3b8",
   },
   answerButtons: {
     flexDirection: "row",

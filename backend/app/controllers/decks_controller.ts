@@ -1,45 +1,70 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { createDeckValidator, updateDeckValidator } from '#validators/deck'
 import DecksService from '#services/deck_service'
 
 export default class DecksController {
   private decksService = new DecksService()
 
-  async index({ response }: HttpContext) {
-    const decks = await this.decksService.list()
+  async index({ auth, response }: HttpContext) {
+    const userId = auth.user?.id
+    if (!userId) return response.unauthorized({ message: 'Not logged in' })
+
+    const decks = await this.decksService.listForUser(userId)
     return response.ok(decks)
   }
 
-  async create({ request, response }: HttpContext) {
-    const payload = await request.validateUsing(createDeckValidator)
-    try {
-      const deck = await this.decksService.create(payload)
-      return response.created(deck)
-    } catch (error) {
-      return response.status(422).send({ message: error.message })
-    }
-  }
+  async show({ params, auth, response }: HttpContext) {
+    const userId = auth.user?.id
+    if (!userId) return response.unauthorized({ message: 'Not logged in' })
 
-  async show({ params, response }: HttpContext) {
-    const deck = await this.decksService.findById(params.id)
-    if (!deck) {
-      return response.notFound({ message: 'Deck not found' })
-    }
+    const deck = await this.decksService.getDeckForTraining(params.id, userId)
+    if (!deck) return response.notFound({ message: 'Deck not found' })
+
     return response.ok(deck)
   }
 
-  async update({ params, request, response }: HttpContext) {
-    const payload = await request.validateUsing(updateDeckValidator)
-    try {
-      const deck = await this.decksService.update(params.id, payload)
-      return response.ok(deck)
-    } catch (error) {
-      return response.status(422).send({ message: error.message })
-    }
+  async create({ request, auth, response }: HttpContext) {
+    const userId = auth.user?.id
+    if (!userId) return response.unauthorized({ message: 'Not logged in' })
+
+    const { name } = request.only(['name'])
+    const deck = await this.decksService.create({ name, userId })
+    return response.created(deck)
   }
 
-  async delete({ params, response }: HttpContext) {
-    await this.decksService.delete(params.id)
+  async update({ params, request, auth, response }: HttpContext) {
+    const userId = auth.user?.id
+    if (!userId) return response.unauthorized({ message: 'Not logged in' })
+
+    const data = request.only(['name', 'description'])
+    const deck = await this.decksService.update(params.id, userId, data)
+    if (!deck) return response.notFound({ message: 'Deck not found' })
+
+    return response.ok(deck)
+  }
+
+  async delete({ params, auth, response }: HttpContext) {
+    const userId = auth.user?.id
+    if (!userId) return response.unauthorized({ message: 'Not logged in' })
+
+    await this.decksService.delete(params.id, userId)
     return response.noContent()
+  }
+
+  async training({ params, auth, response }: HttpContext) {
+    const userId = auth.user?.id
+    if (!userId) return response.unauthorized({ message: 'Not logged in' })
+
+    const deck = await this.decksService.getDeckForTraining(params.deckId, userId)
+    if (!deck) return response.notFound({ message: 'Deck not found' })
+
+    return response.ok(deck)
+  }
+
+  async home({ auth, response }: HttpContext) {
+    const userId = auth.user?.id
+    if (!userId) return response.unauthorized({ message: 'Not logged in' })
+
+    const homeData = await this.decksService.getHomeData(userId)
+    return response.ok(homeData)
   }
 }

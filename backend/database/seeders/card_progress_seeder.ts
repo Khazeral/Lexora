@@ -1,6 +1,6 @@
-import User from '../../backend/app/models/user.js'
-import Card from '../../backend/app/models/card.js'
-import CardProgress from '../../backend/app/models/card_progress.js'
+import Card from '#models/card'
+import CardProgress from '#models/card_progress'
+import User from '#models/user'
 
 export default class CardProgressSeeder {
   async run() {

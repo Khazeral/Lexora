@@ -12,6 +12,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
 import { answerCard } from "@/services/progress.api";
+import { updateDeckRecords } from "@/services/deck_records.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
 import { Card } from "@/types";
@@ -33,7 +34,6 @@ import ReanimatedAnimated, {
   Extrapolation,
   cancelAnimation,
 } from "react-native-reanimated";
-import { updateDeckRecords } from "@/services/deck_records.api";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 48;
@@ -374,6 +374,27 @@ export default function TrainingSessionScreen() {
     queryKey: ["deck", id],
     queryFn: () => getDeck(Number(id)),
   });
+
+  // Reset tous les stats quand on change de deck
+  useEffect(() => {
+    // Reset les states
+    setSessionCorrect(0);
+    setSessionIncorrect(0);
+    setCurrentStreak(0);
+    setBestStreak(0);
+    setTimePenalty(0);
+    setLives(3);
+    setIsPerfectRun(true);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+
+    // Reset les refs
+    sessionCorrectRef.current = 0;
+    sessionIncorrectRef.current = 0;
+    bestStreakRef.current = 0;
+
+    console.log("Session reset for deck:", id);
+  }, [id]); // Se déclenche quand l'ID du deck change
 
   useEffect(() => {
     if (!deck) return;

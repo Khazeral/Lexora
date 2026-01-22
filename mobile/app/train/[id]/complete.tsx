@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
+  Easing,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
@@ -30,6 +31,15 @@ export default function TrainingCompleteScreen() {
 
   const [scaleAnim] = useState(new Animated.Value(0));
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [pulseAnim] = useState(new Animated.Value(1));
+  const [confettiAnims] = useState(
+    Array.from({ length: 20 }, () => ({
+      translateY: new Animated.Value(-100),
+      translateX: new Animated.Value(0),
+      rotate: new Animated.Value(0),
+      opacity: new Animated.Value(1),
+    })),
+  );
   const { user } = useAuth();
 
   const { data: deck } = useQuery({
@@ -71,6 +81,70 @@ export default function TrainingCompleteScreen() {
       }),
     ]).start();
   }, []);
+
+  // Lancer les animations de confettis et pulse si nouveau record
+  useEffect(() => {
+    const modeStats = getModeSpecificStats();
+
+    if (modeStats?.isRecord) {
+      // Animation de pulse
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.05,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      // Animation des confettis
+      const confettiAnimations = confettiAnims.map((anim, index) => {
+        const randomX = (Math.random() - 0.5) * 400;
+        const randomRotate = Math.random() * 720;
+        const delay = index * 50;
+
+        return Animated.parallel([
+          Animated.timing(anim.translateY, {
+            toValue: 800,
+            duration: 3000,
+            delay,
+            easing: Easing.cubic,
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim.translateX, {
+            toValue: randomX,
+            duration: 3000,
+            delay,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim.rotate, {
+            toValue: randomRotate,
+            duration: 3000,
+            delay,
+            easing: Easing.linear,
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim.opacity, {
+            toValue: 0,
+            duration: 3000,
+            delay,
+            useNativeDriver: true,
+          }),
+        ]);
+      });
+
+      Animated.parallel(confettiAnimations).start();
+    }
+  }, [deckRecords]); // Dépend de deckRecords pour savoir si c'est un record
 
   const totalCards = deck?.cards.length || 0;
   const successRate =
@@ -456,12 +530,64 @@ export default function TrainingCompleteScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Confettis overlay - seulement si nouveau record */}
+      {modeStats?.isRecord && (
+        <View style={styles.confettiContainer} pointerEvents="none">
+          {confettiAnims.map((anim, index) => {
+            const colors = [
+              "#fbbf24",
+              "#f59e0b",
+              "#10b981",
+              "#3b82f6",
+              "#ec4899",
+              "#8b5cf6",
+            ];
+            const color = colors[index % colors.length];
+            const size = Math.random() * 8 + 6;
+            const leftPosition = `${(index / confettiAnims.length) * 100}%`;
+
+            return (
+              <Animated.View
+                key={index}
+                style={[
+                  styles.confetti,
+                  {
+                    backgroundColor: color,
+                    width: size,
+                    height: size,
+                    left: leftPosition,
+                    transform: [
+                      { translateY: anim.translateY },
+                      { translateX: anim.translateX },
+                      {
+                        rotate: anim.rotate.interpolate({
+                          inputRange: [0, 360],
+                          outputRange: ["0deg", "360deg"],
+                        }),
+                      },
+                    ],
+                    opacity: anim.opacity,
+                  },
+                ]}
+              />
+            );
+          })}
+        </View>
+      )}
+
       <LinearGradient
         colors={headerConfig.colors}
         style={styles.headerGradient}
       >
         <Animated.View
-          style={[styles.iconContainer, { transform: [{ scale: scaleAnim }] }]}
+          style={[
+            styles.iconContainer,
+            {
+              transform: [
+                { scale: modeStats?.isRecord ? pulseAnim : scaleAnim },
+              ],
+            },
+          ]}
         >
           <Ionicons name={headerConfig.icon as any} size={64} color="#fff" />
         </Animated.View>
@@ -473,6 +599,26 @@ export default function TrainingCompleteScreen() {
         {/* Mode-specific stats card */}
         {modeStats && (
           <Animated.View style={[styles.modeStatsCard, { opacity: fadeAnim }]}>
+            {/* NEW RECORD Badge */}
+            {modeStats.isRecord && (
+              <Animated.View
+                style={[
+                  styles.recordBadge,
+                  { transform: [{ scale: pulseAnim }] },
+                ]}
+              >
+                <LinearGradient
+                  colors={["#fbbf24", "#f59e0b"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.recordBadgeGradient}
+                >
+                  <Ionicons name="trophy" size={16} color="#fff" />
+                  <Text style={styles.recordBadgeText}>NEW RECORD</Text>
+                </LinearGradient>
+              </Animated.View>
+            )}
+
             <View style={styles.modeStatsHeader}>
               <View
                 style={[
@@ -495,7 +641,13 @@ export default function TrainingCompleteScreen() {
             </View>
 
             <View style={styles.modeMainValue}>
-              <Text style={[styles.modeValue, { color: modeStats.color }]}>
+              <Text
+                style={[
+                  styles.modeValue,
+                  { color: modeStats.color },
+                  modeStats.isRecord && styles.modeValueRecord,
+                ]}
+              >
                 {modeStats.mainValue}
               </Text>
               <Text style={styles.modeValueLabel}>{modeStats.mainLabel}</Text>
@@ -738,6 +890,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8fafc",
   },
+  confettiContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+  },
+  confetti: {
+    position: "absolute",
+    borderRadius: 4,
+  },
   headerGradient: {
     paddingTop: 60,
     paddingBottom: 32,
@@ -776,6 +940,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
+    position: "relative",
+    overflow: "visible",
+  },
+  recordBadge: {
+    position: "absolute",
+    top: -12,
+    right: 20,
+    zIndex: 10,
+    shadowColor: "#f59e0b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  recordBadgeGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  recordBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 1,
   },
   modeStatsHeader: {
     flexDirection: "row",
@@ -812,6 +1003,11 @@ const styles = StyleSheet.create({
     fontSize: 56,
     fontWeight: "bold",
     marginBottom: 4,
+  },
+  modeValueRecord: {
+    textShadowColor: "rgba(16, 185, 129, 0.3)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
   },
   modeValueLabel: {
     fontSize: 14,

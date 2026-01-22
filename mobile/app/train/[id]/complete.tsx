@@ -22,8 +22,13 @@ export default function TrainingCompleteScreen() {
   const { data: deck } = useQuery({
     queryKey: ["deck", id],
     queryFn: () => getDeck(Number(id)),
+    // Force refetch when component mounts to get latest progress
+    refetchOnMount: "always",
+    // Disable cache to ensure fresh data
+    staleTime: 0,
   });
 
+  // Parse session stats from params
   const totalCorrect = Number(sessionCorrect) || 0;
   const totalIncorrect = Number(sessionIncorrect) || 0;
   const bestStreak = Number(sessionBestStreak) || 0;

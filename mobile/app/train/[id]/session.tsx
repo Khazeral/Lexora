@@ -9,7 +9,7 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
 import { answerCard } from "@/services/progress.api";
 import { Ionicons } from "@expo/vector-icons";
@@ -331,8 +331,14 @@ function SwipeableCard({
 }
 
 export default function TrainingSessionScreen() {
-  const { id, isShuffle, isReverse } = useLocalSearchParams();
+  const {
+    id,
+    isShuffle,
+    isReverse,
+    gameMode = "classic",
+  } = useLocalSearchParams();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cards, setCards] = useState<Card[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -347,6 +353,22 @@ export default function TrainingSessionScreen() {
   const sessionCorrectRef = useRef(0);
   const sessionIncorrectRef = useRef(0);
 
+  // Speed Run mode
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [timePenalty, setTimePenalty] = useState(0);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Streak Master mode
+  const [lives, setLives] = useState(3);
+
+  // Time Attack mode
+  const [cardTimeLeft, setCardTimeLeft] = useState(10);
+  const cardTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Perfect Run mode
+  const [isPerfectRun, setIsPerfectRun] = useState(true);
+
   const { data: deck, isLoading } = useQuery({
     queryKey: ["deck", id],
     queryFn: () => getDeck(Number(id)),
@@ -360,7 +382,59 @@ export default function TrainingSessionScreen() {
 
     setCards(sessionCards);
     setCurrentIndex(0);
-  }, [deck, isShuffle]);
+
+    // Start timer for Speed Run mode
+    if (gameMode === "speedrun") {
+      const start = Date.now();
+      setStartTime(start);
+      timerIntervalRef.current = setInterval(() => {
+        setElapsedTime(Math.floor((Date.now() - start) / 1000));
+      }, 100);
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+      if (cardTimerRef.current) {
+        clearTimeout(cardTimerRef.current);
+      }
+    };
+  }, [deck, isShuffle, gameMode]);
+
+  // Time Attack: Start countdown when card is shown, stop when flipped
+  useEffect(() => {
+    if (gameMode === "timeattack" && !isFlipped) {
+      setCardTimeLeft(10);
+
+      const startCardTimer = () => {
+        cardTimerRef.current = setInterval(() => {
+          setCardTimeLeft((prev) => {
+            if (prev <= 1) {
+              // Time's up! Auto-fail
+              if (cardTimerRef.current) clearInterval(cardTimerRef.current);
+              handleSwipeLeft();
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      };
+
+      startCardTimer();
+
+      return () => {
+        if (cardTimerRef.current) {
+          clearInterval(cardTimerRef.current);
+        }
+      };
+    } else if (gameMode === "timeattack" && isFlipped) {
+      // Stop timer when card is flipped
+      if (cardTimerRef.current) {
+        clearInterval(cardTimerRef.current);
+      }
+    }
+  }, [isFlipped, currentIndex, gameMode]);
 
   const answerMutation = useMutation({
     mutationFn: ({ cardId, success }: { cardId: number; success: boolean }) =>
@@ -368,27 +442,58 @@ export default function TrainingSessionScreen() {
   });
 
   const goToNextCard = useCallback(() => {
+    // Clear card timer for Time Attack
+    if (cardTimerRef.current) {
+      clearInterval(cardTimerRef.current);
+    }
+
     setCurrentIndex((prev) => {
       const nextIndex = prev + 1;
+
       if (nextIndex >= cards.length) {
-        setTimeout(() => {
-          router.replace({
-            pathname: "/train/[id]/complete",
-            params: {
-              id,
-              sessionCorrect: sessionCorrectRef.current.toString(),
-              sessionIncorrect: sessionIncorrectRef.current.toString(),
-              sessionBestStreak: bestStreakRef.current.toString(),
-            },
-          });
-        }, 0);
+        finishSession();
         return prev;
       }
       return nextIndex;
     });
     setIsFlipped(false);
     setFlipAnim(new Animated.Value(0));
-  }, [cards, id]);
+  }, [cards, gameMode]);
+
+  const finishSession = () => {
+    // Stop all timers
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    if (cardTimerRef.current) {
+      clearInterval(cardTimerRef.current);
+    }
+
+    const finalTime =
+      gameMode === "speedrun" && startTime
+        ? Math.floor((Date.now() - startTime) / 1000) + timePenalty
+        : 0;
+
+    // Invalidate deck cache to ensure fresh data on complete screen
+    queryClient.invalidateQueries({ queryKey: ["deck", id] });
+
+    setTimeout(() => {
+      router.replace({
+        pathname: "/train/[id]/complete",
+        params: {
+          id,
+          sessionCorrect: sessionCorrectRef.current.toString(),
+          sessionIncorrect: sessionIncorrectRef.current.toString(),
+          sessionBestStreak: bestStreakRef.current.toString(),
+          gameMode: gameMode as string,
+          finalTime: finalTime.toString(),
+          timePenalty: timePenalty.toString(),
+          livesLeft: lives.toString(),
+          isPerfect: isPerfectRun.toString(),
+        },
+      });
+    }, 0);
+  };
 
   const handleSwipeRight = useCallback(async () => {
     const currentCard = cards[currentIndex];
@@ -416,7 +521,7 @@ export default function TrainingSessionScreen() {
     }
 
     goToNextCard();
-  }, [cards, currentIndex, answerMutation, goToNextCard, bestStreak]);
+  }, [cards, currentIndex, answerMutation, goToNextCard, gameMode]);
 
   const handleSwipeLeft = useCallback(async () => {
     const currentCard = cards[currentIndex];
@@ -432,12 +537,36 @@ export default function TrainingSessionScreen() {
       sessionIncorrectRef.current += 1;
       setSessionIncorrect((prev) => prev + 1);
       setCurrentStreak(0);
+
+      // Speed Run: Add 5 second penalty
+      if (gameMode === "speedrun") {
+        setTimePenalty((prev) => prev + 5);
+      }
+
+      // Streak Master: Lose a life
+      if (gameMode === "streak") {
+        setLives((prev) => {
+          const newLives = prev - 1;
+          if (newLives <= 0) {
+            // Game Over!
+            finishSession();
+          }
+          return newLives;
+        });
+      }
+
+      // Perfect Run: One mistake = game over
+      if (gameMode === "perfect") {
+        setIsPerfectRun(false);
+        finishSession();
+        return;
+      }
     } catch (error) {
       console.error("Error saving answer:", error);
     }
 
     goToNextCard();
-  }, [cards, currentIndex, answerMutation, goToNextCard]);
+  }, [cards, currentIndex, answerMutation, goToNextCard, gameMode]);
 
   const flipCard = useCallback(() => {
     Animated.timing(flipAnim, {
@@ -519,9 +648,74 @@ export default function TrainingSessionScreen() {
       </View>
 
       <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>
-          {currentIndex + 1} / {cards.length}
-        </Text>
+        <View style={styles.progressHeader}>
+          <Text style={styles.progressText}>
+            {currentIndex + 1} / {cards.length}
+          </Text>
+
+          {/* Speed Run Timer */}
+          {gameMode === "speedrun" && (
+            <View style={styles.modeIndicator}>
+              <Ionicons name="flash" size={16} color="#f59e0b" />
+              <Text style={[styles.modeIndicatorText, { color: "#f59e0b" }]}>
+                {Math.floor((elapsedTime + timePenalty) / 60)}:
+                {((elapsedTime + timePenalty) % 60).toString().padStart(2, "0")}
+              </Text>
+              {timePenalty > 0 && (
+                <Text style={[styles.penaltyText]}>+{timePenalty}s</Text>
+              )}
+            </View>
+          )}
+
+          {/* Streak Master Lives */}
+          {gameMode === "streak" && (
+            <View style={styles.modeIndicator}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Ionicons
+                  key={i}
+                  name={i < lives ? "heart" : "heart-outline"}
+                  size={20}
+                  color={i < lives ? "#ef4444" : "#cbd5e1"}
+                />
+              ))}
+            </View>
+          )}
+
+          {/* Time Attack Countdown */}
+          {gameMode === "timeattack" && (
+            <View
+              style={[
+                styles.modeIndicator,
+                cardTimeLeft <= 3 && styles.modeIndicatorUrgent,
+              ]}
+            >
+              <Ionicons
+                name="timer"
+                size={16}
+                color={cardTimeLeft <= 3 ? "#ef4444" : "#8b5cf6"}
+              />
+              <Text
+                style={[
+                  styles.modeIndicatorText,
+                  { color: cardTimeLeft <= 3 ? "#ef4444" : "#8b5cf6" },
+                ]}
+              >
+                {cardTimeLeft}s
+              </Text>
+            </View>
+          )}
+
+          {/* Perfect Run Indicator */}
+          {gameMode === "perfect" && (
+            <View style={styles.modeIndicator}>
+              <Ionicons name="diamond" size={16} color="#ec4899" />
+              <Text style={[styles.modeIndicatorText, { color: "#ec4899" }]}>
+                Perfect
+              </Text>
+            </View>
+          )}
+        </View>
+
         <View style={styles.progressBar}>
           <View style={[styles.progressFill, { width: `${progress}%` }]} />
         </View>
@@ -638,12 +832,41 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
   },
+  progressHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
   progressText: {
     fontSize: 14,
     fontWeight: "600",
     color: "#64748b",
-    marginBottom: 8,
-    textAlign: "center",
+  },
+  modeIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#f8fafc",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  modeIndicatorUrgent: {
+    backgroundColor: "#fee2e2",
+    borderColor: "#ef4444",
+  },
+  modeIndicatorText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  penaltyText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#ef4444",
+    marginLeft: 4,
   },
   progressBar: {
     height: 8,

@@ -125,7 +125,7 @@ function SwipeableCard({
     translateY.value = 0;
     hintAnimation.value = 0;
     setHasAnimated(false);
-  }, [cardKey]);
+  }, [cardKey, hintAnimation, translateX, translateY]);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;

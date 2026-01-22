@@ -43,11 +43,11 @@ export default function TrainingCompleteScreen() {
   const cardsWithProgress = deck?.cards.filter((card) => card.progress) || [];
   const totalCorrect = cardsWithProgress.reduce(
     (sum, card) => sum + (card.progress?.successCount || 0),
-    0
+    0,
   );
   const totalIncorrect = cardsWithProgress.reduce(
     (sum, card) => sum + (card.progress?.failureCount || 0),
-    0
+    0,
   );
   const successRate =
     totalCorrect + totalIncorrect > 0
@@ -57,11 +57,11 @@ export default function TrainingCompleteScreen() {
   const getBestStreak = () => {
     return Math.max(
       ...cardsWithProgress.map((card) => card.progress?.currentStreak || 0),
-      0
+      0,
     );
   };
 
-    const getNextLevel = (maxStreak: number) => {
+  const getNextLevel = (maxStreak: number) => {
     if (maxStreak >= 100)
       return {
         level: "max",
@@ -120,7 +120,8 @@ export default function TrainingCompleteScreen() {
         if (nextLevel.level === "max") return null;
 
         const remaining = nextLevel.required - maxStreak;
-        const percentToNext = ((nextLevel.required - remaining) / nextLevel.required) * 100;
+        const percentToNext =
+          ((nextLevel.required - remaining) / nextLevel.required) * 100;
 
         return {
           ...card,
@@ -130,7 +131,7 @@ export default function TrainingCompleteScreen() {
         };
       })
       .filter(
-        (card) => card !== null && card.remaining > 0 && card.remaining <= 3
+        (card) => card !== null && card.remaining > 0 && card.remaining <= 3,
       )
       .sort((a, b) => a.remaining - b.remaining)
       .slice(0, 3);
@@ -152,8 +153,6 @@ export default function TrainingCompleteScreen() {
 
   const almostUpgradeCards = getAlmostUpgradeCards();
 
-  console.log(almostUpgradeCards)
-
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -161,10 +160,7 @@ export default function TrainingCompleteScreen() {
         style={styles.headerGradient}
       >
         <Animated.View
-          style={[
-            styles.iconContainer,
-            { transform: [{ scale: scaleAnim }] },
-          ]}
+          style={[styles.iconContainer, { transform: [{ scale: scaleAnim }] }]}
         >
           <Ionicons name="trophy" size={64} color="#fff" />
         </Animated.View>
@@ -255,7 +251,10 @@ export default function TrainingCompleteScreen() {
                     <Text style={styles.levelUpCardQuestion} numberOfLines={1}>
                       {card.word}
                     </Text>
-                    <Text style={styles.levelUpCardTranslation} numberOfLines={1}>
+                    <Text
+                      style={styles.levelUpCardTranslation}
+                      numberOfLines={1}
+                    >
                       {card.translation}
                     </Text>
                   </View>
@@ -291,8 +290,6 @@ export default function TrainingCompleteScreen() {
             ))}
           </View>
         )}
-
-
       </ScrollView>
 
       <View style={styles.footer}>

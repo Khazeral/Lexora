@@ -33,6 +33,7 @@ import ReanimatedAnimated, {
   Extrapolation,
   cancelAnimation,
 } from "react-native-reanimated";
+import { updateDeckRecords } from "@/services/deck_records.api";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 48;
@@ -460,7 +461,7 @@ export default function TrainingSessionScreen() {
     setFlipAnim(new Animated.Value(0));
   }, [cards, gameMode]);
 
-  const finishSession = () => {
+  const finishSession = async () => {
     // Stop all timers
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
@@ -474,8 +475,46 @@ export default function TrainingSessionScreen() {
         ? Math.floor((Date.now() - startTime) / 1000) + timePenalty
         : 0;
 
+    // Envoyer les records au backend
+    try {
+      if (gameMode === "speedrun") {
+        await updateDeckRecords(Number(id), {
+          gameMode: "speedrun",
+          speedRunTime: finalTime - timePenalty,
+          timePenalty: timePenalty,
+        });
+      } else if (gameMode === "streak") {
+        await updateDeckRecords(Number(id), {
+          gameMode: "streak",
+          streak: bestStreakRef.current,
+        });
+      } else if (gameMode === "timeattack") {
+        const totalTimeSpent = cards.length * 10; // approximation
+        const avgTime = totalTimeSpent / cards.length;
+        await updateDeckRecords(Number(id), {
+          gameMode: "timeattack",
+          avgTimePerCard: avgTime,
+          totalCards: cards.length,
+        });
+      } else if (gameMode === "perfect") {
+        await updateDeckRecords(Number(id), {
+          gameMode: "perfect",
+          isPerfect: isPerfectRun,
+        });
+      } else {
+        // Classic mode
+        await updateDeckRecords(Number(id), {
+          gameMode: "classic",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating deck records:", error);
+      // Continue anyway, don't block the user
+    }
+
     // Invalidate deck cache to ensure fresh data on complete screen
     queryClient.invalidateQueries({ queryKey: ["deck", id] });
+    queryClient.invalidateQueries({ queryKey: ["deckRecords", id] });
 
     setTimeout(() => {
       router.replace({

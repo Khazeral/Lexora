@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import {
   View,
@@ -9,18 +9,35 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
 import { answerCard } from "@/services/progress.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Card } from "@/types";
 import { LinearGradient } from "expo-linear-gradient";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import ReanimatedAnimated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  withSequence,
+  withDelay,
+  withRepeat,
+  interpolate,
+  Extrapolation,
+  cancelAnimation,
+} from "react-native-reanimated";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 48;
-const CARD_HEIGHT = 500;
+const CARD_HEIGHT = SCREEN_HEIGHT * 0.65;
+const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 
 const shuffle = (array: Card[]) => {
   const copy = [...array];
@@ -74,34 +91,242 @@ const getSubtextColor = (status?: string): string => {
   }
 };
 
-interface ColoredCardProps {
+interface SwipeableCardProps {
+  cardKey: string;
   status?: string;
-  isBack?: boolean;
-  children: React.ReactNode;
-  style?: any;
+  isFlipped: boolean;
+  frontContent: React.ReactNode;
+  backContent: React.ReactNode;
+  onFlip: () => void;
+  onSwipeLeft: () => void;
+  onSwipeRight: () => void;
+  flipAnim: Animated.Value;
 }
 
-function ColoredCard({ status, isBack, children, style }: ColoredCardProps) {
+function SwipeableCard({
+  cardKey,
+  status,
+  isFlipped,
+  frontContent,
+  backContent,
+  onFlip,
+  onSwipeLeft,
+  onSwipeRight,
+  flipAnim,
+}: SwipeableCardProps) {
   const colors = getStatusColors(status);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const hintAnimation = useSharedValue(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
 
-  if (isBack) {
-    return (
-      <Animated.View style={[styles.card, styles.cardBack, style]}>
-        {children}
-      </Animated.View>
+  useEffect(() => {
+    translateX.value = 0;
+    translateY.value = 0;
+    hintAnimation.value = 0;
+    setHasAnimated(false);
+  }, [cardKey, hintAnimation, translateX, translateY]);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    if (isFlipped && !hasAnimated) {
+      timeout = setTimeout(() => {
+        hintAnimation.value = withRepeat(
+          withSequence(
+            withTiming(30, { duration: 400 }),
+            withTiming(0, { duration: 400 }),
+            withDelay(200, withTiming(-30, { duration: 400 })),
+            withTiming(0, { duration: 400 }),
+            withDelay(1000, withTiming(0, { duration: 0 })),
+          ),
+          -1,
+          false,
+        );
+      }, 5000);
+    }
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      cancelAnimation(hintAnimation);
+      hintAnimation.value = 0;
+    };
+  }, [isFlipped, cardKey, hasAnimated, hintAnimation]);
+
+  const handleSwipeEnd = useCallback(
+    (translationX: number) => {
+      if (hasAnimated) return;
+
+      cancelAnimation(hintAnimation);
+      hintAnimation.value = 0;
+
+      if (translationX > SWIPE_THRESHOLD) {
+        setHasAnimated(true);
+        translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 250 });
+        setTimeout(() => {
+          onSwipeRight();
+        }, 300);
+      } else if (translationX < -SWIPE_THRESHOLD) {
+        setHasAnimated(true);
+        translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 250 });
+        setTimeout(() => {
+          onSwipeLeft();
+        }, 300);
+      } else {
+        translateX.value = withSpring(0, { damping: 15 });
+        translateY.value = withSpring(0, { damping: 15 });
+      }
+    },
+    [
+      hasAnimated,
+      onSwipeLeft,
+      onSwipeRight,
+      translateX,
+      translateY,
+      hintAnimation,
+    ],
+  );
+
+  const pan = Gesture.Pan()
+    .enabled(isFlipped && !hasAnimated)
+    .onStart(() => {
+      cancelAnimation(hintAnimation);
+      hintAnimation.value = 0;
+    })
+    .onChange((event) => {
+      translateX.value = event.translationX;
+      translateY.value = event.translationY * 0.3;
+    })
+    .onEnd((event) => {
+      handleSwipeEnd(event.translationX);
+    })
+    .runOnJS(true);
+
+  const tap = Gesture.Tap()
+    .enabled(!hasAnimated)
+    .onEnd(() => {
+      onFlip();
+    })
+    .runOnJS(true);
+
+  const gesture = Gesture.Race(pan, tap);
+
+  const cardAnimatedStyle = useAnimatedStyle(() => {
+    const rotate = interpolate(
+      translateX.value + hintAnimation.value,
+      [-SCREEN_WIDTH, 0, SCREEN_WIDTH],
+      [-15, 0, 15],
+      Extrapolation.CLAMP,
     );
-  }
+
+    return {
+      transform: [
+        { translateX: translateX.value + hintAnimation.value },
+        { translateY: translateY.value },
+        { rotate: `${rotate}deg` },
+      ],
+    };
+  });
+
+  const rightIndicatorStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      translateX.value,
+      [0, SWIPE_THRESHOLD],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+    const scale = interpolate(
+      translateX.value,
+      [0, SWIPE_THRESHOLD],
+      [0.5, 1],
+      Extrapolation.CLAMP,
+    );
+    return {
+      opacity,
+      transform: [{ scale }, { rotate: "-15deg" }],
+    };
+  });
+
+  const leftIndicatorStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, 0],
+      [1, 0],
+      Extrapolation.CLAMP,
+    );
+    const scale = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, 0],
+      [1, 0.5],
+      Extrapolation.CLAMP,
+    );
+    return {
+      opacity,
+      transform: [{ scale }, { rotate: "15deg" }],
+    };
+  });
+
+  const frontInterpolate = flipAnim.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["0deg", "180deg"],
+  });
+
+  const backInterpolate = flipAnim.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["180deg", "360deg"],
+  });
 
   return (
-    <Animated.View style={[styles.card, style]}>
-      <LinearGradient
-        colors={colors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={styles.cardInner}>{children}</View>
-    </Animated.View>
+    <GestureDetector gesture={gesture}>
+      <ReanimatedAnimated.View style={[styles.cardWrapper, cardAnimatedStyle]}>
+        <Animated.View
+          style={[
+            styles.card,
+            { transform: [{ rotateY: frontInterpolate }] },
+            !isFlipped && styles.cardVisible,
+          ]}
+        >
+          <LinearGradient
+            colors={colors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.cardInner}>{frontContent}</View>
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.card,
+            styles.cardBack,
+            { transform: [{ rotateY: backInterpolate }] },
+            isFlipped && styles.cardVisible,
+          ]}
+        >
+          {backContent}
+
+          <ReanimatedAnimated.View
+            style={[
+              styles.tinderIndicator,
+              styles.tinderIndicatorRight,
+              rightIndicatorStyle,
+            ]}
+          >
+            <Text style={styles.tinderTextCorrect}>CORRECT</Text>
+          </ReanimatedAnimated.View>
+
+          <ReanimatedAnimated.View
+            style={[
+              styles.tinderIndicator,
+              styles.tinderIndicatorLeft,
+              leftIndicatorStyle,
+            ]}
+          >
+            <Text style={styles.tinderTextNope}>NOPE</Text>
+          </ReanimatedAnimated.View>
+        </Animated.View>
+      </ReanimatedAnimated.View>
+    </GestureDetector>
   );
 }
 
@@ -111,8 +336,7 @@ export default function TrainingSessionScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cards, setCards] = useState<Card[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [flipAnim] = useState(new Animated.Value(0));
-  const queryClient = useQueryClient();
+  const [flipAnim, setFlipAnim] = useState(() => new Animated.Value(0));
 
   const { data: deck, isLoading } = useQuery({
     queryKey: ["deck", id],
@@ -134,7 +358,66 @@ export default function TrainingSessionScreen() {
       answerCard(user!.id, cardId, success),
   });
 
-  if (isLoading || cards.length === 0 || currentIndex >= cards.length) {
+  const goToNextCard = useCallback(() => {
+    setCurrentIndex((prev) => {
+      const nextIndex = prev + 1;
+      if (nextIndex >= cards.length) {
+        setTimeout(() => {
+          router.replace({
+            pathname: "/train/[id]/complete",
+            params: { id },
+          });
+        }, 0);
+        return prev;
+      }
+      return nextIndex;
+    });
+    setIsFlipped(false);
+    setFlipAnim(new Animated.Value(0));
+  }, [cards, id]);
+
+  const handleSwipeRight = useCallback(async () => {
+    const currentCard = cards[currentIndex];
+    if (!currentCard) return;
+
+    try {
+      await answerMutation.mutateAsync({
+        cardId: currentCard.id,
+        success: true,
+      });
+    } catch (error) {
+      console.error("Error saving answer:", error);
+    }
+
+    goToNextCard();
+  }, [cards, currentIndex, answerMutation, goToNextCard]);
+
+  const handleSwipeLeft = useCallback(async () => {
+    const currentCard = cards[currentIndex];
+    if (!currentCard) return;
+
+    try {
+      await answerMutation.mutateAsync({
+        cardId: currentCard.id,
+        success: false,
+      });
+    } catch (error) {
+      console.error("Error saving answer:", error);
+    }
+
+    goToNextCard();
+  }, [cards, currentIndex, answerMutation, goToNextCard]);
+
+  const flipCard = useCallback(() => {
+    Animated.timing(flipAnim, {
+      toValue: isFlipped ? 0 : 180,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    setIsFlipped((prev) => !prev);
+  }, [flipAnim, isFlipped]);
+
+  if (isLoading || cards.length === 0) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#3b82f6" />
@@ -157,6 +440,14 @@ export default function TrainingSessionScreen() {
     );
   }
 
+  if (currentIndex >= cards.length) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+      </View>
+    );
+  }
+
   const currentCard = cards[currentIndex];
   const progress = ((currentIndex + 1) / cards.length) * 100;
 
@@ -175,45 +466,8 @@ export default function TrainingSessionScreen() {
   const frontLabel = isReverse === "true" ? "Translation" : "Word";
   const backLabel = isReverse === "true" ? "Word" : "Translation";
 
-  const flipCard = () => {
-    Animated.timing(flipAnim, {
-      toValue: isFlipped ? 0 : 180,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    setIsFlipped(!isFlipped);
-  };
-
-  const handleAnswer = async (success: boolean) => {
-    await answerMutation.mutateAsync({
-      cardId: currentCard.id,
-      success,
-    });
-
-    if (currentIndex < cards.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setIsFlipped(false);
-      flipAnim.setValue(0);
-    } else {
-      router.replace({
-        pathname: "/train/[id]/complete",
-        params: { id },
-      });
-    }
-  };
-
-  const frontInterpolate = flipAnim.interpolate({
-    inputRange: [0, 180],
-    outputRange: ["0deg", "180deg"],
-  });
-
-  const backInterpolate = flipAnim.interpolate({
-    inputRange: [0, 180],
-    outputRange: ["180deg", "360deg"],
-  });
-
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -242,87 +496,57 @@ export default function TrainingSessionScreen() {
         </View>
       </View>
 
-      <SafeAreaView edges={["top", "left", "right"]} style={styles.cardArea}>
+      <View style={styles.cardArea}>
         <View style={styles.cardContainer}>
-          <TouchableOpacity
-            onPress={flipCard}
-            activeOpacity={0.9}
-            style={styles.cardTouchable}
-          >
-            <ColoredCard
-              status={cardStatus}
-              style={[
-                { transform: [{ rotateY: frontInterpolate }] },
-                !isFlipped && styles.cardVisible,
-              ]}
-            >
-              <Text style={[styles.cardLabel, { color: subtextColor }]}>
-                {frontLabel}
-              </Text>
-              <Text style={[styles.cardText, { color: textColor }]}>
-                {frontText}
-              </Text>
-              <View style={styles.tapHint}>
-                <Ionicons name="hand-left" size={20} color={subtextColor} />
-                <Text style={[styles.tapHintText, { color: subtextColor }]}>
-                  Tap to flip
+          <SwipeableCard
+            key={`${currentCard.id}-${currentIndex}`}
+            cardKey={`${currentCard.id}-${currentIndex}`}
+            status={cardStatus}
+            isFlipped={isFlipped}
+            onFlip={flipCard}
+            onSwipeLeft={handleSwipeLeft}
+            onSwipeRight={handleSwipeRight}
+            flipAnim={flipAnim}
+            frontContent={
+              <>
+                <Text style={[styles.cardLabel, { color: subtextColor }]}>
+                  {frontLabel}
                 </Text>
-              </View>
-            </ColoredCard>
-
-            <ColoredCard
-              status={cardStatus}
-              isBack
-              style={[
-                { transform: [{ rotateY: backInterpolate }] },
-                isFlipped && styles.cardVisible,
-              ]}
-            >
-              <Text style={[styles.cardLabel, styles.cardLabelBack]}>
-                {backLabel}
-              </Text>
-              <Text style={[styles.cardText, styles.cardTextBack]}>
-                {backText}
-              </Text>
-            </ColoredCard>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-
-      {isFlipped && (
-        <View style={styles.answerButtons}>
-          <TouchableOpacity
-            style={[styles.answerButton, styles.wrongButton]}
-            onPress={() => handleAnswer(false)}
-            disabled={answerMutation.isPending}
-          >
-            {answerMutation.isPending ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <>
-                <Ionicons name="close-circle" size={32} color="#fff" />
-                <Text style={styles.answerButtonText}>Wrong</Text>
+                <Text style={[styles.cardText, { color: textColor }]}>
+                  {frontText}
+                </Text>
+                <View style={styles.tapHint}>
+                  <Ionicons name="hand-left" size={20} color={subtextColor} />
+                  <Text style={[styles.tapHintText, { color: subtextColor }]}>
+                    Tap to flip
+                  </Text>
+                </View>
               </>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.answerButton, styles.correctButton]}
-            onPress={() => handleAnswer(true)}
-            disabled={answerMutation.isPending}
-          >
-            {answerMutation.isPending ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
+            }
+            backContent={
               <>
-                <Ionicons name="checkmark-circle" size={32} color="#fff" />
-                <Text style={styles.answerButtonText}>Correct</Text>
+                <Text style={[styles.cardLabel, styles.cardLabelBack]}>
+                  {backLabel}
+                </Text>
+                <Text style={[styles.cardText, styles.cardTextBack]}>
+                  {backText}
+                </Text>
+                <View style={styles.swipeHint}>
+                  <View style={styles.swipeHintItem}>
+                    <Ionicons name="arrow-back" size={16} color="#ef4444" />
+                    <Text style={styles.swipeHintText}>Wrong</Text>
+                  </View>
+                  <View style={styles.swipeHintItem}>
+                    <Text style={styles.swipeHintText}>Correct</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#22c55e" />
+                  </View>
+                </View>
               </>
-            )}
-          </TouchableOpacity>
+            }
+          />
         </View>
-      )}
-    </View>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -410,9 +634,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  cardTouchable: {
+  cardWrapper: {
     width: CARD_WIDTH,
-    maxWidth: 340,
     height: CARD_HEIGHT,
   },
   card: {
@@ -471,35 +694,50 @@ const styles = StyleSheet.create({
   tapHintText: {
     fontSize: 14,
   },
-  answerButtons: {
+  swipeHint: {
     flexDirection: "row",
-    gap: 16,
-    padding: 24,
+    justifyContent: "space-between",
+    marginTop: 40,
+    paddingHorizontal: 20,
   },
-  answerButton: {
-    flex: 1,
+  swipeHintItem: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    paddingVertical: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    gap: 4,
   },
-  wrongButton: {
-    backgroundColor: "#ef4444",
-  },
-  correctButton: {
-    backgroundColor: "#10b981",
-  },
-  answerButtonText: {
-    color: "#fff",
-    fontSize: 18,
+  swipeHintText: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.7)",
     fontWeight: "600",
+  },
+  tinderIndicator: {
+    position: "absolute",
+    top: 30,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 4,
+    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+  },
+  tinderIndicatorRight: {
+    left: 20,
+    borderColor: "#22c55e",
+  },
+  tinderIndicatorLeft: {
+    right: 20,
+    borderColor: "#ef4444",
+  },
+  tinderTextCorrect: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#22c55e",
+    letterSpacing: 2,
+  },
+  tinderTextNope: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#ef4444",
+    letterSpacing: 2,
   },
   emptyTitle: {
     fontSize: 20,

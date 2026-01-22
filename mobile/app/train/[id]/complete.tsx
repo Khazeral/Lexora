@@ -7,26 +7,64 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
+  Easing,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
+import { getDeckRecords } from "@/services/deck_records.api";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useAuth } from "@/services/auth_context";
 
 export default function TrainingCompleteScreen() {
-  const { id, sessionCorrect, sessionIncorrect, sessionBestStreak } =
-    useLocalSearchParams();
+  const {
+    id,
+    sessionCorrect,
+    sessionIncorrect,
+    sessionBestStreak,
+    gameMode,
+    finalTime,
+    timePenalty,
+    livesLeft,
+    isPerfect,
+  } = useLocalSearchParams();
+
   const [scaleAnim] = useState(new Animated.Value(0));
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [pulseAnim] = useState(new Animated.Value(1));
+  const [confettiAnims] = useState(
+    Array.from({ length: 20 }, () => ({
+      translateY: new Animated.Value(-100),
+      translateX: new Animated.Value(0),
+      rotate: new Animated.Value(0),
+      opacity: new Animated.Value(1),
+    })),
+  );
+  const { user } = useAuth();
 
   const { data: deck } = useQuery({
     queryKey: ["deck", id],
     queryFn: () => getDeck(Number(id)),
+    refetchOnMount: "always",
+    staleTime: 0,
+  });
+
+  const { data: deckRecords } = useQuery({
+    queryKey: ["deckRecords", id, user?.id],
+    queryFn: () => getDeckRecords(Number(id)),
+    enabled: !!user && !!id,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const totalCorrect = Number(sessionCorrect) || 0;
   const totalIncorrect = Number(sessionIncorrect) || 0;
   const bestStreak = Number(sessionBestStreak) || 0;
+  const currentGameMode = (gameMode as string) || "classic";
+  const speedRunTime = Number(finalTime) || 0;
+  const speedRunPenalty = Number(timePenalty) || 0;
+  const currentLives = Number(livesLeft) || 0;
+  const wasPerfect = isPerfect === "true";
 
   useEffect(() => {
     Animated.parallel([
@@ -43,6 +81,70 @@ export default function TrainingCompleteScreen() {
       }),
     ]).start();
   }, []);
+
+  // Lancer les animations de confettis et pulse si nouveau record
+  useEffect(() => {
+    const modeStats = getModeSpecificStats();
+
+    if (modeStats?.isRecord) {
+      // Animation de pulse
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.05,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      // Animation des confettis
+      const confettiAnimations = confettiAnims.map((anim, index) => {
+        const randomX = (Math.random() - 0.5) * 400;
+        const randomRotate = Math.random() * 720;
+        const delay = index * 50;
+
+        return Animated.parallel([
+          Animated.timing(anim.translateY, {
+            toValue: 800,
+            duration: 3000,
+            delay,
+            easing: Easing.cubic,
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim.translateX, {
+            toValue: randomX,
+            duration: 3000,
+            delay,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim.rotate, {
+            toValue: randomRotate,
+            duration: 3000,
+            delay,
+            easing: Easing.linear,
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim.opacity, {
+            toValue: 0,
+            duration: 3000,
+            delay,
+            useNativeDriver: true,
+          }),
+        ]);
+      });
+
+      Animated.parallel(confettiAnimations).start();
+    }
+  }, [deckRecords]); // Dépend de deckRecords pour savoir si c'est un record
 
   const totalCards = deck?.cards.length || 0;
   const successRate =
@@ -125,14 +227,12 @@ export default function TrainingCompleteScreen() {
       })
       .filter((card) => card !== null && card.remaining > 0);
 
-    // Si le deck a 3 cartes ou plus, on montre toujours les 3 cartes les plus proches du level up
     if (totalCards >= 3) {
       return cardsWithUpgradeInfo
         .sort((a, b) => a.remaining - b.remaining)
         .slice(0, 3);
     }
 
-    // Sinon, on montre uniquement celles qui sont à 3 ou moins du level up
     return cardsWithUpgradeInfo
       .filter((card) => card.remaining <= 3)
       .sort((a, b) => a.remaining - b.remaining)
@@ -153,54 +253,510 @@ export default function TrainingCompleteScreen() {
     return "#ef4444";
   };
 
+  // Fonction pour formater le temps en MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Fonction pour obtenir les stats spécifiques au mode
+  const getModeSpecificStats = () => {
+    if (!deckRecords) return null;
+
+    switch (currentGameMode) {
+      case "speedrun": {
+        const isFirstRun = !deckRecords.bestSpeedRunTime;
+
+        if (isFirstRun) {
+          return {
+            title: "⚡ First Speed Run!",
+            mainValue: formatTime(speedRunTime),
+            mainLabel: "Your Time",
+            subtitle: "This is your first speed run on this deck!",
+            color: "#f59e0b",
+            icon: "flash" as const,
+            isRecord: true,
+            stats: [
+              {
+                label: "Penalties",
+                value: `+${speedRunPenalty}s`,
+                icon: "warning" as const,
+              },
+              {
+                label: "Net Time",
+                value: formatTime(speedRunTime - speedRunPenalty),
+                icon: "timer" as const,
+              },
+            ],
+          };
+        }
+
+        const diff = speedRunTime - deckRecords.bestSpeedRunTime!;
+        const isNewRecord = diff < 0;
+
+        return {
+          title: isNewRecord ? "🎉 New Record!" : "Speed Run Complete",
+          mainValue: formatTime(speedRunTime),
+          mainLabel: "Your Time",
+          subtitle: isNewRecord
+            ? `You beat your record by ${Math.abs(diff)} seconds!`
+            : `${diff} seconds slower than your best`,
+          color: isNewRecord ? "#10b981" : "#f59e0b",
+          icon: "flash" as const,
+          isRecord: isNewRecord,
+          comparison: {
+            label: "Previous Best",
+            value: formatTime(deckRecords.bestSpeedRunTime!),
+            diff: diff,
+          },
+          stats: [
+            {
+              label: "Penalties",
+              value: `+${speedRunPenalty}s`,
+              icon: "warning" as const,
+            },
+            {
+              label: "Attempts",
+              value: deckRecords.speedRunAttempts.toString(),
+              icon: "repeat" as const,
+            },
+          ],
+        };
+      }
+
+      case "streak": {
+        const isFirstRun = deckRecords.bestStreak === 0;
+
+        if (isFirstRun) {
+          return {
+            title: "🔥 First Streak Run!",
+            mainValue: bestStreak.toString(),
+            mainLabel: "Best Streak",
+            subtitle: `You kept ${currentLives} ${currentLives === 1 ? "life" : "lives"} remaining!`,
+            color: "#ef4444",
+            icon: "flame" as const,
+            isRecord: true,
+            stats: [
+              {
+                label: "Lives Left",
+                value: currentLives.toString(),
+                icon: "heart" as const,
+              },
+              {
+                label: "Cards",
+                value: totalCards.toString(),
+                icon: "albums" as const,
+              },
+            ],
+          };
+        }
+
+        const isNewRecord = bestStreak > deckRecords.bestStreak;
+        const diff = bestStreak - deckRecords.bestStreak;
+
+        return {
+          title: isNewRecord ? "🔥 New Streak Record!" : "Streak Master",
+          mainValue: bestStreak.toString(),
+          mainLabel: "Your Streak",
+          subtitle: isNewRecord
+            ? `You beat your record by ${diff}!`
+            : `${Math.abs(diff)} away from your record`,
+          color: isNewRecord ? "#10b981" : "#ef4444",
+          icon: "flame" as const,
+          isRecord: isNewRecord,
+          comparison: isNewRecord
+            ? {
+                label: "Previous Best",
+                value: deckRecords.bestStreak.toString(),
+                diff: diff,
+              }
+            : undefined,
+          stats: [
+            {
+              label: "Lives Left",
+              value: currentLives.toString(),
+              icon: "heart" as const,
+            },
+            {
+              label: "Record",
+              value: deckRecords.bestStreak.toString(),
+              icon: "trophy" as const,
+            },
+          ],
+        };
+      }
+
+      case "timeattack": {
+        const avgTime = totalCards > 0 ? (10 * totalCards) / totalCards : 0; // Approximation
+        const isFirstRun = !deckRecords.bestAvgTimePerCard;
+
+        if (isFirstRun) {
+          return {
+            title: "🎯 First Time Attack!",
+            mainValue: `${avgTime.toFixed(1)}s`,
+            mainLabel: "Avg per Card",
+            subtitle: "Great first attempt!",
+            color: "#8b5cf6",
+            icon: "timer" as const,
+            isRecord: true,
+            stats: [
+              {
+                label: "Cards",
+                value: totalCards.toString(),
+                icon: "albums" as const,
+              },
+              {
+                label: "Total Time",
+                value: `${totalCards * 10}s`,
+                icon: "time" as const,
+              },
+            ],
+          };
+        }
+
+        const isNewRecord = avgTime < deckRecords.bestAvgTimePerCard!;
+
+        return {
+          title: isNewRecord ? "🎯 New Record!" : "Time Attack Complete",
+          mainValue: `${avgTime.toFixed(1)}s`,
+          mainLabel: "Avg per Card",
+          subtitle: isNewRecord
+            ? "You improved your average time!"
+            : "Keep practicing for better times!",
+          color: isNewRecord ? "#10b981" : "#8b5cf6",
+          icon: "timer" as const,
+          isRecord: isNewRecord,
+          comparison: {
+            label: "Previous Best",
+            value: `${deckRecords.bestAvgTimePerCard!.toFixed(1)}s`,
+            diff: avgTime - deckRecords.bestAvgTimePerCard!,
+          },
+          stats: [
+            {
+              label: "Cards",
+              value: totalCards.toString(),
+              icon: "albums" as const,
+            },
+            {
+              label: "Attempts",
+              value: deckRecords.timeAttackAttempts.toString(),
+              icon: "repeat" as const,
+            },
+          ],
+        };
+      }
+
+      case "perfect": {
+        if (wasPerfect) {
+          return {
+            title: "💎 Perfect Run!",
+            mainValue: "FLAWLESS",
+            mainLabel: "Victory",
+            subtitle: `${deckRecords.perfectRunsCompleted + 1} perfect ${deckRecords.perfectRunsCompleted + 1 === 1 ? "run" : "runs"} completed!`,
+            color: "#ec4899",
+            icon: "diamond" as const,
+            isRecord: true,
+            stats: [
+              {
+                label: "Success Rate",
+                value: `${Math.round(((deckRecords.perfectRunsCompleted + 1) / (deckRecords.perfectRunAttempts + 1)) * 100)}%`,
+                icon: "stats-chart" as const,
+              },
+              {
+                label: "Total Attempts",
+                value: (deckRecords.perfectRunAttempts + 1).toString(),
+                icon: "repeat" as const,
+              },
+            ],
+          };
+        } else {
+          return {
+            title: "💔 Perfect Run Failed",
+            mainValue: deckRecords.perfectRunsCompleted.toString(),
+            mainLabel: "Perfect Runs",
+            subtitle: "Keep trying! You'll get it next time.",
+            color: "#64748b",
+            icon: "close-circle" as const,
+            isRecord: false,
+            stats: [
+              {
+                label: "Success Rate",
+                value: `${deckRecords.perfectRunAttempts > 0 ? Math.round((deckRecords.perfectRunsCompleted / deckRecords.perfectRunAttempts) * 100) : 0}%`,
+                icon: "stats-chart" as const,
+              },
+              {
+                label: "Attempts",
+                value: deckRecords.perfectRunAttempts.toString(),
+                icon: "repeat" as const,
+              },
+            ],
+          };
+        }
+      }
+
+      default:
+        return null;
+    }
+  };
+
+  const modeStats = getModeSpecificStats();
   const almostUpgradeCards = getAlmostUpgradeCards();
+
+  // Déterminer l'icône et les couleurs du header selon le mode et le résultat
+  const getHeaderConfig = () => {
+    if (currentGameMode === "perfect" && wasPerfect) {
+      return {
+        icon: "diamond",
+        colors: ["#ec4899", "#db2777"],
+        title: "Perfect Run! 💎",
+      };
+    }
+    if (modeStats?.isRecord) {
+      return {
+        icon: "trophy",
+        colors: ["#10b981", "#059669"],
+        title: "New Record! 🎉",
+      };
+    }
+    return {
+      icon: "trophy",
+      colors: ["#3b82f6", "#2563eb"],
+      title: "Session Complete! 🎉",
+    };
+  };
+
+  const headerConfig = getHeaderConfig();
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={["#3b82f6", "#2563eb"]}
-        style={styles.headerGradient}
-      >
-        <Animated.View
-          style={[styles.iconContainer, { transform: [{ scale: scaleAnim }] }]}
-        >
-          <Ionicons name="trophy" size={64} color="#fff" />
-        </Animated.View>
-        <Text style={styles.headerTitle}>Session Complete! 🎉</Text>
-        <Text style={styles.headerSubtitle}>{deck?.name}</Text>
-      </LinearGradient>
+      {/* Confettis overlay - seulement si nouveau record */}
+      {modeStats?.isRecord && (
+        <View style={styles.confettiContainer} pointerEvents="none">
+          {confettiAnims.map((anim, index) => {
+            const colors = [
+              "#fbbf24",
+              "#f59e0b",
+              "#10b981",
+              "#3b82f6",
+              "#ec4899",
+              "#8b5cf6",
+            ];
+            const color = colors[index % colors.length];
+            const size = Math.random() * 8 + 6;
+            const leftPosition = `${(index / confettiAnims.length) * 100}%`;
 
-      <ScrollView style={styles.content}>
-        <Animated.View style={[styles.performanceCard, { opacity: fadeAnim }]}>
-          <Text style={styles.performanceMessage}>
-            {getPerformanceMessage()}
-          </Text>
-          <View style={styles.successRateContainer}>
-            <Text style={styles.successRateLabel}>Success Rate</Text>
-            <Text
-              style={[
-                styles.successRateValue,
-                { color: getPerformanceColor() },
-              ]}
-            >
-              {successRate}%
-            </Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View style={styles.progressBarTrack}>
-              <View
+            return (
+              <Animated.View
+                key={index}
                 style={[
-                  styles.progressBarFill,
+                  styles.confetti,
                   {
-                    width: `${successRate}%`,
-                    backgroundColor: getPerformanceColor(),
+                    backgroundColor: color,
+                    width: size,
+                    height: size,
+                    left: leftPosition,
+                    transform: [
+                      { translateY: anim.translateY },
+                      { translateX: anim.translateX },
+                      {
+                        rotate: anim.rotate.interpolate({
+                          inputRange: [0, 360],
+                          outputRange: ["0deg", "360deg"],
+                        }),
+                      },
+                    ],
+                    opacity: anim.opacity,
                   },
                 ]}
               />
-            </View>
-          </View>
-        </Animated.View>
+            );
+          })}
+        </View>
+      )}
 
+      <LinearGradient
+        colors={headerConfig.colors}
+        style={styles.headerGradient}
+      >
+        <Animated.View
+          style={[
+            styles.iconContainer,
+            {
+              transform: [
+                { scale: modeStats?.isRecord ? pulseAnim : scaleAnim },
+              ],
+            },
+          ]}
+        >
+          <Ionicons name={headerConfig.icon as any} size={64} color="#fff" />
+        </Animated.View>
+        <Text style={styles.headerTitle}>{headerConfig.title}</Text>
+        <Text style={styles.headerSubtitle}>{deck?.name}</Text>
+      </LinearGradient>
+
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Mode-specific stats card */}
+        {modeStats && (
+          <Animated.View style={[styles.modeStatsCard, { opacity: fadeAnim }]}>
+            {/* NEW RECORD Badge */}
+            {modeStats.isRecord && (
+              <Animated.View
+                style={[
+                  styles.recordBadge,
+                  { transform: [{ scale: pulseAnim }] },
+                ]}
+              >
+                <LinearGradient
+                  colors={["#fbbf24", "#f59e0b"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.recordBadgeGradient}
+                >
+                  <Ionicons name="trophy" size={16} color="#fff" />
+                  <Text style={styles.recordBadgeText}>NEW RECORD</Text>
+                </LinearGradient>
+              </Animated.View>
+            )}
+
+            <View style={styles.modeStatsHeader}>
+              <View
+                style={[
+                  styles.modeIconBadge,
+                  { backgroundColor: modeStats.color + "20" },
+                ]}
+              >
+                <Ionicons
+                  name={modeStats.icon}
+                  size={32}
+                  color={modeStats.color}
+                />
+              </View>
+              <View style={styles.modeStatsHeaderText}>
+                <Text style={styles.modeStatsTitle}>{modeStats.title}</Text>
+                <Text style={styles.modeStatsSubtitle}>
+                  {modeStats.subtitle}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.modeMainValue}>
+              <Text
+                style={[
+                  styles.modeValue,
+                  { color: modeStats.color },
+                  modeStats.isRecord && styles.modeValueRecord,
+                ]}
+              >
+                {modeStats.mainValue}
+              </Text>
+              <Text style={styles.modeValueLabel}>{modeStats.mainLabel}</Text>
+            </View>
+
+            {modeStats.comparison && (
+              <View style={styles.comparisonContainer}>
+                <View style={styles.comparisonDivider} />
+                <View style={styles.comparisonContent}>
+                  <View style={styles.comparisonItem}>
+                    <Text style={styles.comparisonLabel}>
+                      {modeStats.comparison.label}
+                    </Text>
+                    <Text style={styles.comparisonValue}>
+                      {modeStats.comparison.value}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.comparisonDiff,
+                      {
+                        backgroundColor:
+                          modeStats.comparison.diff < 0 ? "#dcfce7" : "#fee2e2",
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name={
+                        modeStats.comparison.diff < 0
+                          ? "trending-down"
+                          : "trending-up"
+                      }
+                      size={16}
+                      color={
+                        modeStats.comparison.diff < 0 ? "#10b981" : "#ef4444"
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.comparisonDiffText,
+                        {
+                          color:
+                            modeStats.comparison.diff < 0
+                              ? "#10b981"
+                              : "#ef4444",
+                        },
+                      ]}
+                    >
+                      {Math.abs(modeStats.comparison.diff)}
+                      {typeof modeStats.comparison.diff === "number" &&
+                      modeStats.comparison.diff % 1 === 0
+                        ? ""
+                        : "s"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {modeStats.stats && (
+              <View style={styles.modeStatsGrid}>
+                {modeStats.stats.map((stat, index) => (
+                  <View key={index} style={styles.modeStatItem}>
+                    <Ionicons name={stat.icon} size={20} color="#64748b" />
+                    <Text style={styles.modeStatValue}>{stat.value}</Text>
+                    <Text style={styles.modeStatLabel}>{stat.label}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </Animated.View>
+        )}
+
+        {/* Performance card - only for non-perfect modes or failed perfect runs */}
+        {currentGameMode !== "perfect" || !wasPerfect ? (
+          <Animated.View
+            style={[styles.performanceCard, { opacity: fadeAnim }]}
+          >
+            <Text style={styles.performanceMessage}>
+              {getPerformanceMessage()}
+            </Text>
+            <View style={styles.successRateContainer}>
+              <Text style={styles.successRateLabel}>Success Rate</Text>
+              <Text
+                style={[
+                  styles.successRateValue,
+                  { color: getPerformanceColor() },
+                ]}
+              >
+                {successRate}%
+              </Text>
+            </View>
+            <View style={styles.progressBarContainer}>
+              <View style={styles.progressBarTrack}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    {
+                      width: `${successRate}%`,
+                      backgroundColor: getPerformanceColor(),
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          </Animated.View>
+        ) : null}
+
+        {/* Stats grid */}
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <View style={[styles.statIcon, { backgroundColor: "#dcfce7" }]}>
@@ -235,6 +791,7 @@ export default function TrainingCompleteScreen() {
           </View>
         </View>
 
+        {/* Almost there section */}
         {almostUpgradeCards.length > 0 && (
           <View style={styles.levelUpSection}>
             <View style={styles.sectionHeader}>
@@ -333,6 +890,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8fafc",
   },
+  confettiContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+  },
+  confetti: {
+    position: "absolute",
+    borderRadius: 4,
+  },
   headerGradient: {
     paddingTop: 60,
     paddingBottom: 32,
@@ -361,8 +930,158 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  modeStatsCard: {
+    margin: 16,
+    padding: 24,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+    position: "relative",
+    overflow: "visible",
+  },
+  recordBadge: {
+    position: "absolute",
+    top: -12,
+    right: 20,
+    zIndex: 10,
+    shadowColor: "#f59e0b",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  recordBadgeGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  recordBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 1,
+  },
+  modeStatsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 24,
+  },
+  modeIconBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modeStatsHeaderText: {
+    flex: 1,
+  },
+  modeStatsTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1e293b",
+    marginBottom: 4,
+  },
+  modeStatsSubtitle: {
+    fontSize: 14,
+    color: "#64748b",
+    lineHeight: 20,
+  },
+  modeMainValue: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  modeValue: {
+    fontSize: 56,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  modeValueRecord: {
+    textShadowColor: "rgba(16, 185, 129, 0.3)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
+  },
+  modeValueLabel: {
+    fontSize: 14,
+    color: "#94a3b8",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    fontWeight: "600",
+  },
+  comparisonContainer: {
+    marginTop: 16,
+  },
+  comparisonDivider: {
+    height: 1,
+    backgroundColor: "#e2e8f0",
+    marginBottom: 16,
+  },
+  comparisonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  comparisonItem: {
+    flex: 1,
+  },
+  comparisonLabel: {
+    fontSize: 12,
+    color: "#94a3b8",
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  comparisonValue: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  comparisonDiff: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  comparisonDiffText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  modeStatsGrid: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+  },
+  modeStatItem: {
+    flex: 1,
+    alignItems: "center",
+    gap: 6,
+  },
+  modeStatValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  modeStatLabel: {
+    fontSize: 11,
+    color: "#94a3b8",
+    textAlign: "center",
+  },
   performanceCard: {
     margin: 16,
+    marginTop: 0,
     padding: 24,
     backgroundColor: "#fff",
     borderRadius: 16,

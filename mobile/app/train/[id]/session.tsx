@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import {
   View,
@@ -338,6 +338,15 @@ export default function TrainingSessionScreen() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipAnim, setFlipAnim] = useState(() => new Animated.Value(0));
 
+  // Session stats
+  const [sessionCorrect, setSessionCorrect] = useState(0);
+  const [sessionIncorrect, setSessionIncorrect] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const bestStreakRef = useRef(0);
+  const sessionCorrectRef = useRef(0);
+  const sessionIncorrectRef = useRef(0);
+
   const { data: deck, isLoading } = useQuery({
     queryKey: ["deck", id],
     queryFn: () => getDeck(Number(id)),
@@ -365,7 +374,12 @@ export default function TrainingSessionScreen() {
         setTimeout(() => {
           router.replace({
             pathname: "/train/[id]/complete",
-            params: { id },
+            params: {
+              id,
+              sessionCorrect: sessionCorrectRef.current.toString(),
+              sessionIncorrect: sessionIncorrectRef.current.toString(),
+              sessionBestStreak: bestStreakRef.current.toString(),
+            },
           });
         }, 0);
         return prev;
@@ -385,12 +399,24 @@ export default function TrainingSessionScreen() {
         cardId: currentCard.id,
         success: true,
       });
+
+      // Update session stats
+      sessionCorrectRef.current += 1;
+      setSessionCorrect((prev) => prev + 1);
+      setCurrentStreak((prev) => {
+        const newStreak = prev + 1;
+        if (newStreak > bestStreakRef.current) {
+          bestStreakRef.current = newStreak;
+          setBestStreak(newStreak);
+        }
+        return newStreak;
+      });
     } catch (error) {
       console.error("Error saving answer:", error);
     }
 
     goToNextCard();
-  }, [cards, currentIndex, answerMutation, goToNextCard]);
+  }, [cards, currentIndex, answerMutation, goToNextCard, bestStreak]);
 
   const handleSwipeLeft = useCallback(async () => {
     const currentCard = cards[currentIndex];
@@ -401,6 +427,11 @@ export default function TrainingSessionScreen() {
         cardId: currentCard.id,
         success: false,
       });
+
+      // Update session stats
+      sessionIncorrectRef.current += 1;
+      setSessionIncorrect((prev) => prev + 1);
+      setCurrentStreak(0);
     } catch (error) {
       console.error("Error saving answer:", error);
     }

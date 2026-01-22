@@ -14,7 +14,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function TrainingCompleteScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, sessionCorrect, sessionIncorrect, sessionBestStreak } =
+    useLocalSearchParams();
   const [scaleAnim] = useState(new Animated.Value(0));
   const [fadeAnim] = useState(new Animated.Value(0));
 
@@ -22,6 +23,10 @@ export default function TrainingCompleteScreen() {
     queryKey: ["deck", id],
     queryFn: () => getDeck(Number(id)),
   });
+
+  const totalCorrect = Number(sessionCorrect) || 0;
+  const totalIncorrect = Number(sessionIncorrect) || 0;
+  const bestStreak = Number(sessionBestStreak) || 0;
 
   useEffect(() => {
     Animated.parallel([
@@ -40,26 +45,10 @@ export default function TrainingCompleteScreen() {
   }, []);
 
   const totalCards = deck?.cards.length || 0;
-  const cardsWithProgress = deck?.cards.filter((card) => card.progress) || [];
-  const totalCorrect = cardsWithProgress.reduce(
-    (sum, card) => sum + (card.progress?.successCount || 0),
-    0,
-  );
-  const totalIncorrect = cardsWithProgress.reduce(
-    (sum, card) => sum + (card.progress?.failureCount || 0),
-    0,
-  );
   const successRate =
     totalCorrect + totalIncorrect > 0
       ? Math.round((totalCorrect / (totalCorrect + totalIncorrect)) * 100)
       : 0;
-
-  const getBestStreak = () => {
-    return Math.max(
-      ...cardsWithProgress.map((card) => card.progress?.currentStreak || 0),
-      0,
-    );
-  };
 
   const getNextLevel = (maxStreak: number) => {
     if (maxStreak >= 100)
@@ -107,12 +96,16 @@ export default function TrainingCompleteScreen() {
       name: "Bronze",
       icon: "help-circle",
       color: "#cd7f32",
-      required: 3,
+      required: 10,
     };
   };
 
   const getAlmostUpgradeCards = () => {
-    return cardsWithProgress
+    if (!deck) return [];
+
+    const cardsWithProgress = deck.cards.filter((card) => card.progress) || [];
+
+    const cardsWithUpgradeInfo = cardsWithProgress
       .map((card) => {
         const maxStreak = card.progress?.maxStreak || 0;
         const nextLevel = getNextLevel(maxStreak);
@@ -130,9 +123,18 @@ export default function TrainingCompleteScreen() {
           percentToNext,
         };
       })
-      .filter(
-        (card) => card !== null && card.remaining > 0 && card.remaining <= 3,
-      )
+      .filter((card) => card !== null && card.remaining > 0);
+
+    // Si le deck a 3 cartes ou plus, on montre toujours les 3 cartes les plus proches du level up
+    if (totalCards >= 3) {
+      return cardsWithUpgradeInfo
+        .sort((a, b) => a.remaining - b.remaining)
+        .slice(0, 3);
+    }
+
+    // Sinon, on montre uniquement celles qui sont à 3 ou moins du level up
+    return cardsWithUpgradeInfo
+      .filter((card) => card.remaining <= 3)
       .sort((a, b) => a.remaining - b.remaining)
       .slice(0, 3);
   };
@@ -228,7 +230,7 @@ export default function TrainingCompleteScreen() {
             <View style={[styles.statIcon, { backgroundColor: "#fef3c7" }]}>
               <Ionicons name="flash" size={28} color="#f59e0b" />
             </View>
-            <Text style={styles.statValue}>{getBestStreak()}</Text>
+            <Text style={styles.statValue}>{bestStreak}</Text>
             <Text style={styles.statLabel}>Best Streak</Text>
           </View>
         </View>
@@ -338,29 +340,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 16,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: "#fff",
-    opacity: 0.9,
+    color: "rgba(255, 255, 255, 0.9)",
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
   },
   performanceCard: {
+    margin: 16,
+    padding: 24,
     backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 24,
-    marginTop: -20,
-    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -376,12 +381,12 @@ const styles = StyleSheet.create({
   },
   successRateContainer: {
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   successRateLabel: {
     fontSize: 14,
     color: "#64748b",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   successRateValue: {
     fontSize: 48,
@@ -403,29 +408,29 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
+    paddingHorizontal: 16,
     gap: 12,
-    marginBottom: 16,
   },
   statCard: {
     flex: 1,
     minWidth: "45%",
     backgroundColor: "#fff",
-    borderRadius: 12,
     padding: 16,
+    borderRadius: 12,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
   statIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: "center",
-    marginBottom: 8,
+    alignItems: "center",
+    marginBottom: 12,
   },
   statValue: {
     fontSize: 24,
@@ -438,15 +443,15 @@ const styles = StyleSheet.create({
     color: "#64748b",
   },
   levelUpSection: {
+    margin: 16,
+    padding: 16,
     backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -460,44 +465,44 @@ const styles = StyleSheet.create({
     color: "#1e293b",
   },
   levelUpCard: {
+    padding: 16,
     backgroundColor: "#f8fafc",
     borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   levelUpCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
+    alignItems: "center",
+    marginBottom: 12,
   },
   levelUpCardInfo: {
     flex: 1,
     marginRight: 12,
   },
   levelUpCardQuestion: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
     color: "#1e293b",
-    marginBottom: 2,
+    marginBottom: 4,
   },
   levelUpCardTranslation: {
-    fontSize: 13,
+    fontSize: 14,
     color: "#64748b",
   },
   levelUpRemaining: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "#eff6ff",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    backgroundColor: "#fff",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
   levelUpRemainingText: {
     fontSize: 12,
-    color: "#3b82f6",
     fontWeight: "600",
+    color: "#64748b",
   },
   levelProgressContainer: {
     flexDirection: "row",
@@ -519,38 +524,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
     color: "#64748b",
-    minWidth: 70,
-    textAlign: "right",
-  },
-  tipsCard: {
-    flexDirection: "row",
-    backgroundColor: "#fffbeb",
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-    marginBottom: 100,
-  },
-  tipsContent: {
-    flex: 1,
-  },
-  tipsTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  tipsText: {
-    fontSize: 14,
-    color: "#64748b",
-    lineHeight: 20,
   },
   footer: {
-    position: "absolute",
-    bottom: 80,
-    left: 16,
-    right: 16,
     flexDirection: "row",
     gap: 12,
+    padding: 16,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
   },
   secondaryButton: {
     flex: 1,
@@ -558,11 +539,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#fff",
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#3b82f6",
+    backgroundColor: "#eff6ff",
   },
   secondaryButtonText: {
     fontSize: 16,
@@ -575,9 +554,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#3b82f6",
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 12,
+    backgroundColor: "#3b82f6",
   },
   primaryButtonText: {
     fontSize: 16,
@@ -585,15 +564,12 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   homeButton: {
-    position: "absolute",
-    bottom: 24,
-    left: 16,
-    right: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    paddingVertical: 12,
+    padding: 12,
+    backgroundColor: "#fff",
   },
   homeButtonText: {
     fontSize: 14,

@@ -1,60 +1,52 @@
-"use client";
-
 import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { router } from "expo-router";
+import { useForm, Controller } from "react-hook-form";
 import { useAuth } from "@/services/auth_context";
+import Input from "../components/Input";
+import Button from "../components/Button";
+
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
-  const handleLogin = async () => {
-    console.log("=== DÉBUT LOGIN ===");
-    console.log("📝 Email saisi:", email);
-    console.log("📝 Password saisi:", password ? "***" + password.slice(-3) : "vide");
-    
-    if (!email || !password) {
-      console.log("❌ Champs vides détectés");
-      Alert.alert("Error", "Please fill in all fields");
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
+  const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
-    console.log("⏳ Chargement activé");
-    
+
     try {
-      console.log("🚀 Appel de la fonction login...");
-      await login(email, password);
-      
-      console.log("✅ Login réussi ! Redirection...");
-      setTimeout(() => {
-        router.replace("/(tabs)");
-      }, 100);
+      await login(data.email, data.password);
+      router.replace("/(tabs)");
     } catch (error) {
-      console.log("❌ ERREUR CAPTURÉE dans handleLogin:");
-      console.error("Type:", error?.constructor?.name);
-      console.error("Message:", error instanceof Error ? error.message : String(error));
-      console.error("Stack:", error instanceof Error ? error.stack : "N/A");
-      
-      const message = error instanceof Error ? error.message : "Invalid credentials";
-      Alert.alert("Error", message);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Invalid credentials",
+      );
     } finally {
       setLoading(false);
-      console.log("⏳ Chargement désactivé");
-      console.log("=== FIN LOGIN ===\n");
     }
   };
 
@@ -64,51 +56,109 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.content}>
-        <Text style={styles.title}>Flashcard Pro</Text>
-        <Text style={styles.subtitle}>Sign in to continue learning</Text>
-
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor="#999"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor="#999"
-          />
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don&apos;t have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
-            <Text style={styles.linkText}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
+        <Header />
+        <LoginForm
+          control={control}
+          errors={errors}
+          onSubmit={handleSubmit(onSubmit)}
+          loading={loading}
+        />
+        <Footer />
       </View>
     </KeyboardAvoidingView>
   );
 }
+
+const Header = () => (
+  <>
+    <Text style={styles.title}>Flashcard Pro</Text>
+    <Text style={styles.subtitle}>Sign in to continue learning</Text>
+  </>
+);
+
+type LoginFormProps = {
+  control: any;
+  errors: any;
+  onSubmit: () => void;
+  loading: boolean;
+};
+
+const LoginForm = ({ control, errors, onSubmit, loading }: LoginFormProps) => (
+  <View style={styles.form}>
+    <Controller
+      control={control}
+      name="email"
+      rules={{
+        required: "Email is required",
+        pattern: {
+          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+          message: "Invalid email address",
+        },
+      }}
+      render={({ field: { onChange, onBlur, value } }) => (
+        <View>
+          <Input
+            placeholder="Email"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={!loading}
+            error={!!errors.email}
+          />
+          {errors.email && (
+            <Text style={styles.errorText}>{errors.email.message}</Text>
+          )}
+        </View>
+      )}
+    />
+
+    <Controller
+      control={control}
+      name="password"
+      rules={{
+        required: "Password is required",
+        minLength: {
+          value: 6,
+          message: "Password must be at least 6 characters",
+        },
+      }}
+      render={({ field: { onChange, onBlur, value } }) => (
+        <View>
+          <Input
+            placeholder="Password"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            secureTextEntry
+            editable={!loading}
+            error={!!errors.password}
+          />
+          {errors.password && (
+            <Text style={styles.errorText}>{errors.password.message}</Text>
+          )}
+        </View>
+      )}
+    />
+
+    <Button
+      title="Sign In"
+      onPress={onSubmit}
+      loading={loading}
+      disabled={loading}
+    />
+  </View>
+);
+
+const Footer = () => (
+  <View style={styles.footer}>
+    <Text style={styles.footerText}>Don&apos;t have an account? </Text>
+    <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+      <Text style={styles.linkText}>Sign Up</Text>
+    </TouchableOpacity>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -136,31 +186,6 @@ const styles = StyleSheet.create({
   form: {
     gap: 16,
   },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#1e293b",
-  },
-  button: {
-    backgroundColor: "#3b82f6",
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -174,5 +199,11 @@ const styles = StyleSheet.create({
     color: "#3b82f6",
     fontSize: 14,
     fontWeight: "600",
+  },
+  errorText: {
+    color: "#ef4444",
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
 });

@@ -36,5 +36,20 @@
         "passwordsNotMatch": "Passwords do not match"
       }
     }
+  },
+  "home": {
+    "greeting": "Hello,",
+    "wave": "👋",
+    "stats": {
+      "totalDecks": "Total Decks",
+      "totalCards": "Total Cards"
+    },
+    "recentDecks": {
+      "title": "Recent Decks",
+      "seeAll": "See All",
+      "cards": "{{count}} cards",
+      "noDecks": "No decks yet",
+      "createFirst": "Create Your First Deck"
+    }
   }
 }

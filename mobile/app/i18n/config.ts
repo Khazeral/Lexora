@@ -12,15 +12,15 @@ const resources = {
 
 const deviceLanguage = Localization.getLocales()[0]?.languageCode || "en";
 
-console.log("📱 Device locales:", Localization.getLocales());
-console.log("📱 Selected language:", deviceLanguage);
-
 i18n.use(initReactI18next).init({
   resources,
   lng: deviceLanguage,
   fallbackLng: "en",
   interpolation: {
     escapeValue: false,
+  },
+  react: {
+    useSuspense: false,
   },
 });
 

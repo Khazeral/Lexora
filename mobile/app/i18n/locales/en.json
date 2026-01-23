@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "login": {
+      "title": "Flashcard Pro",
+      "subtitle": "Sign in to continue learning",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 6 characters"
+      }
+    },
+    "signup": {
+      "title": "Flashcard Pro",
+      "subtitle": "Create an account to get started",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "createAccount": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "errors": {
+        "usernameRequired": "Username is required",
+        "usernameMinLength": "Username must be at least 3 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 6 characters",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordsNotMatch": "Passwords do not match"
+      }
+    }
+  }
+}

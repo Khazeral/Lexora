@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/services/auth_context";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -77,12 +78,16 @@ export default function SignupScreen() {
   );
 }
 
-const Header = () => (
-  <>
-    <Text style={styles.title}>Flashcard Pro</Text>
-    <Text style={styles.subtitle}>Create an account to get started</Text>
-  </>
-);
+const Header = () => {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <Text style={styles.title}>{t("auth.signup.title")}</Text>
+      <Text style={styles.subtitle}>{t("auth.signup.subtitle")}</Text>
+    </>
+  );
+};
 
 type SignupFormProps = {
   control: any;
@@ -98,137 +103,146 @@ const SignupForm = ({
   password,
   onSubmit,
   loading,
-}: SignupFormProps) => (
-  <View style={styles.form}>
-    <Controller
-      control={control}
-      name="username"
-      rules={{
-        required: "Username is required",
-        minLength: {
-          value: 3,
-          message: "Username must be at least 3 characters",
-        },
-      }}
-      render={({ field: { onChange, onBlur, value } }) => (
-        <View>
-          <Input
-            placeholder="Username"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="none"
-            editable={!loading}
-            error={!!errors.username}
-          />
-          {errors.username && (
-            <Text style={styles.errorText}>{errors.username.message}</Text>
-          )}
-        </View>
-      )}
-    />
+}: SignupFormProps) => {
+  const { t } = useTranslation();
 
-    <Controller
-      control={control}
-      name="email"
-      rules={{
-        required: "Email is required",
-        pattern: {
-          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-          message: "Invalid email address",
-        },
-      }}
-      render={({ field: { onChange, onBlur, value } }) => (
-        <View>
-          <Input
-            placeholder="Email"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!loading}
-            error={!!errors.email}
-          />
-          {errors.email && (
-            <Text style={styles.errorText}>{errors.email.message}</Text>
-          )}
-        </View>
-      )}
-    />
+  return (
+    <View style={styles.form}>
+      <Controller
+        control={control}
+        name="username"
+        rules={{
+          required: t("auth.signup.errors.usernameRequired"),
+          minLength: {
+            value: 3,
+            message: t("auth.signup.errors.usernameMinLength"),
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View>
+            <Input
+              placeholder={t("auth.signup.username")}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              autoCapitalize="none"
+              editable={!loading}
+              error={!!errors.username}
+            />
+            {errors.username && (
+              <Text style={styles.errorText}>{errors.username.message}</Text>
+            )}
+          </View>
+        )}
+      />
 
-    <Controller
-      control={control}
-      name="password"
-      rules={{
-        required: "Password is required",
-        minLength: {
-          value: 6,
-          message: "Password must be at least 6 characters",
-        },
-      }}
-      render={({ field: { onChange, onBlur, value } }) => (
-        <View>
-          <Input
-            placeholder="Password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            secureTextEntry
-            editable={!loading}
-            error={!!errors.password}
-          />
-          {errors.password && (
-            <Text style={styles.errorText}>{errors.password.message}</Text>
-          )}
-        </View>
-      )}
-    />
+      <Controller
+        control={control}
+        name="email"
+        rules={{
+          required: t("auth.signup.errors.emailRequired"),
+          pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            message: t("auth.signup.errors.emailInvalid"),
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View>
+            <Input
+              placeholder={t("auth.signup.email")}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+              error={!!errors.email}
+            />
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email.message}</Text>
+            )}
+          </View>
+        )}
+      />
 
-    <Controller
-      control={control}
-      name="confirmPassword"
-      rules={{
-        required: "Please confirm your password",
-        validate: (value) => value === password || "Passwords do not match",
-      }}
-      render={({ field: { onChange, onBlur, value } }) => (
-        <View>
-          <Input
-            placeholder="Confirm Password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            secureTextEntry
-            editable={!loading}
-            error={!!errors.confirmPassword}
-          />
-          {errors.confirmPassword && (
-            <Text style={styles.errorText}>
-              {errors.confirmPassword.message}
-            </Text>
-          )}
-        </View>
-      )}
-    />
+      <Controller
+        control={control}
+        name="password"
+        rules={{
+          required: t("auth.signup.errors.passwordRequired"),
+          minLength: {
+            value: 6,
+            message: t("auth.signup.errors.passwordMinLength"),
+          },
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View>
+            <Input
+              placeholder={t("auth.signup.password")}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              secureTextEntry
+              editable={!loading}
+              error={!!errors.password}
+            />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password.message}</Text>
+            )}
+          </View>
+        )}
+      />
 
-    <Button
-      title="Create Account"
-      onPress={onSubmit}
-      loading={loading}
-      disabled={loading}
-    />
-  </View>
-);
+      <Controller
+        control={control}
+        name="confirmPassword"
+        rules={{
+          required: t("auth.signup.errors.confirmPasswordRequired"),
+          validate: (value) =>
+            value === password || t("auth.signup.errors.passwordsNotMatch"),
+        }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <View>
+            <Input
+              placeholder={t("auth.signup.confirmPassword")}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              secureTextEntry
+              editable={!loading}
+              error={!!errors.confirmPassword}
+            />
+            {errors.confirmPassword && (
+              <Text style={styles.errorText}>
+                {errors.confirmPassword.message}
+              </Text>
+            )}
+          </View>
+        )}
+      />
 
-const Footer = () => (
-  <View style={styles.footer}>
-    <Text style={styles.footerText}>Already have an account? </Text>
-    <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-      <Text style={styles.linkText}>Sign In</Text>
-    </TouchableOpacity>
-  </View>
-);
+      <Button
+        title={t("auth.signup.createAccount")}
+        onPress={onSubmit}
+        loading={loading}
+        disabled={loading}
+      />
+    </View>
+  );
+};
+
+const Footer = () => {
+  const { t } = useTranslation();
+
+  return (
+    <View style={styles.footer}>
+      <Text style={styles.footerText}>{t("auth.signup.hasAccount")} </Text>
+      <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+        <Text style={styles.linkText}>{t("auth.signup.signIn")}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

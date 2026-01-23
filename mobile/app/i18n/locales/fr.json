@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "login": {
+      "title": "Flashcard Pro",
+      "subtitle": "Connectez-vous pour continuer à apprendre",
+      "email": "Email",
+      "password": "Mot de passe",
+      "signIn": "Se connecter",
+      "noAccount": "Pas de compte ?",
+      "signUp": "S'inscrire",
+      "errors": {
+        "emailRequired": "L'email est requis",
+        "emailInvalid": "Adresse email invalide",
+        "passwordRequired": "Le mot de passe est requis",
+        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères"
+      }
+    },
+    "signup": {
+      "title": "Flashcard Pro",
+      "subtitle": "Créez un compte pour commencer",
+      "username": "Nom d'utilisateur",
+      "email": "Email",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "createAccount": "Créer le compte",
+      "hasAccount": "Déjà un compte ?",
+      "signIn": "Se connecter",
+      "errors": {
+        "usernameRequired": "Le nom d'utilisateur est requis",
+        "usernameMinLength": "Le nom d'utilisateur doit contenir au moins 3 caractères",
+        "emailRequired": "L'email est requis",
+        "emailInvalid": "Adresse email invalide",
+        "passwordRequired": "Le mot de passe est requis",
+        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
+        "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
+        "passwordsNotMatch": "Les mots de passe ne correspondent pas"
+      }
+    }
+  }
+}

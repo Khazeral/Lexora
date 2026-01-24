@@ -51,5 +51,41 @@
       "noDecks": "Aucun deck pour le moment",
       "createFirst": "Créer votre premier deck"
     }
+  },
+  "decks": {
+    "title": "Mes Decks",
+    "empty": {
+      "title": "Aucun deck",
+      "subtitle": "Créez votre premier deck pour commencer à apprendre",
+      "createButton": "Créer le premier deck"
+    },
+    "card": {
+      "cards": "{{count}} carte",
+      "cards_plural": "{{count}} cartes",
+      "lastStudied": "Étudié {{date}}",
+      "notStudied": "Pas encore étudié"
+    },
+    "create": "Créer un deck",
+    "search": "Rechercher un deck...",
+    "createDeck": {
+      "title": "Créer un deck",
+      "form": {
+        "nameLabel": "Nom du deck",
+        "namePlaceholder": "ex: Vocabulaire espagnol",
+        "nameRequired": "Le nom du deck est requis",
+        "nameMinLength": "Le nom doit contenir au moins 3 caractères",
+        "descriptionLabel": "Description (optionnel)",
+        "descriptionPlaceholder": "Que allez-vous apprendre avec ce deck ?"
+      },
+      "buttons": {
+        "create": "Créer le deck",
+        "cancel": "Annuler"
+      },
+      "success": "Deck créé avec succès !",
+      "errors": {
+        "createFailed": "Échec de la création du deck",
+        "fillRequired": "Veuillez remplir tous les champs requis"
+      }
+    }
   }
 }

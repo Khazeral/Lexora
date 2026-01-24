@@ -1,125 +1,132 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { createCard } from "@/services/cards.api";
-import { Ionicons } from "@expo/vector-icons";
+import AddCardHeader from "@/app/components/cards/add-card/AddCardHeader";
+import AddCardTips from "@/app/components/cards/add-card/AddCardTips";
+import AddCardForm from "@/app/components/cards/add-card/AddCardForm";
+import CardPreview from "@/app/components/cards/CardPreview";
+import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
+
+type AddCardFormData = {
+  word: string;
+  translation: string;
+};
 
 export default function AddCardScreen() {
   const { id } = useLocalSearchParams();
-  const [word, setWord] = useState("");
-  const [translation, setTranslation] = useState("");
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [showTips, setShowTips] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<AddCardFormData>({
+    defaultValues: {
+      word: "",
+      translation: "",
+    },
+  });
+
+  const word = watch("word");
+  const translation = watch("translation");
 
   const createCardMutation = useMutation({
     mutationFn: createCard,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deck", id] });
-      queryClient.invalidateQueries({queryKey: ["decks"]})
-      router.back();
+      queryClient.invalidateQueries({ queryKey: ["decks"] });
+      queryClient.invalidateQueries({ queryKey: ["home"] });
     },
     onError: (error) => {
-      Alert.alert("Error", "Failed to create card");
+      Alert.alert("Error", t("addCard.errors.createFailed"));
       console.error(error);
     },
   });
 
-  const handleCreate = () => {
-    if (!word.trim() || !translation.trim()) {
-      Alert.alert("Error", "Please fill in both fields");
-      return;
-    }
+  const onSubmit = (data: AddCardFormData) => {
+    createCardMutation.mutate(
+      {
+        word: data.word.trim(),
+        translation: data.translation.trim(),
+        deckId: Number(id),
+      },
+      {
+        onSuccess: () => {
+          Alert.alert("✅ " + t("cards.addCard.success"));
+          router.back();
+        },
+      },
+    );
+  };
 
-    createCardMutation.mutate({
-      word: word.trim(),
-      translation: translation.trim(),
-      deckId: Number(id),
-    });
+  const onAddAnother = (data: AddCardFormData) => {
+    createCardMutation.mutate(
+      {
+        word: data.word.trim(),
+        translation: data.translation.trim(),
+        deckId: Number(id),
+      },
+      {
+        onSuccess: () => {
+          reset();
+          Alert.alert("✅ " + t("cards.addCard.success"));
+        },
+      },
+    );
+  };
+
+  const handleCancel = () => {
+    router.back();
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <AddCardHeader
+          onBack={handleCancel}
+          onToggleTips={() => setShowTips(!showTips)}
+          showingTips={showTips}
+        />
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons name="arrow-back" size={24} color="#1e293b" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Card</Text>
-        <View style={styles.placeholder} />
-      </View>
+          {showTips && <AddCardTips />}
 
-      <View style={styles.content}>
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Word / Term *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g., Hello"
-              value={word}
-              onChangeText={setWord}
-              placeholderTextColor="#94a3b8"
-              autoFocus
-            />
-          </View>
+          <AddCardForm control={control} errors={errors} />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Translation / Definition *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g., Bonjour"
-              value={translation}
-              onChangeText={setTranslation}
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
+          <CardPreview word={word} translation={translation} />
+        </ScrollView>
 
-          <View style={styles.preview}>
-            <Text style={styles.previewLabel}>Preview:</Text>
-            <View style={styles.previewCard}>
-              <View style={styles.previewSide}>
-                <Text style={styles.previewTitle}>Front</Text>
-                <Text style={styles.previewText}>{word || "..."}</Text>
-              </View>
-              <View style={styles.previewDivider} />
-              <View style={styles.previewSide}>
-                <Text style={styles.previewTitle}>Back</Text>
-                <Text style={styles.previewText}>{translation || "..."}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.createButton,
-            createCardMutation.isPending && styles.buttonDisabled,
-          ]}
-          onPress={handleCreate}
-          disabled={createCardMutation.isPending}
-        >
-          {createCardMutation.isPending ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.createButtonText}>Add Card</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        <AddCardActions
+          onAdd={handleSubmit(onSubmit)}
+          onAddAnother={handleSubmit(onAddAnother)}
+          onCancel={handleCancel}
+          isLoading={createCardMutation.isPending}
+        />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -128,105 +135,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8fafc",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  placeholder: {
-    width: 40,
-  },
-  content: {
+  keyboardView: {
     flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     padding: 24,
-    justifyContent: "space-between",
-  },
-  form: {
-    gap: 24,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#1e293b",
-  },
-  preview: {
-    gap: 12,
-  },
-  previewLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#64748b",
-  },
-  previewCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    gap: 12,
-  },
-  previewSide: {
-    gap: 4,
-  },
-  previewTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#94a3b8",
-    textTransform: "uppercase",
-  },
-  previewText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  previewDivider: {
-    height: 1,
-    backgroundColor: "#e2e8f0",
-  },
-  createButton: {
-    backgroundColor: "#3b82f6",
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    shadowColor: "#3b82f6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  createButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    paddingBottom: 40,
   },
 });

@@ -112,5 +112,39 @@
         "toReview": "To Review"
       }
     }
+  },
+  "cards": {
+    "addCard": {
+      "title": "Add Card",
+      "form": {
+        "wordLabel": "Word / Term",
+        "wordPlaceholder": "e.g., Hello",
+        "wordRequired": "Word is required",
+        "translationLabel": "Translation / Definition",
+        "translationPlaceholder": "e.g., Bonjour",
+        "translationRequired": "Translation is required",
+        "previewTitle": "Preview",
+        "front": "Front",
+        "back": "Back",
+        "empty": "..."
+      },
+      "buttons": {
+        "add": "Add Card",
+        "cancel": "Cancel",
+        "keepAdding": "Keep adding cards",
+        "addAndClose": "Add and close"
+      },
+      "success": "Card added successfully!",
+      "errors": {
+        "createFailed": "Failed to create card",
+        "fillRequired": "Please fill in both fields"
+      },
+      "tips": {
+        "title": "💡 Tips",
+        "tip1": "Keep it simple and clear",
+        "tip2": "Use examples if needed",
+        "tip3": "Add context when helpful"
+      }
+    }
   }
 }

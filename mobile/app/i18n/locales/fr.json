@@ -111,5 +111,39 @@
         "toReview": "À réviser"
       }
     }
+  },
+  "cards": {
+    "addCard": {
+      "title": "Ajouter une carte",
+      "form": {
+        "wordLabel": "Mot / Terme",
+        "wordPlaceholder": "ex: Hello",
+        "wordRequired": "Le mot est requis",
+        "translationLabel": "Traduction / Définition",
+        "translationPlaceholder": "ex: Bonjour",
+        "translationRequired": "La traduction est requise",
+        "previewTitle": "Aperçu",
+        "front": "Recto",
+        "back": "Verso",
+        "empty": "..."
+      },
+      "buttons": {
+        "add": "Ajouter la carte",
+        "cancel": "Annuler",
+        "keepAdding": "Continuer à ajouter",
+        "addAndClose": "Ajouter et fermer"
+      },
+      "success": "Carte ajoutée avec succès !",
+      "errors": {
+        "createFailed": "Échec de la création de la carte",
+        "fillRequired": "Veuillez remplir les deux champs"
+      },
+      "tips": {
+        "title": "💡 Conseils",
+        "tip1": "Restez simple et clair",
+        "tip2": "Utilisez des exemples si nécessaire",
+        "tip3": "Ajoutez du contexte si utile"
+      }
+    }
   }
 }

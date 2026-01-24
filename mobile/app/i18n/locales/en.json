@@ -86,6 +86,31 @@
         "createFailed": "Failed to create deck",
         "fillRequired": "Please fill in all required fields"
       }
+    },
+
+    "deckDetail": {
+      "cards": "{{count}} card",
+      "cards_plural": "{{count}} cards",
+      "empty": {
+        "title": "No Cards Yet",
+        "subtitle": "Add your first card to start learning",
+        "button": "Add First Card"
+      },
+      "addCard": "Add Card",
+      "study": "Study Now",
+      "edit": "Edit Deck",
+      "delete": "Delete Deck",
+      "notFound": "Deck not found",
+      "levels": {
+        "bronze": "Learning",
+        "silver": "Practicing",
+        "gold": "Mastered",
+        "platinum": "Expert"
+      },
+      "stats": {
+        "mastery": "Mastery",
+        "toReview": "To Review"
+      }
     }
   }
 }

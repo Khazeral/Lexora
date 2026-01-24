@@ -2,12 +2,23 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
-type CreateDeckHeaderProps = {
+type DeckDetailHeaderProps = {
+  name: string;
+  cardCount: number;
   onBack: () => void;
 };
 
-export default function CreateDeckHeader({ onBack }: CreateDeckHeaderProps) {
+export default function DeckDetailHeader({
+  name,
+  cardCount,
+  onBack,
+}: DeckDetailHeaderProps) {
   const { t } = useTranslation();
+
+  const cardCountText =
+    cardCount === 1
+      ? t("decks.deckDetail.cards", { count: cardCount })
+      : t("decks.deckDetail.cards_plural", { count: cardCount });
 
   return (
     <View style={styles.header}>
@@ -16,9 +27,14 @@ export default function CreateDeckHeader({ onBack }: CreateDeckHeaderProps) {
         style={styles.backButton}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons name="close" size={28} color="#1e293b" />
+        <Ionicons name="arrow-back" size={24} color="#1e293b" />
       </TouchableOpacity>
-      <Text style={styles.title}>{t("decks.createDeck.title")}</Text>
+      <View style={styles.headerInfo}>
+        <Text style={styles.title} numberOfLines={1}>
+          {name}
+        </Text>
+        <Text style={styles.cardCount}>{cardCountText}</Text>
+      </View>
       <View style={styles.placeholder} />
     </View>
   );
@@ -38,12 +54,22 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 4,
   },
+  headerInfo: {
+    flex: 1,
+    alignItems: "center",
+    paddingHorizontal: 8,
+  },
+  placeholder: {
+    width: 32,
+  },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: "#1e293b",
   },
-  placeholder: {
-    width: 36,
+  cardCount: {
+    fontSize: 13,
+    color: "#64748b",
+    marginTop: 2,
   },
 });

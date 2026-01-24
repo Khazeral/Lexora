@@ -86,6 +86,30 @@
         "createFailed": "Échec de la création du deck",
         "fillRequired": "Veuillez remplir tous les champs requis"
       }
+    },
+    "deckDetail": {
+      "cards": "{{count}} carte",
+      "cards_plural": "{{count}} cartes",
+      "empty": {
+        "title": "Aucune carte",
+        "subtitle": "Ajoutez votre première carte pour commencer",
+        "button": "Ajouter la première carte"
+      },
+      "addCard": "Ajouter une carte",
+      "study": "Étudier maintenant",
+      "edit": "Modifier le deck",
+      "delete": "Supprimer le deck",
+      "notFound": "Deck introuvable",
+      "levels": {
+        "bronze": "Apprentissage",
+        "silver": "Pratique",
+        "gold": "Maîtrisé",
+        "platinum": "Expert"
+      },
+      "stats": {
+        "mastery": "Maîtrise",
+        "toReview": "À réviser"
+      }
     }
   }
 }

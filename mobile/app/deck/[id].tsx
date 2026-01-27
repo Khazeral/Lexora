@@ -28,7 +28,7 @@ export default function DeckDetailScreen() {
     return (
       <LoadingScreen
         notFound
-        notFoundMessage={t("deckDetail.notFound")}
+        notFoundMessage={t("decks.deckDetail.notFound")}
         notFoundIcon="albums-outline"
       />
     );

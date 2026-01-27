@@ -14,8 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { createCard } from "@/services/cards.api";
 import AddCardHeader from "@/app/components/cards/add-card/AddCardHeader";
 import AddCardTips from "@/app/components/cards/add-card/AddCardTips";
-import AddCardForm from "@/app/components/cards/add-card/AddCardForm";
-import CardPreview from "@/app/components/cards/CardPreview";
+import InteractiveCard from "@/app/components/cards/add-card/InteractiveCard";
 import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
 
 type AddCardFormData = {
@@ -32,7 +31,6 @@ export default function AddCardScreen() {
   const {
     control,
     handleSubmit,
-    watch,
     reset,
     formState: { errors },
   } = useForm<AddCardFormData>({
@@ -42,9 +40,6 @@ export default function AddCardScreen() {
     },
   });
 
-  const word = watch("word");
-  const translation = watch("translation");
-
   const createCardMutation = useMutation({
     mutationFn: createCard,
     onSuccess: () => {
@@ -53,12 +48,17 @@ export default function AddCardScreen() {
       queryClient.invalidateQueries({ queryKey: ["home"] });
     },
     onError: (error) => {
-      Alert.alert("Error", t("addCard.errors.createFailed"));
+      Alert.alert("Error", t("cards.addCard.errors.createFailed"));
       console.error(error);
     },
   });
 
   const onSubmit = (data: AddCardFormData) => {
+    if (!data.word || !data.translation) {
+      Alert.alert("Error", t("cards.addCard.errors.fillRequired"));
+      return;
+    }
+
     createCardMutation.mutate(
       {
         word: data.word.trim(),
@@ -75,6 +75,11 @@ export default function AddCardScreen() {
   };
 
   const onAddAnother = (data: AddCardFormData) => {
+    if (!data.word || !data.translation) {
+      Alert.alert("Error", t("cards.addCard.errors.fillRequired"));
+      return;
+    }
+
     createCardMutation.mutate(
       {
         word: data.word.trim(),
@@ -90,10 +95,6 @@ export default function AddCardScreen() {
     );
   };
 
-  const handleCancel = () => {
-    router.back();
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <KeyboardAvoidingView
@@ -101,7 +102,7 @@ export default function AddCardScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <AddCardHeader
-          onBack={handleCancel}
+          onBack={() => router.back()}
           onToggleTips={() => setShowTips(!showTips)}
           showingTips={showTips}
         />
@@ -114,15 +115,12 @@ export default function AddCardScreen() {
         >
           {showTips && <AddCardTips />}
 
-          <AddCardForm control={control} errors={errors} />
-
-          <CardPreview word={word} translation={translation} />
+          <InteractiveCard control={control} errors={errors} />
         </ScrollView>
 
         <AddCardActions
           onAdd={handleSubmit(onSubmit)}
           onAddAnother={handleSubmit(onAddAnother)}
-          onCancel={handleCancel}
           isLoading={createCardMutation.isPending}
         />
       </KeyboardAvoidingView>

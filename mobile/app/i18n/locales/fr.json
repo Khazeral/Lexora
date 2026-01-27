@@ -52,6 +52,83 @@
       "createFirst": "Créer votre premier deck"
     }
   },
+  "train": {
+    "title": "Pratique",
+    "subtitle": "Choisissez un deck à pratiquer",
+    "loading": "Chargement des decks...",
+    "empty": {
+      "title": "Aucun deck disponible",
+      "subtitle": "Créez d'abord un deck pour commencer à pratiquer",
+      "button": "Créer votre premier deck"
+    },
+    "deck": {
+      "cards": "{{count}} carte",
+      "cards_plural": "{{count}} cartes",
+      "start": "Commencer",
+      "noCards": "Aucune carte"
+    },
+    "stats": {
+      "ready": "Prêt à pratiquer",
+      "needsReview": "À réviser"
+    },
+    "trainSettings": {
+      "title": "Réglages d'entraînement",
+      "cards": "{{count}} carte",
+      "cards_plural": "{{count}} cartes",
+      "gameMode": {
+        "title": "Mode de jeu",
+        "subtitle": "Choisissez votre défi"
+      },
+      "options": {
+        "shuffle": {
+          "title": "Mélanger les cartes",
+          "description": "Ordre aléatoire"
+        },
+        "reverse": {
+          "title": "Mode inversé",
+          "description": "Traduction en premier"
+        }
+      },
+      "tips": {
+        "title": "Conseils",
+        "classic": "• Prenez votre temps\n• Révisez les mauvaises réponses\n• Pratiquez régulièrement",
+        "speedrun": "• Vitesse ET précision\n• Les erreurs coûtent 5 secondes\n• Battez votre record !",
+        "streak": "• Une erreur = game over\n• Vous avez 3 vies\n• Restez concentré et calme",
+        "timeattack": "• 10 secondes par carte\n• Pensez vite mais bien\n• La pression forge les compétences",
+        "perfect": "• Zéro tolérance aux erreurs\n• Une erreur = recommencer\n• Seulement pour les maîtres"
+      },
+      "start": "Commencer {{mode}}",
+      "difficulty": {
+        "easy": "Facile",
+        "medium": "Moyen",
+        "hard": "Difficile",
+        "expert": "Expert",
+        "master": "Maître"
+      },
+      "gameModes": {
+        "classic": {
+          "title": "Classique",
+          "description": "Pratiquez à votre rythme avec des retours détaillés"
+        },
+        "speedrun": {
+          "title": "Speedrun",
+          "description": "Course contre la montre ! Terminez le plus vite possible"
+        },
+        "streak": {
+          "title": "En série",
+          "description": "Construisez la plus longue série sans erreur"
+        },
+        "timeattack": {
+          "title": "Attaque temporelle",
+          "description": "Répondez avant la fin du temps sur chaque carte"
+        },
+        "perfect": {
+          "title": "Parfaite run",
+          "description": "Zéro erreur autorisée - défi ultime"
+        }
+      }
+    }
+  },
   "decks": {
     "title": "Mes Decks",
     "empty": {
@@ -115,23 +192,24 @@
   "cards": {
     "addCard": {
       "title": "Ajouter une carte",
+      "instructions": "Touchez la carte pour basculer entre recto et verso",
+      "flipToFront": "Retour au recto",
+      "flipToBack": "Voir le verso",
+      "hint": "Touchez n'importe où sur la carte pour la retourner",
       "form": {
-        "wordLabel": "Mot / Terme",
-        "wordPlaceholder": "ex: Hello",
-        "wordRequired": "Le mot est requis",
-        "translationLabel": "Traduction / Définition",
-        "translationPlaceholder": "ex: Bonjour",
-        "translationRequired": "La traduction est requise",
-        "previewTitle": "Aperçu",
+        "wordLabel": "Recto",
+        "wordPlaceholder": "Hello",
+        "wordRequired": "Le recto est requis",
+        "translationLabel": "Verso",
+        "translationPlaceholder": "Bonjour",
+        "translationRequired": "Le verso est requis",
         "front": "Recto",
-        "back": "Verso",
-        "empty": "..."
+        "back": "Verso"
       },
       "buttons": {
-        "add": "Ajouter la carte",
-        "cancel": "Annuler",
-        "keepAdding": "Continuer à ajouter",
-        "addAndClose": "Ajouter et fermer"
+        "addAnother": "Ajouter une autre",
+        "addAndFinish": "Ajouter et terminer",
+        "helpText": "Ajoutez une autre carte ou terminez pour revenir au deck"
       },
       "success": "Carte ajoutée avec succès !",
       "errors": {

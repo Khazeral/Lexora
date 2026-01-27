@@ -1,79 +1,76 @@
-import { View, StyleSheet, TouchableOpacity, Text, Switch } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
-import Button from "../../../components/Button";
 
 type AddCardActionsProps = {
   onAdd: () => void;
   onAddAnother: () => void;
-  onCancel: () => void;
   isLoading: boolean;
 };
 
 export default function AddCardActions({
   onAdd,
   onAddAnother,
-  onCancel,
   isLoading,
 }: AddCardActionsProps) {
   const { t } = useTranslation();
-  const [continueAdding, setContinueAdding] = useState(false);
-
-  const handleSubmit = () => {
-    if (continueAdding) {
-      onAddAnother();
-    } else {
-      onAdd();
-    }
-  };
 
   return (
     <View style={styles.actions}>
-      <TouchableOpacity
-        style={styles.toggleContainer}
-        onPress={() => setContinueAdding(!continueAdding)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.toggleContent}>
-          <Ionicons
-            name={continueAdding ? "repeat" : "checkmark-done"}
-            size={20}
-            color="#64748b"
-          />
-          <Text style={styles.toggleText}>
-            {continueAdding
-              ? t("cards.addCard.buttons.keepAdding")
-              : t("cards.addCard.buttons.addAndClose")}
-          </Text>
-        </View>
-        <Switch
-          value={continueAdding}
-          onValueChange={setContinueAdding}
-          trackColor={{ false: "#cbd5e1", true: "#bfdbfe" }}
-          thumbColor={continueAdding ? "#3b82f6" : "#f1f5f9"}
-        />
-      </TouchableOpacity>
+      <View style={styles.helpContainer}>
+        <Ionicons name="information-circle-outline" size={16} color="#64748b" />
+        <Text style={styles.helpText}>
+          {t("cards.addCard.buttons.helpText")}
+        </Text>
+      </View>
 
-      <View style={styles.buttonsRow}>
+      <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={onCancel}
+          style={[
+            styles.button,
+            styles.secondaryButton,
+            isLoading && styles.buttonDisabled,
+          ]}
+          onPress={onAddAnother}
           disabled={isLoading}
+          activeOpacity={0.8}
         >
-          <Text style={styles.cancelButtonText}>
-            {t("cards.addCard.buttons.cancel")}
-          </Text>
+          {isLoading ? (
+            <ActivityIndicator color="#3b82f6" />
+          ) : (
+            <>
+              <Ionicons name="add-circle-outline" size={20} color="#3b82f6" />
+              <Text style={styles.secondaryButtonText}>
+                {t("cards.addCard.buttons.addAnother")}
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
 
-        <View style={styles.submitButtonContainer}>
-          <Button
-            title={t("cards.addCard.buttons.add")}
-            onPress={handleSubmit}
-            loading={isLoading}
-            disabled={isLoading}
-          />
-        </View>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            styles.primaryButton,
+            isLoading && styles.buttonDisabled,
+          ]}
+          onPress={onAdd}
+          disabled={isLoading}
+          activeOpacity={0.8}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.primaryButtonText}>
+              {t("cards.addCard.buttons.addAndFinish")}
+            </Text>
+          )}
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -88,44 +85,55 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#e2e8f0",
   },
-  toggleContainer: {
+  helpContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: "#f8fafc",
-    borderRadius: 12,
+    gap: 8,
+    paddingHorizontal: 4,
   },
-  toggleContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+  helpText: {
     flex: 1,
+    fontSize: 12,
+    color: "#64748b",
+    lineHeight: 16,
   },
-  toggleText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  buttonsRow: {
+  buttonsContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
   },
-  cancelButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+  button: {
+    flex: 1,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f1f5f9",
+    gap: 6,
+    paddingVertical: 16,
+    borderRadius: 12,
   },
-  cancelButtonText: {
-    color: "#64748b",
+  secondaryButton: {
+    backgroundColor: "#eff6ff",
+    borderWidth: 2,
+    borderColor: "#bfdbfe",
+  },
+  secondaryButtonText: {
+    color: "#3b82f6",
     fontSize: 15,
     fontWeight: "600",
   },
-  submitButtonContainer: {
-    flex: 1,
+  primaryButton: {
+    backgroundColor: "#3b82f6",
+    shadowColor: "#3b82f6",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
 });

@@ -3,31 +3,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-type EmptyCardsProps = {
-  deckId: number;
-};
-
-export default function EmptyCard({ deckId }: EmptyCardsProps) {
+export default function EmptyTrainDecks() {
   const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <View style={styles.iconCircle}>
-        <Ionicons name="card-outline" size={48} color="#3b82f6" />
+        <Ionicons name="school-outline" size={56} color="#3b82f6" />
       </View>
-      <Text style={styles.title}>{t("decks.deckDetail.empty.title")}</Text>
-      <Text style={styles.subtitle}>
-        {t("decks.deckDetail.empty.subtitle")}
-      </Text>
+      <Text style={styles.title}>{t("train.empty.title")}</Text>
+      <Text style={styles.subtitle}>{t("train.empty.subtitle")}</Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push(`/deck/${deckId}/add-card`)}
+        onPress={() => router.push("/deck/create")}
         activeOpacity={0.8}
       >
         <Ionicons name="add-circle-outline" size={20} color="#fff" />
-        <Text style={styles.buttonText}>
-          {t("decks.deckDetail.empty.button")}
-        </Text>
+        <Text style={styles.buttonText}>{t("train.empty.button")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -42,13 +34,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   iconCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: "#eff6ff",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
+    borderWidth: 3,
+    borderColor: "#dbeafe",
   },
   title: {
     fontSize: 22,

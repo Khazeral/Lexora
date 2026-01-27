@@ -52,6 +52,83 @@
       "createFirst": "Create Your First Deck"
     }
   },
+  "train": {
+    "title": "Practice",
+    "subtitle": "Choose a deck to practice",
+    "loading": "Loading decks...",
+    "empty": {
+      "title": "No Decks Available",
+      "subtitle": "Create a deck first to start practicing",
+      "button": "Create Your First Deck"
+    },
+    "deck": {
+      "cards": "{{count}} card",
+      "cards_plural": "{{count}} cards",
+      "start": "Start",
+      "noCards": "No cards yet"
+    },
+    "stats": {
+      "ready": "Ready to practice",
+      "needsReview": "Needs review"
+    },
+    "trainSettings": {
+      "title": "Training Settings",
+      "cards": "{{count}} card",
+      "cards_plural": "{{count}} cards",
+      "gameMode": {
+        "title": "Game Mode",
+        "subtitle": "Choose your challenge"
+      },
+      "options": {
+        "shuffle": {
+          "title": "Shuffle Cards",
+          "description": "Randomize order"
+        },
+        "reverse": {
+          "title": "Reverse Mode",
+          "description": "Translation first"
+        }
+      },
+      "tips": {
+        "title": "Tips",
+        "classic": "• Take your time\n• Review wrong answers\n• Practice regularly for best results",
+        "speedrun": "• Focus on speed AND accuracy\n• Wrong answers cost 5 seconds\n• Beat your personal record!",
+        "streak": "• One mistake = game over\n• You have 3 lives\n• Stay focused and calm",
+        "timeattack": "• 10 seconds per card\n• Think fast but accurately\n• Time pressure builds skills",
+        "perfect": "• Zero tolerance for errors\n• One mistake = restart\n• Only for true masters"
+      },
+      "start": "Start {{mode}}",
+      "difficulty": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard",
+        "expert": "Expert",
+        "master": "Master"
+      },
+      "gameModes": {
+        "classic": {
+          "title": "Classic",
+          "description": "Practice at your own pace with detailed feedback"
+        },
+        "speedrun": {
+          "title": "Speedrun",
+          "description": "Race against time! Complete as fast as possible"
+        },
+        "streak": {
+          "title": "Streak",
+          "description": "Build the longest streak without mistakes"
+        },
+        "timeattack": {
+          "title": "Time Attack",
+          "description": "Answer before time runs out on each card"
+        },
+        "perfect": {
+          "title": "Perfect Run",
+          "description": "Zero mistakes allowed - ultimate challenge"
+        }
+      }
+    }
+  },
   "decks": {
     "title": "My Decks",
     "empty": {
@@ -115,24 +192,25 @@
   },
   "cards": {
     "addCard": {
-      "title": "Add Card",
+      "title": "Add a card",
+      "instructions": "Tap the card to flip between front and back",
+      "flipToFront": "Back to front",
+      "flipToBack": "See back",
+      "hint": "Tap anywhere on the card to flip it",
       "form": {
-        "wordLabel": "Word / Term",
-        "wordPlaceholder": "e.g., Hello",
-        "wordRequired": "Word is required",
-        "translationLabel": "Translation / Definition",
-        "translationPlaceholder": "e.g., Bonjour",
-        "translationRequired": "Translation is required",
-        "previewTitle": "Preview",
+        "wordLabel": "Front",
+        "wordPlaceholder": "Hello",
+        "wordRequired": "Front side is required",
+        "translationLabel": "Back",
+        "translationPlaceholder": "Bonjour",
+        "translationRequired": "Back side is required",
         "front": "Front",
-        "back": "Back",
-        "empty": "..."
+        "back": "Back"
       },
       "buttons": {
-        "add": "Add Card",
-        "cancel": "Cancel",
-        "keepAdding": "Keep adding cards",
-        "addAndClose": "Add and close"
+        "addAnother": "Add another",
+        "addAndFinish": "Add & finish",
+        "helpText": "Add another to keep creating cards, or finish to return to the deck"
       },
       "success": "Card added successfully!",
       "errors": {

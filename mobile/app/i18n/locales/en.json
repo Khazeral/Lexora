@@ -129,6 +129,40 @@
       }
     }
   },
+  "trainSession": {
+    "header": {
+      "reverse": "Reverse"
+    },
+    "progress": {
+      "of": "{{current}} / {{total}}"
+    },
+    "modes": {
+      "perfect": "Perfect",
+      "speedrun": {
+        "penalty": "+{{seconds}}s"
+      }
+    },
+    "card": {
+      "labels": {
+        "word": "Word",
+        "translation": "Translation"
+      },
+      "hints": {
+        "tapToFlip": "Tap to flip",
+        "swipeWrong": "Wrong",
+        "swipeCorrect": "Correct"
+      },
+      "indicators": {
+        "correct": "CORRECT",
+        "nope": "NOPE"
+      }
+    },
+    "empty": {
+      "title": "No cards in this deck",
+      "button": "Add Cards"
+    },
+    "loading": "Loading session..."
+  },
   "decks": {
     "title": "My Decks",
     "empty": {

@@ -163,6 +163,89 @@
     },
     "loading": "Chargement de la session..."
   },
+  "trainComplete": {
+    "headers": {
+      "perfect": "Course Parfaite! 💎",
+      "newRecord": "Nouveau Record! 🎉",
+      "complete": "Session Terminée! 🎉"
+    },
+    "performance": {
+      "outstanding": "🏆 Exceptionnel!",
+      "greatJob": "🌟 Excellent travail!",
+      "goodEffort": "👍 Bon effort!",
+      "keepPracticing": "💪 Continuez à pratiquer!",
+      "roomForImprovement": "📚 Place à l'amélioration!",
+      "successRate": "Taux de réussite"
+    },
+    "stats": {
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "totalCards": "Total Cartes",
+      "bestStreak": "Meilleure Série"
+    },
+    "modes": {
+      "speedrun": {
+        "firstRun": "⚡ Premier Speed Run!",
+        "firstRunSubtitle": "C'est votre premier speed run sur ce deck!",
+        "newRecord": "🎉 Nouveau Record!",
+        "complete": "Speed Run Terminé",
+        "yourTime": "Votre Temps",
+        "previousBest": "Meilleur Précédent",
+        "beatRecord": "Vous avez battu votre record de {{seconds}} secondes!",
+        "slower": "{{seconds}} secondes plus lent que votre meilleur",
+        "penalties": "Pénalités",
+        "netTime": "Temps Net",
+        "attempts": "Tentatives"
+      },
+      "streak": {
+        "firstRun": "🔥 Première Série!",
+        "bestStreak": "Meilleure Série",
+        "yourStreak": "Votre Série",
+        "newRecord": "🔥 Nouveau Record de Série!",
+        "complete": "Maître de Série",
+        "livesLeft": "Vies Restantes",
+        "livesRemaining": "Vous avez gardé {{count}} vie!",
+        "livesRemaining_plural": "Vous avez gardé {{count}} vies!",
+        "beatRecord": "Vous avez battu votre record de {{count}}!",
+        "awayFromRecord": "{{count}} de votre record",
+        "record": "Record",
+        "cards": "Cartes"
+      },
+      "timeattack": {
+        "firstRun": "🎯 Première Attaque Temporelle!",
+        "avgPerCard": "Moy par Carte",
+        "firstAttempt": "Excellente première tentative!",
+        "newRecord": "🎯 Nouveau Record!",
+        "complete": "Attaque Temporelle Terminée",
+        "improved": "Vous avez amélioré votre temps moyen!",
+        "keepPracticing": "Continuez à pratiquer pour de meilleurs temps!",
+        "totalTime": "Temps Total",
+        "cards": "Cartes",
+        "attempts": "Tentatives"
+      },
+      "perfect": {
+        "success": "💎 Course Parfaite!",
+        "flawless": "IMPECCABLE",
+        "victory": "Victoire",
+        "runsCompleted": "{{count}} course parfaite terminée!",
+        "runsCompleted_plural": "{{count}} courses parfaites terminées!",
+        "failed": "💔 Course Parfaite Échouée",
+        "perfectRuns": "Courses Parfaites",
+        "tryAgain": "Continuez! Vous réussirez la prochaine fois.",
+        "successRate": "Taux de réussite",
+        "totalAttempts": "Total Tentatives"
+      }
+    },
+    "almostThere": {
+      "title": "Presque là! 🚀",
+      "more": "encore {{count}}"
+    },
+    "actions": {
+      "viewDeck": "Voir le Deck",
+      "trainAgain": "Réessayer",
+      "backToHome": "Retour à l'Accueil"
+    }
+  },
   "decks": {
     "title": "Mes Decks",
     "empty": {

@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { getDeck } from "@/services/decks.api";
 import { answerCard } from "@/services/progress.api";
-import { updateDeckRecords } from "@/services/deck_records.api";
+import { getDeckRecords, updateDeckRecords } from "@/services/deck_records.api";
 import { useAuth } from "@/services/auth_context";
 import { Card } from "@/types";
 import { GameMode } from "@/constants/gameMods";
@@ -39,7 +39,7 @@ export default function TrainingSessionScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cards, setCards] = useState<Card[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [flipAnim] = useState(() => new Animated.Value(0));
+  const [flipAnim, setFlipAnim] = useState(() => new Animated.Value(0));
 
   const {
     sessionCorrectRef,
@@ -53,8 +53,14 @@ export default function TrainingSessionScreen() {
   const { elapsedTime, timePenalty, addPenalty, stopTimer, getTotalTime } =
     useSessionTimer(gameMode as string, true);
 
-  const { lives, isPerfectRun, loseLife, failPerfectRun, resetGameState } =
-    useGameModeState(gameMode as string);
+  const {
+    lives,
+    livesRef,
+    isPerfectRun,
+    loseLife,
+    failPerfectRun,
+    resetGameState,
+  } = useGameModeState(gameMode as string);
 
   const { data: deck, isLoading } = useQuery({
     queryKey: ["deck", id],
@@ -86,7 +92,17 @@ export default function TrainingSessionScreen() {
     stopTimer();
 
     const finalTime = gameMode === "speedrun" ? getTotalTime() : 0;
+    const finalLives = livesRef.current; // ← Utiliser le ref au lieu du state
 
+    // Récupérer les records AVANT de les mettre à jour
+    let previousRecords = null;
+    try {
+      previousRecords = await getDeckRecords(Number(id));
+    } catch (error) {
+      console.error("Error fetching previous records:", error);
+    }
+
+    // Mettre à jour les records
     try {
       if (gameMode === "speedrun") {
         await updateDeckRecords(Number(id), {
@@ -133,26 +149,32 @@ export default function TrainingSessionScreen() {
         gameMode: gameMode as string,
         finalTime: finalTime.toString(),
         timePenalty: timePenalty.toString(),
-        livesLeft: lives.toString(),
+        livesLeft: finalLives.toString(),
         isPerfect: isPerfectRun.toString(),
+        previousBestSpeedRun:
+          previousRecords?.bestSpeedRunTime?.toString() || "null",
+        previousBestStreak: previousRecords?.bestStreak?.toString() || "null",
+        previousBestAvgTime:
+          previousRecords?.bestAvgTimePerCard?.toString() || "null",
+        previousPerfectRuns:
+          previousRecords?.perfectRunsCompleted?.toString() || "null",
       },
     });
   }, [
-    stopTimer,
     gameMode,
-    getTotalTime,
-    queryClient,
     id,
-    sessionCorrectRef,
-    sessionIncorrectRef,
-    bestStreakRef,
-    timePenalty,
-    lives,
+    cards,
+    livesRef,
     isPerfectRun,
     elapsedTime,
-    cards.length,
+    timePenalty,
+    bestStreakRef,
+    sessionCorrectRef,
+    sessionIncorrectRef,
+    stopTimer,
+    getTotalTime,
+    queryClient,
   ]);
-
   const goToNextCard = useCallback(() => {
     setCurrentIndex((prev) => {
       const nextIndex = prev + 1;
@@ -162,8 +184,10 @@ export default function TrainingSessionScreen() {
       }
       return nextIndex;
     });
+
     setIsFlipped(false);
-  }, [cards, finishSession]);
+    setFlipAnim(new Animated.Value(0));
+  }, [cards.length, finishSession]);
 
   const handleSwipeLeft = useCallback(async () => {
     const currentCard = cards[currentIndex];

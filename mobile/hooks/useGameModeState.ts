@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function useGameModeState(gameMode: string) {
   const [lives, setLives] = useState(3);
   const [isPerfectRun, setIsPerfectRun] = useState(true);
+  const livesRef = useRef(3);
 
   const loseLife = () => {
-    setLives((prev) => prev - 1);
-    return lives - 1;
+    const newLives = livesRef.current - 1;
+    livesRef.current = newLives;
+    setLives(newLives);
+    return newLives;
   };
 
   const failPerfectRun = () => {
@@ -15,11 +18,13 @@ export default function useGameModeState(gameMode: string) {
 
   const resetGameState = () => {
     setLives(3);
+    livesRef.current = 3;
     setIsPerfectRun(true);
   };
 
   return {
     lives,
+    livesRef,
     isPerfectRun,
     loseLife,
     failPerfectRun,

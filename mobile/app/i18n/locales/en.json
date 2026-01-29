@@ -163,6 +163,89 @@
     },
     "loading": "Loading session..."
   },
+  "trainComplete": {
+    "headers": {
+      "perfect": "Perfect Run! 💎",
+      "newRecord": "New Record! 🎉",
+      "complete": "Session Complete! 🎉"
+    },
+    "performance": {
+      "outstanding": "🏆 Outstanding!",
+      "greatJob": "🌟 Great job!",
+      "goodEffort": "👍 Good effort!",
+      "keepPracticing": "💪 Keep practicing!",
+      "roomForImprovement": "📚 Room for improvement!",
+      "successRate": "Success Rate"
+    },
+    "stats": {
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "totalCards": "Total Cards",
+      "bestStreak": "Best Streak"
+    },
+    "modes": {
+      "speedrun": {
+        "firstRun": "⚡ First Speed Run!",
+        "firstRunSubtitle": "This is your first speed run on this deck!",
+        "newRecord": "🎉 New Record!",
+        "complete": "Speed Run Complete",
+        "yourTime": "Your Time",
+        "previousBest": "Previous Best",
+        "beatRecord": "You beat your record by {{seconds}} seconds!",
+        "slower": "{{seconds}} seconds slower than your best",
+        "penalties": "Penalties",
+        "netTime": "Net Time",
+        "attempts": "Attempts"
+      },
+      "streak": {
+        "firstRun": "🔥 First Streak Run!",
+        "bestStreak": "Best Streak",
+        "yourStreak": "Your Streak",
+        "newRecord": "🔥 New Streak Record!",
+        "complete": "Streak Master",
+        "livesLeft": "Lives Left",
+        "livesRemaining": "You kept {{count}} life remaining!",
+        "livesRemaining_plural": "You kept {{count}} lives remaining!",
+        "beatRecord": "You beat your record by {{count}}!",
+        "awayFromRecord": "{{count}} away from your record",
+        "record": "Record",
+        "cards": "Cards"
+      },
+      "timeattack": {
+        "firstRun": "🎯 First Time Attack!",
+        "avgPerCard": "Avg per Card",
+        "firstAttempt": "Great first attempt!",
+        "newRecord": "🎯 New Record!",
+        "complete": "Time Attack Complete",
+        "improved": "You improved your average time!",
+        "keepPracticing": "Keep practicing for better times!",
+        "totalTime": "Total Time",
+        "cards": "Cards",
+        "attempts": "Attempts"
+      },
+      "perfect": {
+        "success": "💎 Perfect Run!",
+        "flawless": "FLAWLESS",
+        "victory": "Victory",
+        "runsCompleted": "{{count}} perfect run completed!",
+        "runsCompleted_plural": "{{count}} perfect runs completed!",
+        "failed": "💔 Perfect Run Failed",
+        "perfectRuns": "Perfect Runs",
+        "tryAgain": "Keep trying! You'll get it next time.",
+        "successRate": "Success Rate",
+        "totalAttempts": "Total Attempts"
+      }
+    },
+    "almostThere": {
+      "title": "Almost There! 🚀",
+      "more": "{{count}} more"
+    },
+    "actions": {
+      "viewDeck": "View Deck",
+      "trainAgain": "Train Again",
+      "backToHome": "Back to Home"
+    }
+  },
   "decks": {
     "title": "My Decks",
     "empty": {

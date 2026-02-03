@@ -9,177 +9,180 @@ import {
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useImperativeHandle, forwardRef } from "react";
 
 type InteractiveCardProps = {
   control: any;
   errors: any;
 };
 
+export type InteractiveCardRef = {
+  resetFlip: () => void;
+};
+
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 48;
 const CARD_HEIGHT = 420;
 
-export default function InteractiveCard({
-  control,
-  errors,
-}: InteractiveCardProps) {
-  const { t } = useTranslation();
-  const [flipped, setFlipped] = useState(false);
+const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
+  function InteractiveCard({ control, errors }, ref) {
+    const { t } = useTranslation();
+    const [flipped, setFlipped] = useState(false);
 
-  const handleFlip = () => {
-    setFlipped(!flipped);
-  };
+    const handleFlip = () => {
+      setFlipped(!flipped);
+    };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.instructions}>
-        <View style={styles.instructionIcon}>
-          <Ionicons name="hand-left-outline" size={20} color="#3b82f6" />
-        </View>
-        <Text style={styles.instructionsText}>
-          {t("cards.addCard.instructions")}
-        </Text>
-      </View>
+    useImperativeHandle(ref, () => ({
+      resetFlip: () => {
+        setFlipped(false);
+      },
+    }));
 
-      <View style={styles.cardContainer}>
-        <Pressable
-          style={[styles.card, flipped && styles.cardFlipped]}
-          onPress={handleFlip}
-        >
-          <View style={[styles.badge, flipped && styles.badgeFlipped]}>
-            <Ionicons
-              name={flipped ? "reader" : "document-text"}
-              size={14}
-              color="#fff"
-            />
-            <Text style={styles.badgeText}>
-              {flipped
-                ? t("cards.addCard.form.back")
-                : t("cards.addCard.form.front")}
-            </Text>
+    return (
+      <View style={styles.container}>
+        <View style={styles.instructions}>
+          <View style={styles.instructionIcon}>
+            <Ionicons name="hand-left-outline" size={20} color="#3b82f6" />
           </View>
+          <Text style={styles.instructionsText}>
+            {t("cards.addCard.instructions")}
+          </Text>
+        </View>
 
-          <View style={styles.cardContent}>
-            <View style={[styles.cardFace, flipped && styles.faceHidden]}>
-              <View style={styles.labelContainer}>
-                <Ionicons name="text-outline" size={18} color="#64748b" />
-                <Text style={styles.cardLabel}>
-                  {t("cards.addCard.form.wordLabel")}{" "}
-                  <Text style={styles.required}>*</Text>
-                </Text>
-              </View>
-
-              <Controller
-                control={control}
-                name="word"
-                rules={{
-                  required: t("cards.addCard.form.wordRequired"),
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[styles.cardInput, errors.word && styles.inputError]}
-                    placeholder={t("cards.addCard.form.wordPlaceholder")}
-                    value={value || ""}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    autoCapitalize="none"
-                    placeholderTextColor="#cbd5e1"
-                    multiline
-                    textAlign="center"
-                    maxLength={100}
-                    editable={!flipped}
-                    pointerEvents={flipped ? "none" : "auto"}
-                  />
-                )}
+        <View style={styles.cardContainer}>
+          <Pressable
+            style={[styles.card, flipped && styles.cardFlipped]}
+            onPress={handleFlip}
+          >
+            <View style={[styles.badge, flipped && styles.badgeFlipped]}>
+              <Ionicons
+                name={flipped ? "reader" : "document-text"}
+                size={14}
+                color="#fff"
               />
-
-              {errors.word && !flipped && (
-                <View style={styles.errorContainer}>
-                  <Ionicons name="alert-circle" size={14} color="#ef4444" />
-                  <Text style={styles.errorText}>{errors.word.message}</Text>
-                </View>
-              )}
+              <Text style={styles.badgeText}>
+                {flipped
+                  ? t("cards.addCard.form.back")
+                  : t("cards.addCard.form.front")}
+              </Text>
             </View>
 
-            <View style={[styles.cardFace, !flipped && styles.faceHidden]}>
-              <View style={styles.labelContainer}>
-                <Ionicons name="language-outline" size={18} color="#64748b" />
-                <Text style={styles.cardLabel}>
-                  {t("cards.addCard.form.translationLabel")}{" "}
-                  <Text style={styles.required}>*</Text>
-                </Text>
-              </View>
-
-              <Controller
-                control={control}
-                name="translation"
-                rules={{
-                  required: t("cards.addCard.form.translationRequired"),
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.cardInput,
-                      errors.translation && styles.inputError,
-                    ]}
-                    placeholder={t("cards.addCard.form.translationPlaceholder")}
-                    value={value || ""}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    autoCapitalize="none"
-                    placeholderTextColor="#cbd5e1"
-                    multiline
-                    textAlign="center"
-                    maxLength={100}
-                    editable={flipped}
-                    pointerEvents={!flipped ? "none" : "auto"}
-                  />
-                )}
-              />
-
-              {errors.translation && flipped && (
-                <View style={styles.errorContainer}>
-                  <Ionicons name="alert-circle" size={14} color="#ef4444" />
-                  <Text style={styles.errorText}>
-                    {errors.translation.message}
+            <View style={styles.cardContent}>
+              <View style={[styles.cardFace, flipped && styles.faceHidden]}>
+                <View style={styles.labelContainer}>
+                  <Ionicons name="text-outline" size={18} color="#64748b" />
+                  <Text style={styles.cardLabel}>
+                    {t("cards.addCard.form.wordLabel")}{" "}
+                    <Text style={styles.required}>*</Text>
                   </Text>
                 </View>
-              )}
+
+                <Controller
+                  control={control}
+                  name="word"
+                  rules={{
+                    required: t("cards.addCard.form.wordRequired"),
+                  }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={[
+                        styles.cardInput,
+                        errors.word && styles.inputError,
+                      ]}
+                      placeholder={t("cards.addCard.form.wordPlaceholder")}
+                      value={value || ""}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      autoCapitalize="none"
+                      placeholderTextColor="#cbd5e1"
+                      multiline
+                      textAlign="center"
+                      maxLength={100}
+                      editable={!flipped}
+                      pointerEvents={flipped ? "none" : "auto"}
+                    />
+                  )}
+                />
+
+                {errors.word && !flipped && (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={14} color="#ef4444" />
+                    <Text style={styles.errorText}>{errors.word.message}</Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={[styles.cardFace, !flipped && styles.faceHidden]}>
+                <View style={styles.labelContainer}>
+                  <Ionicons name="language-outline" size={18} color="#64748b" />
+                  <Text style={styles.cardLabel}>
+                    {t("cards.addCard.form.translationLabel")}{" "}
+                    <Text style={styles.required}>*</Text>
+                  </Text>
+                </View>
+
+                <Controller
+                  control={control}
+                  name="translation"
+                  rules={{
+                    required: t("cards.addCard.form.translationRequired"),
+                  }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={[
+                        styles.cardInput,
+                        errors.translation && styles.inputError,
+                      ]}
+                      placeholder={t(
+                        "cards.addCard.form.translationPlaceholder",
+                      )}
+                      value={value || ""}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      autoCapitalize="none"
+                      placeholderTextColor="#cbd5e1"
+                      multiline
+                      textAlign="center"
+                      maxLength={100}
+                      editable={flipped}
+                      pointerEvents={!flipped ? "none" : "auto"}
+                    />
+                  )}
+                />
+
+                {errors.translation && flipped && (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={14} color="#ef4444" />
+                    <Text style={styles.errorText}>
+                      {errors.translation.message}
+                    </Text>
+                  </View>
+                )}
+              </View>
             </View>
-          </View>
 
-          <View style={styles.flipButtonContainer}>
-            <Pressable style={styles.flipButton} onPress={handleFlip}>
-              <Ionicons name="sync-outline" size={18} color="#3b82f6" />
-              <Text style={styles.flipButtonText}>
-                {flipped
-                  ? t("cards.addCard.flipToFront")
-                  : t("cards.addCard.flipToBack")}
-              </Text>
-              <Ionicons name="chevron-forward" size={16} color="#3b82f6" />
-            </Pressable>
-          </View>
-        </Pressable>
+            <View style={styles.flipButtonContainer}>
+              <Pressable style={styles.flipButton} onPress={handleFlip}>
+                <Ionicons name="sync-outline" size={18} color="#3b82f6" />
+                <Text style={styles.flipButtonText}>
+                  {flipped
+                    ? t("cards.addCard.flipToFront")
+                    : t("cards.addCard.flipToBack")}
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color="#3b82f6" />
+              </Pressable>
+            </View>
+          </Pressable>
 
-        {/* Ombre de la carte */}
-        <View style={styles.cardShadow} />
-      </View>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <View style={styles.footerItem}>
-          <Ionicons
-            name="information-circle-outline"
-            size={16}
-            color="#64748b"
-          />
-          <Text style={styles.footerText}>{t("cards.addCard.hint")}</Text>
+          <View style={styles.cardShadow} />
         </View>
       </View>
-    </View>
-  );
-}
+    );
+  },
+);
+
+export default InteractiveCard;
 
 const styles = StyleSheet.create({
   container: {
@@ -359,19 +362,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: "#3b82f6",
-  },
-  footer: {
-    gap: 12,
-  },
-  footerItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 4,
-  },
-  footerText: {
-    fontSize: 13,
-    color: "#64748b",
-    fontStyle: "italic",
   },
 });

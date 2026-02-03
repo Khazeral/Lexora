@@ -23,13 +23,6 @@ export default function AddCardActions({
 
   return (
     <View style={styles.actions}>
-      <View style={styles.helpContainer}>
-        <Ionicons name="information-circle-outline" size={16} color="#64748b" />
-        <Text style={styles.helpText}>
-          {t("cards.addCard.buttons.helpText")}
-        </Text>
-      </View>
-
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[

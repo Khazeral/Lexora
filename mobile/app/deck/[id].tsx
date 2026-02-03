@@ -61,7 +61,7 @@ export default function DeckDetailScreen() {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
 
-      <DeckActions deckId={Number(id)} hasCards={hasCards} />
+      {hasCards && <DeckActions deckId={Number(id)} hasCards={hasCards} />}
     </SafeAreaView>
   );
 }

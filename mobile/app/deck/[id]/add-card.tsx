@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   KeyboardAvoidingView,
@@ -14,7 +14,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { createCard } from "@/services/cards.api";
 import AddCardHeader from "@/app/components/cards/add-card/AddCardHeader";
 import AddCardTips from "@/app/components/cards/add-card/AddCardTips";
-import InteractiveCard from "@/app/components/cards/add-card/InteractiveCard";
+import InteractiveCard, {
+  InteractiveCardRef,
+} from "@/app/components/cards/add-card/InteractiveCard";
 import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
 
 type AddCardFormData = {
@@ -27,6 +29,8 @@ export default function AddCardScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showTips, setShowTips] = useState(false);
+
+  const cardRef = useRef<InteractiveCardRef>(null);
 
   const {
     control,
@@ -89,6 +93,7 @@ export default function AddCardScreen() {
       {
         onSuccess: () => {
           reset();
+          cardRef.current?.resetFlip();
           Alert.alert("✅ " + t("cards.addCard.success"));
         },
       },
@@ -115,7 +120,7 @@ export default function AddCardScreen() {
         >
           {showTips && <AddCardTips />}
 
-          <InteractiveCard control={control} errors={errors} />
+          <InteractiveCard ref={cardRef} control={control} errors={errors} />
         </ScrollView>
 
         <AddCardActions

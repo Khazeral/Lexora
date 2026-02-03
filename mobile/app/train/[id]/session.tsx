@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import { View, StyleSheet, Animated } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -41,6 +41,9 @@ export default function TrainingSessionScreen() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipAnim, setFlipAnim] = useState(() => new Animated.Value(0));
 
+  // Ref pour éviter les problèmes de closure dans finishSession
+  const cardsRef = useRef<Card[]>([]);
+
   const {
     sessionCorrectRef,
     sessionIncorrectRef,
@@ -72,12 +75,21 @@ export default function TrainingSessionScreen() {
       answerCard(user!.id, cardId, success),
   });
 
+  // Fonction placeholder pour handleSwipeLeft (sera mise à jour plus tard)
+  const handleSwipeLeftRef = useRef<() => void>(() => {});
+
+  const { cardTimeLeft, stopCardTimer, getTotalTimeUsed, resetTotalTime } =
+    useCardTimer(gameMode as string, isFlipped, currentIndex, () =>
+      handleSwipeLeftRef.current(),
+    );
+
   useEffect(() => {
     resetStats();
     resetGameState();
+    resetTotalTime();
     setCurrentIndex(0);
     setIsFlipped(false);
-  }, [id, resetGameState, resetStats]);
+  }, [id, resetGameState, resetStats, resetTotalTime]);
 
   useEffect(() => {
     if (!deck) return;
@@ -85,16 +97,23 @@ export default function TrainingSessionScreen() {
     const sessionCards =
       isShuffle === "true" ? shuffle(deck.cards) : deck.cards;
     setCards(sessionCards);
+    cardsRef.current = sessionCards;
     setCurrentIndex(0);
   }, [deck, isShuffle]);
 
   const finishSession = useCallback(async () => {
     stopTimer();
+    stopCardTimer();
 
     const finalTime = gameMode === "speedrun" ? getTotalTime() : 0;
-    const finalLives = livesRef.current; // ← Utiliser le ref au lieu du state
+    const finalLives = livesRef.current;
+    const currentCards = cardsRef.current;
 
-    // Récupérer les records AVANT de les mettre à jour
+    // Calculer le temps moyen par carte pour timeattack
+    const totalTimeUsed = getTotalTimeUsed();
+    const avgTimePerCard =
+      currentCards.length > 0 ? totalTimeUsed / currentCards.length : 0;
+
     let previousRecords = null;
     try {
       previousRecords = await getDeckRecords(Number(id));
@@ -102,7 +121,6 @@ export default function TrainingSessionScreen() {
       console.error("Error fetching previous records:", error);
     }
 
-    // Mettre à jour les records
     try {
       if (gameMode === "speedrun") {
         await updateDeckRecords(Number(id), {
@@ -116,11 +134,10 @@ export default function TrainingSessionScreen() {
           streak: bestStreakRef.current,
         });
       } else if (gameMode === "timeattack") {
-        const avgTime = 10;
         await updateDeckRecords(Number(id), {
           gameMode: "timeattack",
-          avgTimePerCard: avgTime,
-          totalCards: cards.length,
+          avgTimePerCard: avgTimePerCard,
+          totalCards: currentCards.length,
         });
       } else if (gameMode === "perfect") {
         await updateDeckRecords(Number(id), {
@@ -151,6 +168,7 @@ export default function TrainingSessionScreen() {
         timePenalty: timePenalty.toString(),
         livesLeft: finalLives.toString(),
         isPerfect: isPerfectRun.toString(),
+        avgTimePerCard: avgTimePerCard.toString(),
         previousBestSpeedRun:
           previousRecords?.bestSpeedRunTime?.toString() || "null",
         previousBestStreak: previousRecords?.bestStreak?.toString() || "null",
@@ -163,7 +181,6 @@ export default function TrainingSessionScreen() {
   }, [
     gameMode,
     id,
-    cards,
     livesRef,
     isPerfectRun,
     elapsedTime,
@@ -172,13 +189,16 @@ export default function TrainingSessionScreen() {
     sessionCorrectRef,
     sessionIncorrectRef,
     stopTimer,
+    stopCardTimer,
     getTotalTime,
+    getTotalTimeUsed,
     queryClient,
   ]);
+
   const goToNextCard = useCallback(() => {
     setCurrentIndex((prev) => {
       const nextIndex = prev + 1;
-      if (nextIndex >= cards.length) {
+      if (nextIndex >= cardsRef.current.length) {
         finishSession();
         return prev;
       }
@@ -187,10 +207,10 @@ export default function TrainingSessionScreen() {
 
     setIsFlipped(false);
     setFlipAnim(new Animated.Value(0));
-  }, [cards.length, finishSession]);
+  }, [finishSession]);
 
   const handleSwipeLeft = useCallback(async () => {
-    const currentCard = cards[currentIndex];
+    const currentCard = cardsRef.current[currentIndex];
     if (!currentCard) return;
 
     try {
@@ -223,7 +243,6 @@ export default function TrainingSessionScreen() {
 
     goToNextCard();
   }, [
-    cards,
     currentIndex,
     answerMutation,
     recordIncorrect,
@@ -235,15 +254,13 @@ export default function TrainingSessionScreen() {
     finishSession,
   ]);
 
-  const { cardTimeLeft } = useCardTimer(
-    gameMode as string,
-    isFlipped,
-    currentIndex,
-    handleSwipeLeft,
-  );
+  // Mettre à jour la ref de handleSwipeLeft
+  useEffect(() => {
+    handleSwipeLeftRef.current = handleSwipeLeft;
+  }, [handleSwipeLeft]);
 
   const handleSwipeRight = useCallback(async () => {
-    const currentCard = cards[currentIndex];
+    const currentCard = cardsRef.current[currentIndex];
     if (!currentCard) return;
 
     try {
@@ -257,7 +274,7 @@ export default function TrainingSessionScreen() {
     }
 
     goToNextCard();
-  }, [cards, currentIndex, answerMutation, recordCorrect, goToNextCard]);
+  }, [currentIndex, answerMutation, recordCorrect, goToNextCard]);
 
   const flipCard = useCallback(() => {
     Animated.timing(flipAnim, {
@@ -272,7 +289,7 @@ export default function TrainingSessionScreen() {
     return <LoadingScreen loading />;
   }
 
-  if (currentIndex >= cards.length) {
+  if (cards.length === 0 || currentIndex >= cards.length) {
     return <LoadingScreen loading />;
   }
 

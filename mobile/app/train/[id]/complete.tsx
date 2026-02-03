@@ -30,6 +30,7 @@ export default function TrainingCompleteScreen() {
     previousBestStreak,
     previousBestAvgTime,
     previousPerfectRuns,
+    avgTimePerCard,
   } = useLocalSearchParams();
 
   const { t } = useTranslation();
@@ -54,13 +55,26 @@ export default function TrainingCompleteScreen() {
     staleTime: 0,
   });
 
-  const { data: deckRecords } = useQuery({
+  const {
+    data: deckRecords,
+    isLoading: isLoadingRecords,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["deckRecords", id, user?.id],
     queryFn: () => getDeckRecords(Number(id)),
     enabled: !!user && !!id,
     refetchOnMount: "always",
     staleTime: 0,
+    retry: false,
   });
+
+  const isRealError =
+    isError &&
+    !(
+      (error as any)?.message?.includes("404") ||
+      (error as any)?.message?.includes("No records found")
+    );
 
   const totalCorrect = Number(sessionCorrect) || 0;
   const totalIncorrect = Number(sessionIncorrect) || 0;
@@ -71,6 +85,7 @@ export default function TrainingCompleteScreen() {
   const currentLives = Number(livesLeft) || 0;
   const wasPerfect = isPerfect === "true";
   const totalCards = deck?.cards.length || 0;
+  const sessionAvgTime = Number(avgTimePerCard) || 0;
 
   const prevSpeedRun =
     previousBestSpeedRun === "null" || !previousBestSpeedRun
@@ -108,10 +123,13 @@ export default function TrainingCompleteScreen() {
     totalCards,
     currentLives,
     wasPerfect,
+    avgTimePerCard: sessionAvgTime,
     previousBestSpeedRun: prevSpeedRun,
     previousBestStreak: prevStreak,
     previousBestAvgTime: prevAvgTime,
     previousPerfectRuns: prevPerfect,
+    isLoadingRecords,
+    recordsError: isRealError,
   });
 
   const almostUpgradeCards = useMemo(() => {
@@ -201,24 +219,31 @@ export default function TrainingCompleteScreen() {
       .slice(0, 3);
   }, [deck, totalCards]);
 
+  // Animation pour le header
   useEffect(() => {
-    Animated.parallel([
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 50,
-        friction: 7,
-        useNativeDriver: true,
-      }),
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      tension: 50,
+      friction: 7,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
+  // Animation pour ModeStatsCard - se lance quand modeStats est prêt
+  useEffect(() => {
+    if (modeStats) {
+      fadeAnim.setValue(0);
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
         useNativeDriver: true,
-      }),
-    ]).start();
-  }, [scaleAnim, fadeAnim]);
+      }).start();
+    }
+  }, [modeStats, fadeAnim]);
 
+  // Animation pour les confettis et pulse quand c'est un record
   useEffect(() => {
-    if (!modeStats?.isRecord) return;
+    if (!modeStats?.isRecord || isRealError) return;
 
     const pulseAnimation = Animated.loop(
       Animated.sequence([
@@ -279,7 +304,7 @@ export default function TrainingCompleteScreen() {
     return () => {
       pulseAnimation.stop();
     };
-  }, [modeStats?.isRecord, pulseAnim, confettiAnims]);
+  }, [modeStats?.isRecord, isRealError, pulseAnim, confettiAnims]);
 
   const headerConfig = useMemo(() => {
     if (currentGameMode === "perfect" && wasPerfect) {
@@ -289,7 +314,7 @@ export default function TrainingCompleteScreen() {
         title: t("trainComplete.headers.perfect"),
       };
     }
-    if (modeStats?.isRecord) {
+    if (modeStats?.isRecord && !isRealError) {
       return {
         icon: "trophy",
         colors: ["#10b981", "#059669"],
@@ -301,11 +326,13 @@ export default function TrainingCompleteScreen() {
       colors: ["#3b82f6", "#2563eb"],
       title: t("trainComplete.headers.complete"),
     };
-  }, [currentGameMode, wasPerfect, modeStats?.isRecord, t]);
+  }, [currentGameMode, wasPerfect, modeStats?.isRecord, isRealError, t]);
 
   return (
     <View style={styles.container}>
-      {modeStats?.isRecord && <Confetti animations={confettiAnims} />}
+      {modeStats?.isRecord && !isRealError && (
+        <Confetti animations={confettiAnims} />
+      )}
 
       <CompleteHeader
         icon={headerConfig.icon}
@@ -314,11 +341,11 @@ export default function TrainingCompleteScreen() {
         deckName={deck?.name}
         scaleAnim={scaleAnim}
         pulseAnim={pulseAnim}
-        isRecord={modeStats?.isRecord}
+        isRecord={modeStats?.isRecord && !isRealError}
       />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {modeStats && (
+        {modeStats && !isRealError && (
           <ModeStatsCard
             modeStats={modeStats}
             fadeAnim={fadeAnim}

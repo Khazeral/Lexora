@@ -30,20 +30,17 @@ export interface UpdateRecordPayload {
   totalCards?: number;
 }
 
-/**
- * Récupère les records d'un deck pour l'utilisateur connecté
- */
 export async function getDeckRecords(
   deckId: number,
 ): Promise<DeckRecord | null> {
   try {
-    const data = await fetchAPI(`/decks/${deckId}/records`);
-    return data;
+    return await fetchAPI(`/decks/${deckId}/records`, {
+      method: "GET",
+    });
   } catch (error: any) {
-    // Si 404, pas de records encore
     if (
       error.message?.includes("404") ||
-      error.message?.includes("not found")
+      error.message?.includes("No records found")
     ) {
       return null;
     }
@@ -51,18 +48,22 @@ export async function getDeckRecords(
   }
 }
 
-/**
- * Met à jour les records après une session
- */
 export async function updateDeckRecords(
   deckId: number,
-  payload: UpdateRecordPayload,
+  data: {
+    gameMode: string;
+    speedRunTime?: number;
+    timePenalty?: number;
+    streak?: number;
+    avgTimePerCard?: number;
+    totalCards?: number;
+    isPerfect?: boolean;
+  },
 ): Promise<DeckRecord> {
-  const data = await fetchAPI(`/decks/${deckId}/records`, {
+  return fetchAPI(`/decks/${deckId}/records`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify(data),
   });
-  return data;
 }
 
 /**

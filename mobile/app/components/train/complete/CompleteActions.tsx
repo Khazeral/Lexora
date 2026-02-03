@@ -15,12 +15,12 @@ export default function CompleteActions({ deckId }: CompleteActionsProps) {
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() => router.push(`/deck/${deckId}`)}
+          onPress={() => router.push("/(tabs)")}
           activeOpacity={0.8}
         >
-          <Ionicons name="albums" size={20} color="#3b82f6" />
-          <Text style={styles.secondaryButtonText}>
-            {t("trainComplete.actions.viewDeck")}
+          <Ionicons name="home" size={20} color="#64748b" />
+          <Text style={styles.homeButtonText}>
+            {t("trainComplete.actions.backToHome")}
           </Text>
         </TouchableOpacity>
 
@@ -40,17 +40,6 @@ export default function CompleteActions({ deckId }: CompleteActionsProps) {
           </Text>
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={styles.homeButton}
-        onPress={() => router.push("/(tabs)")}
-        activeOpacity={0.7}
-      >
-        <Ionicons name="home" size={20} color="#64748b" />
-        <Text style={styles.homeButtonText}>
-          {t("trainComplete.actions.backToHome")}
-        </Text>
-      </TouchableOpacity>
     </>
   );
 }

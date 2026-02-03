@@ -13,15 +13,22 @@ type DeckRecords = {
 
 type ModeStatsParams = {
   gameMode: string;
-  deckRecords: DeckRecords | undefined;
+  deckRecords: DeckRecords | undefined | null;
   sessionCorrect: number;
   sessionIncorrect: number;
   bestStreak: number;
   speedRunTime: number;
+  avgTimePerCard?: number;
   speedRunPenalty: number;
   totalCards: number;
   currentLives: number;
   wasPerfect: boolean;
+  previousBestSpeedRun: number | null;
+  previousBestStreak: number | null;
+  previousBestAvgTime: number | null;
+  previousPerfectRuns: number | null;
+  isLoadingRecords: boolean;
+  recordsError: boolean;
 };
 
 export default function useModeStats({
@@ -35,6 +42,13 @@ export default function useModeStats({
   totalCards,
   currentLives,
   wasPerfect,
+  previousBestSpeedRun,
+  previousBestStreak,
+  previousBestAvgTime,
+  previousPerfectRuns,
+  isLoadingRecords,
+  avgTimePerCard,
+  recordsError,
 }: ModeStatsParams) {
   const { t } = useTranslation();
 
@@ -43,11 +57,33 @@ export default function useModeStats({
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
-  let isFirstRun = !deckRecords;
 
   return useMemo(() => {
+    // Si erreur de chargement, ne pas afficher
+    if (recordsError) {
+      return null;
+    }
+
+    // Si en cours de chargement
+    if (isLoadingRecords) {
+      return null;
+    }
+
+    // Valeurs par défaut pour première partie (quand deckRecords est null/undefined)
+    const records: DeckRecords = deckRecords || {
+      bestSpeedRunTime: null,
+      speedRunAttempts: 1,
+      bestStreak: bestStreak,
+      bestAvgTimePerCard: null,
+      timeAttackAttempts: 1,
+      perfectRunsCompleted: wasPerfect ? 1 : 0,
+      perfectRunAttempts: 1,
+    };
+
     switch (gameMode) {
       case "speedrun": {
+        const isFirstRun = previousBestSpeedRun === null;
+
         if (isFirstRun) {
           return {
             title: t("trainComplete.modes.speedrun.firstRun"),
@@ -72,7 +108,7 @@ export default function useModeStats({
           };
         }
 
-        const diff = speedRunTime - deckRecords.bestSpeedRunTime;
+        const diff = speedRunTime - previousBestSpeedRun;
         const isNewRecord = diff < 0;
 
         return {
@@ -91,7 +127,7 @@ export default function useModeStats({
           isRecord: isNewRecord,
           comparison: {
             label: t("trainComplete.modes.speedrun.previousBest"),
-            value: formatTime(deckRecords.bestSpeedRunTime),
+            value: formatTime(previousBestSpeedRun),
             diff,
           },
           stats: [
@@ -102,7 +138,7 @@ export default function useModeStats({
             },
             {
               label: t("trainComplete.modes.speedrun.attempts"),
-              value: deckRecords.speedRunAttempts.toString(),
+              value: records.speedRunAttempts.toString(),
               icon: "repeat" as const,
             },
           ],
@@ -110,14 +146,21 @@ export default function useModeStats({
       }
 
       case "streak": {
+        const isFirstRun = previousBestStreak === null;
+
         if (isFirstRun) {
+          const subtitle =
+            currentLives === 0
+              ? t("trainComplete.modes.streak.livesRemaining_zero")
+              : t("trainComplete.modes.streak.livesRemaining", {
+                  count: currentLives,
+                });
+
           return {
             title: t("trainComplete.modes.streak.firstRun"),
             mainValue: bestStreak.toString(),
             mainLabel: t("trainComplete.modes.streak.bestStreak"),
-            subtitle: t("trainComplete.modes.streak.livesRemaining", {
-              count: currentLives,
-            }),
+            subtitle,
             color: "#ef4444",
             icon: "flame" as const,
             isRecord: true,
@@ -136,8 +179,16 @@ export default function useModeStats({
           };
         }
 
-        const isNewRecord = bestStreak > deckRecords.bestStreak;
-        const diff = bestStreak - deckRecords.bestStreak;
+        const isNewRecord = bestStreak > previousBestStreak;
+        const diff = bestStreak - previousBestStreak;
+
+        const subtitle = isNewRecord
+          ? t("trainComplete.modes.streak.beatRecord", { count: diff })
+          : currentLives === 0
+            ? t("trainComplete.modes.streak.livesRemaining_zero")
+            : t("trainComplete.modes.streak.awayFromRecord", {
+                count: Math.abs(diff),
+              });
 
         return {
           title: isNewRecord
@@ -145,18 +196,14 @@ export default function useModeStats({
             : t("trainComplete.modes.streak.complete"),
           mainValue: bestStreak.toString(),
           mainLabel: t("trainComplete.modes.streak.yourStreak"),
-          subtitle: isNewRecord
-            ? t("trainComplete.modes.streak.beatRecord", { count: diff })
-            : t("trainComplete.modes.streak.awayFromRecord", {
-                count: Math.abs(diff),
-              }),
+          subtitle,
           color: isNewRecord ? "#10b981" : "#ef4444",
           icon: "flame" as const,
           isRecord: isNewRecord,
           comparison: isNewRecord
             ? {
                 label: t("trainComplete.modes.speedrun.previousBest"),
-                value: deckRecords.bestStreak.toString(),
+                value: previousBestStreak.toString(),
                 diff,
               }
             : undefined,
@@ -168,7 +215,7 @@ export default function useModeStats({
             },
             {
               label: t("trainComplete.modes.streak.record"),
-              value: deckRecords.bestStreak.toString(),
+              value: records.bestStreak.toString(),
               icon: "trophy" as const,
             },
           ],
@@ -176,7 +223,8 @@ export default function useModeStats({
       }
 
       case "timeattack": {
-        const avgTime = totalCards > 0 ? (10 * totalCards) / totalCards : 0;
+        const avgTime = avgTimePerCard || 0;
+        const isFirstRun = previousBestAvgTime === null;
 
         if (isFirstRun) {
           return {
@@ -195,14 +243,14 @@ export default function useModeStats({
               },
               {
                 label: t("trainComplete.modes.timeattack.totalTime"),
-                value: `${totalCards * 10}s`,
+                value: `${(avgTime * totalCards).toFixed(0)}s`,
                 icon: "time" as const,
               },
             ],
           };
         }
 
-        const isNewRecord = avgTime < deckRecords.bestAvgTimePerCard;
+        const isNewRecord = avgTime < previousBestAvgTime;
 
         return {
           title: isNewRecord
@@ -218,8 +266,8 @@ export default function useModeStats({
           isRecord: isNewRecord,
           comparison: {
             label: t("trainComplete.modes.speedrun.previousBest"),
-            value: `${deckRecords.bestAvgTimePerCard.toFixed(1)}s`,
-            diff: avgTime - deckRecords.bestAvgTimePerCard,
+            value: `${previousBestAvgTime.toFixed(1)}s`,
+            diff: avgTime - previousBestAvgTime,
           },
           stats: [
             {
@@ -229,7 +277,7 @@ export default function useModeStats({
             },
             {
               label: t("trainComplete.modes.timeattack.attempts"),
-              value: deckRecords.timeAttackAttempts.toString(),
+              value: records.timeAttackAttempts.toString(),
               icon: "repeat" as const,
             },
           ],
@@ -238,29 +286,36 @@ export default function useModeStats({
 
       case "perfect": {
         if (wasPerfect) {
+          const isFirstRun =
+            previousPerfectRuns === null || previousPerfectRuns === 0;
+
           return {
             title: t("trainComplete.modes.perfect.success"),
             mainValue: t("trainComplete.modes.perfect.flawless"),
             mainLabel: t("trainComplete.modes.perfect.victory"),
             subtitle: t("trainComplete.modes.perfect.runsCompleted", {
-              count: deckRecords.perfectRunsCompleted + 1,
+              count: records.perfectRunsCompleted,
             }),
             color: "#ec4899",
             icon: "diamond" as const,
-            isRecord: true,
+            isRecord: isFirstRun,
             stats: [
               {
                 label: t("trainComplete.modes.perfect.successRate"),
-                value: `${Math.round(
-                  ((deckRecords.perfectRunsCompleted + 1) /
-                    (deckRecords.perfectRunAttempts + 1)) *
-                    100,
-                )}%`,
+                value: `${
+                  records.perfectRunAttempts > 0
+                    ? Math.round(
+                        (records.perfectRunsCompleted /
+                          records.perfectRunAttempts) *
+                          100,
+                      )
+                    : 100
+                }%`,
                 icon: "stats-chart" as const,
               },
               {
                 label: t("trainComplete.modes.perfect.totalAttempts"),
-                value: (deckRecords.perfectRunAttempts + 1).toString(),
+                value: records.perfectRunAttempts.toString(),
                 icon: "repeat" as const,
               },
             ],
@@ -268,7 +323,7 @@ export default function useModeStats({
         } else {
           return {
             title: t("trainComplete.modes.perfect.failed"),
-            mainValue: deckRecords.perfectRunsCompleted.toString(),
+            mainValue: records.perfectRunsCompleted.toString(),
             mainLabel: t("trainComplete.modes.perfect.perfectRuns"),
             subtitle: t("trainComplete.modes.perfect.tryAgain"),
             color: "#64748b",
@@ -278,10 +333,10 @@ export default function useModeStats({
               {
                 label: t("trainComplete.modes.perfect.successRate"),
                 value: `${
-                  deckRecords.perfectRunAttempts > 0
+                  records.perfectRunAttempts > 0
                     ? Math.round(
-                        (deckRecords.perfectRunsCompleted /
-                          deckRecords.perfectRunAttempts) *
+                        (records.perfectRunsCompleted /
+                          records.perfectRunAttempts) *
                           100,
                       )
                     : 0
@@ -290,7 +345,7 @@ export default function useModeStats({
               },
               {
                 label: t("trainComplete.modes.speedrun.attempts"),
-                value: deckRecords.perfectRunAttempts.toString(),
+                value: records.perfectRunAttempts.toString(),
                 icon: "repeat" as const,
               },
             ],
@@ -302,14 +357,21 @@ export default function useModeStats({
         return null;
     }
   }, [
-    gameMode,
+    recordsError,
     deckRecords,
-    bestStreak,
+    isLoadingRecords,
+    gameMode,
+    previousBestSpeedRun,
     speedRunTime,
-    speedRunPenalty,
-    totalCards,
-    currentLives,
-    wasPerfect,
     t,
+    speedRunPenalty,
+    previousBestStreak,
+    bestStreak,
+    currentLives,
+    totalCards,
+    avgTimePerCard,
+    previousBestAvgTime,
+    wasPerfect,
+    previousPerfectRuns,
   ]);
 }

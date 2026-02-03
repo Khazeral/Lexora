@@ -1,0 +1,345 @@
+{
+  "auth": {
+    "login": {
+      "title": "Flashcard Pro",
+      "subtitle": "Sign in to continue learning",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 6 characters"
+      }
+    },
+    "signup": {
+      "title": "Flashcard Pro",
+      "subtitle": "Create an account to get started",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "createAccount": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "errors": {
+        "usernameRequired": "Username is required",
+        "usernameMinLength": "Username must be at least 3 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 6 characters",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordsNotMatch": "Passwords do not match"
+      }
+    }
+  },
+  "home": {
+    "greeting": "Hello,",
+    "wave": "👋",
+    "stats": {
+      "totalDecks": "Total Decks",
+      "totalCards": "Total Cards"
+    },
+    "recentDecks": {
+      "title": "Recent Decks",
+      "seeAll": "See All",
+      "cards": "{{count}} cards",
+      "noDecks": "No decks yet",
+      "createFirst": "Create Your First Deck"
+    }
+  },
+  "train": {
+    "title": "Practice",
+    "subtitle": "Choose a deck to practice",
+    "loading": "Loading decks...",
+    "empty": {
+      "title": "No Decks Available",
+      "subtitle": "Create a deck first to start practicing",
+      "button": "Create Your First Deck"
+    },
+    "deck": {
+      "cards": "{{count}} card",
+      "cards_plural": "{{count}} cards",
+      "start": "Start",
+      "noCards": "No cards yet"
+    },
+    "stats": {
+      "ready": "Ready to practice",
+      "needsReview": "Needs review"
+    },
+    "trainSettings": {
+      "title": "Training Settings",
+      "cards": "{{count}} card",
+      "cards_plural": "{{count}} cards",
+      "gameMode": {
+        "title": "Game Mode",
+        "subtitle": "Choose your challenge"
+      },
+      "options": {
+        "shuffle": {
+          "title": "Shuffle Cards",
+          "description": "Randomize order"
+        },
+        "reverse": {
+          "title": "Reverse Mode",
+          "description": "Translation first"
+        }
+      },
+      "tips": {
+        "title": "Tips",
+        "classic": "• Take your time\n• Review wrong answers\n• Practice regularly for best results",
+        "speedrun": "• Focus on speed AND accuracy\n• Wrong answers cost 5 seconds\n• Beat your personal record!",
+        "streak": "• One mistake = game over\n• You have 3 lives\n• Stay focused and calm",
+        "timeattack": "• 10 seconds per card\n• Think fast but accurately\n• Time pressure builds skills",
+        "perfect": "• Zero tolerance for errors\n• One mistake = restart\n• Only for true masters"
+      },
+      "start": "Start {{mode}}",
+      "difficulty": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard",
+        "expert": "Expert",
+        "master": "Master"
+      },
+      "gameModes": {
+        "classic": {
+          "title": "Classic",
+          "description": "Practice at your own pace with detailed feedback"
+        },
+        "speedrun": {
+          "title": "Speedrun",
+          "description": "Race against time! Complete as fast as possible"
+        },
+        "streak": {
+          "title": "Streak",
+          "description": "Build the longest streak without mistakes"
+        },
+        "timeattack": {
+          "title": "Time Attack",
+          "description": "Answer before time runs out on each card"
+        },
+        "perfect": {
+          "title": "Perfect Run",
+          "description": "Zero mistakes allowed - ultimate challenge"
+        }
+      }
+    }
+  },
+  "trainSession": {
+    "header": {
+      "reverse": "Reverse"
+    },
+    "progress": {
+      "of": "{{current}} / {{total}}"
+    },
+    "modes": {
+      "perfect": "Perfect",
+      "speedrun": {
+        "penalty": "+{{seconds}}s"
+      }
+    },
+    "card": {
+      "labels": {
+        "word": "Word",
+        "translation": "Translation"
+      },
+      "hints": {
+        "tapToFlip": "Tap to flip",
+        "swipeWrong": "Wrong",
+        "swipeCorrect": "Correct"
+      },
+      "indicators": {
+        "correct": "CORRECT",
+        "nope": "NOPE"
+      }
+    },
+    "empty": {
+      "title": "No cards in this deck",
+      "button": "Add Cards"
+    },
+    "loading": "Loading session..."
+  },
+  "trainComplete": {
+    "headers": {
+      "perfect": "Perfect Run! 💎",
+      "newRecord": "New Record! 🎉",
+      "complete": "Session Complete! 🎉"
+    },
+    "performance": {
+      "outstanding": "🏆 Outstanding!",
+      "greatJob": "🌟 Great job!",
+      "goodEffort": "👍 Good effort!",
+      "keepPracticing": "💪 Keep practicing!",
+      "roomForImprovement": "📚 Room for improvement!",
+      "successRate": "Success Rate"
+    },
+    "stats": {
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "totalCards": "Total Cards",
+      "bestStreak": "Best Streak"
+    },
+    "modes": {
+      "speedrun": {
+        "firstRun": "⚡ First Speed Run!",
+        "firstRunSubtitle": "This is your first speed run on this deck!",
+        "newRecord": "🎉 New Record!",
+        "complete": "Speed Run Complete",
+        "yourTime": "Your Time",
+        "previousBest": "Previous Best",
+        "beatRecord": "You beat your record by {{seconds}} seconds!",
+        "slower": "{{seconds}} seconds slower than your best",
+        "penalties": "Penalties",
+        "netTime": "Net Time",
+        "attempts": "Attempts"
+      },
+      "streak": {
+        "firstRun": "🔥 First Streak Run!",
+        "bestStreak": "Best Streak",
+        "yourStreak": "Your Streak",
+        "newRecord": "🔥 New Streak Record!",
+        "complete": "Streak Master",
+        "livesLeft": "Lives Left",
+        "livesRemaining": "You kept {{count}} life remaining!",
+        "livesRemaining_plural": "You kept {{count}} lives remaining!",
+        "beatRecord": "You beat your record by {{count}}!",
+        "awayFromRecord": "{{count}} away from your record",
+        "record": "Record",
+        "cards": "Cards"
+      },
+      "timeattack": {
+        "firstRun": "🎯 First Time Attack!",
+        "avgPerCard": "Avg per Card",
+        "firstAttempt": "Great first attempt!",
+        "newRecord": "🎯 New Record!",
+        "complete": "Time Attack Complete",
+        "improved": "You improved your average time!",
+        "keepPracticing": "Keep practicing for better times!",
+        "totalTime": "Total Time",
+        "cards": "Cards",
+        "attempts": "Attempts"
+      },
+      "perfect": {
+        "success": "💎 Perfect Run!",
+        "flawless": "FLAWLESS",
+        "victory": "Victory",
+        "runsCompleted": "{{count}} perfect run completed!",
+        "runsCompleted_plural": "{{count}} perfect runs completed!",
+        "failed": "💔 Perfect Run Failed",
+        "perfectRuns": "Perfect Runs",
+        "tryAgain": "Keep trying! You'll get it next time.",
+        "successRate": "Success Rate",
+        "totalAttempts": "Total Attempts"
+      }
+    },
+    "almostThere": {
+      "title": "Almost There! 🚀",
+      "more": "{{count}} more"
+    },
+    "actions": {
+      "viewDeck": "View Deck",
+      "trainAgain": "Train Again",
+      "backToHome": "Back to Home"
+    }
+  },
+  "decks": {
+    "title": "My Decks",
+    "empty": {
+      "title": "No Decks Yet",
+      "subtitle": "Create your first deck to start learning",
+      "createButton": "Create First Deck"
+    },
+    "card": {
+      "cards": "{{count}} card",
+      "cards_plural": "{{count}} cards",
+      "lastStudied": "Last studied {{date}}",
+      "notStudied": "Not studied yet"
+    },
+    "create": "Create Deck",
+    "search": "Search decks...",
+    "createDeck": {
+      "title": "Create Deck",
+      "form": {
+        "nameLabel": "Deck Name",
+        "namePlaceholder": "e.g., Spanish Vocabulary",
+        "nameRequired": "Deck name is required",
+        "nameMinLength": "Deck name must be at least 3 characters",
+        "descriptionLabel": "Description (optional)",
+        "descriptionPlaceholder": "What will you learn with this deck?"
+      },
+      "buttons": {
+        "create": "Create Deck",
+        "cancel": "Cancel"
+      },
+      "success": "Deck created successfully!",
+      "errors": {
+        "createFailed": "Failed to create deck",
+        "fillRequired": "Please fill in all required fields"
+      }
+    },
+
+    "deckDetail": {
+      "cards": "{{count}} card",
+      "cards_plural": "{{count}} cards",
+      "empty": {
+        "title": "No Cards Yet",
+        "subtitle": "Add your first card to start learning",
+        "button": "Add First Card"
+      },
+      "addCard": "Add Card",
+      "study": "Study Now",
+      "edit": "Edit Deck",
+      "delete": "Delete Deck",
+      "notFound": "Deck not found",
+      "levels": {
+        "bronze": "Learning",
+        "silver": "Practicing",
+        "gold": "Mastered",
+        "platinum": "Expert"
+      },
+      "stats": {
+        "mastery": "Mastery",
+        "toReview": "To Review"
+      }
+    }
+  },
+  "cards": {
+    "addCard": {
+      "title": "Add a card",
+      "instructions": "Tap the card to flip between front and back",
+      "flipToFront": "Back to front",
+      "flipToBack": "See back",
+      "hint": "Tap anywhere on the card to flip it",
+      "form": {
+        "wordLabel": "Front",
+        "wordPlaceholder": "Hello",
+        "wordRequired": "Front side is required",
+        "translationLabel": "Back",
+        "translationPlaceholder": "Bonjour",
+        "translationRequired": "Back side is required",
+        "front": "Front",
+        "back": "Back"
+      },
+      "buttons": {
+        "addAnother": "Add another",
+        "addAndFinish": "Add & finish",
+        "helpText": "Add another to keep creating cards, or finish to return to the deck"
+      },
+      "success": "Card added successfully!",
+      "errors": {
+        "createFailed": "Failed to create card",
+        "fillRequired": "Please fill in both fields"
+      },
+      "tips": {
+        "title": "💡 Tips",
+        "tip1": "Keep it simple and clear",
+        "tip2": "Use examples if needed",
+        "tip3": "Add context when helpful"
+      }
+    }
+  }
+}

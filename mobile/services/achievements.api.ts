@@ -1,3 +1,4 @@
+// services/achievements.api.ts
 import { fetchAPI } from "./api";
 
 export interface Achievement {
@@ -8,7 +9,6 @@ export interface Achievement {
   icon: string;
   category: "cards" | "training" | "streaks" | "collection";
   rarity: "common" | "rare" | "epic" | "legendary";
-  xpReward: number;
   isSecret: boolean;
   progress: number;
   target: number;
@@ -16,15 +16,30 @@ export interface Achievement {
   unlockedAt: string | null;
 }
 
+export interface UnlockedAchievement {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  icon: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
+  category: string;
+  unlockedAt: string;
+}
+
+export interface CheckAchievementResponse {
+  checked: boolean;
+  unlocked: UnlockedAchievement[];
+}
+
 export interface AchievementStats {
   total: number;
   unlocked: number;
-  totalXp: number;
   byCategory: {
-    cards: Achievement[];
-    training: Achievement[];
-    streaks: Achievement[];
-    collection: Achievement[];
+    cards: { total: number; unlocked: number };
+    training: { total: number; unlocked: number };
+    streaks: { total: number; unlocked: number };
+    collection: { total: number; unlocked: number };
   };
   byRarity: {
     common: number;
@@ -34,10 +49,23 @@ export interface AchievementStats {
   };
 }
 
+// Récupérer tous les achievements
 export async function getAchievements(): Promise<Achievement[]> {
   return fetchAPI("/achievements", { method: "GET" });
 }
 
+// Vérifier et débloquer les achievements
+export async function checkAchievements(
+  eventType: string,
+  data?: Record<string, any>,
+): Promise<CheckAchievementResponse> {
+  return fetchAPI("/achievements/check", {
+    method: "POST",
+    body: JSON.stringify({ eventType, data }),
+  });
+}
+
+// Récupérer les statistiques
 export async function getAchievementStats(): Promise<AchievementStats> {
   return fetchAPI("/achievements/stats", { method: "GET" });
 }

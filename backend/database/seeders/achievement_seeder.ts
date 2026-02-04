@@ -1,9 +1,11 @@
+// database/seeders/achievement_seeder.ts
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Achievement from '#models/achievement'
 
 export default class extends BaseSeeder {
   async run() {
     await Achievement.createMany([
+      // === CARTES ===
       {
         code: 'first_card',
         name: 'Première Carte',
@@ -55,6 +57,39 @@ export default class extends BaseSeeder {
         conditions: { type: 'cards_created', target: 500 },
       },
 
+      // === DECKS ===
+      {
+        code: 'first_deck',
+        name: 'Premier Deck',
+        description: 'Créer votre premier deck',
+        icon: 'folder',
+        category: 'cards',
+        rarity: 'common',
+        isSecret: false,
+        conditions: { type: 'decks_created', target: 1 },
+      },
+      {
+        code: 'deck_creator_5',
+        name: 'Organisateur',
+        description: 'Créer 5 decks',
+        icon: 'folder-open',
+        category: 'cards',
+        rarity: 'common',
+        isSecret: false,
+        conditions: { type: 'decks_created', target: 5 },
+      },
+      {
+        code: 'deck_creator_10',
+        name: 'Archiviste',
+        description: 'Créer 10 decks',
+        icon: 'folders',
+        category: 'cards',
+        rarity: 'rare',
+        isSecret: false,
+        conditions: { type: 'decks_created', target: 10 },
+      },
+
+      // === COLLECTION (Statuts) ===
       {
         code: 'first_silver',
         name: 'Première Étoile',
@@ -64,6 +99,16 @@ export default class extends BaseSeeder {
         rarity: 'common',
         isSecret: false,
         conditions: { type: 'card_status', status: 'silver', target: 1 },
+      },
+      {
+        code: 'silver_collector_10',
+        name: 'Argentier',
+        description: 'Obtenir 10 cartes Argent',
+        icon: 'ribbon',
+        category: 'collection',
+        rarity: 'common',
+        isSecret: false,
+        conditions: { type: 'card_status', status: 'silver', target: 10 },
       },
       {
         code: 'first_gold',
@@ -76,6 +121,16 @@ export default class extends BaseSeeder {
         conditions: { type: 'card_status', status: 'gold', target: 1 },
       },
       {
+        code: 'gold_collector_10',
+        name: "Chercheur d'Or",
+        description: 'Obtenir 10 cartes Or',
+        icon: 'trophy',
+        category: 'collection',
+        rarity: 'rare',
+        isSecret: false,
+        conditions: { type: 'card_status', status: 'gold', target: 10 },
+      },
+      {
         code: 'first_platinum',
         name: 'Platine Parfait',
         description: 'Obtenir votre première carte Platine',
@@ -84,6 +139,16 @@ export default class extends BaseSeeder {
         rarity: 'epic',
         isSecret: false,
         conditions: { type: 'card_status', status: 'platinum', target: 1 },
+      },
+      {
+        code: 'platinum_collector_5',
+        name: 'Platine Club',
+        description: 'Obtenir 5 cartes Platine',
+        icon: 'medal',
+        category: 'collection',
+        rarity: 'epic',
+        isSecret: false,
+        conditions: { type: 'card_status', status: 'platinum', target: 5 },
       },
       {
         code: 'first_ruby',
@@ -116,6 +181,7 @@ export default class extends BaseSeeder {
         conditions: { type: 'card_status', status: 'ruby', target: 25 },
       },
 
+      // === ENTRAÎNEMENT ===
       {
         code: 'first_training',
         name: 'Premier Pas',
@@ -157,26 +223,77 @@ export default class extends BaseSeeder {
         conditions: { type: 'trainings_completed', target: 100 },
       },
       {
-        code: 'speedrun_master',
+        code: 'training_500',
+        name: 'Légende Vivante',
+        description: "Compléter 500 sessions d'entraînement",
+        icon: 'star',
+        category: 'training',
+        rarity: 'legendary',
+        isSecret: false,
+        conditions: { type: 'trainings_completed', target: 500 },
+      },
+      {
+        code: 'speedrun_10',
+        name: 'Sprinter',
+        description: 'Compléter 10 sessions en mode Speed Run',
+        icon: 'flash',
+        category: 'training',
+        rarity: 'common',
+        isSecret: false,
+        conditions: { type: 'trainings_completed', mode: 'speedrun', target: 10 },
+      },
+      {
+        code: 'speedrun_50',
         name: 'Éclair',
-        description: 'Compléter 25 sessions en mode Speed Run',
+        description: 'Compléter 50 sessions en mode Speed Run',
         icon: 'flash',
         category: 'training',
         rarity: 'rare',
         isSecret: false,
-        conditions: { type: 'trainings_completed', mode: 'speedrun', target: 25 },
+        conditions: { type: 'trainings_completed', mode: 'speedrun', target: 50 },
       },
       {
-        code: 'perfect_master',
+        code: 'perfect_5',
+        name: 'Sans Faute',
+        description: 'Compléter 5 sessions parfaites en mode Perfect',
+        icon: 'checkmark-done',
+        category: 'training',
+        rarity: 'rare',
+        isSecret: false,
+        conditions: { type: 'trainings_completed', mode: 'perfect', target: 5 },
+      },
+      {
+        code: 'perfect_25',
         name: 'Perfectionniste',
-        description: 'Compléter 10 sessions parfaites en mode Perfect',
-        icon: 'diamond',
+        description: 'Compléter 25 sessions parfaites en mode Perfect',
+        icon: 'checkmark-done-circle',
         category: 'training',
         rarity: 'epic',
         isSecret: false,
-        conditions: { type: 'trainings_completed', mode: 'perfect', target: 10 },
+        conditions: { type: 'trainings_completed', mode: 'perfect', target: 25 },
+      },
+      {
+        code: 'streak_mode_10',
+        name: 'Survivant',
+        description: 'Compléter 10 sessions en mode Streak',
+        icon: 'heart',
+        category: 'training',
+        rarity: 'common',
+        isSecret: false,
+        conditions: { type: 'trainings_completed', mode: 'streak', target: 10 },
+      },
+      {
+        code: 'timeattack_10',
+        name: 'Contre la Montre',
+        description: 'Compléter 10 sessions en mode Time Attack',
+        icon: 'timer',
+        category: 'training',
+        rarity: 'common',
+        isSecret: false,
+        conditions: { type: 'trainings_completed', mode: 'timeattack', target: 10 },
       },
 
+      // === STREAKS ===
       {
         code: 'streak_10',
         name: 'En Forme',
@@ -209,7 +326,7 @@ export default class extends BaseSeeder {
       },
       {
         code: 'streak_100',
-        name: 'Légende',
+        name: 'Infaillible',
         description: 'Atteindre une série de 100 bonnes réponses',
         icon: 'flame',
         category: 'streaks',
@@ -218,6 +335,49 @@ export default class extends BaseSeeder {
         conditions: { type: 'streak', target: 100 },
       },
 
+      // === RÉPONSES CORRECTES ===
+      {
+        code: 'correct_100',
+        name: 'Bon Début',
+        description: 'Répondre correctement à 100 cartes',
+        icon: 'checkmark-circle',
+        category: 'training',
+        rarity: 'common',
+        isSecret: false,
+        conditions: { type: 'total_correct', target: 100 },
+      },
+      {
+        code: 'correct_500',
+        name: 'Érudit',
+        description: 'Répondre correctement à 500 cartes',
+        icon: 'checkmark-circle',
+        category: 'training',
+        rarity: 'rare',
+        isSecret: false,
+        conditions: { type: 'total_correct', target: 500 },
+      },
+      {
+        code: 'correct_1000',
+        name: 'Savant',
+        description: 'Répondre correctement à 1000 cartes',
+        icon: 'school',
+        category: 'training',
+        rarity: 'epic',
+        isSecret: false,
+        conditions: { type: 'total_correct', target: 1000 },
+      },
+      {
+        code: 'correct_5000',
+        name: 'Génie',
+        description: 'Répondre correctement à 5000 cartes',
+        icon: 'school',
+        category: 'training',
+        rarity: 'legendary',
+        isSecret: false,
+        conditions: { type: 'total_correct', target: 5000 },
+      },
+
+      // === SECRETS ===
       {
         code: 'night_owl',
         name: 'Oiseau de Nuit',
@@ -247,6 +407,16 @@ export default class extends BaseSeeder {
         rarity: 'epic',
         isSecret: true,
         conditions: { type: 'daily_sessions', target: 10 },
+      },
+      {
+        code: 'comeback',
+        name: 'Le Retour',
+        description: "Revenir après 7 jours d'absence",
+        icon: 'refresh',
+        category: 'training',
+        rarity: 'rare',
+        isSecret: true,
+        conditions: { type: 'comeback_days', target: 7 },
       },
     ])
   }

@@ -1,3 +1,4 @@
+// app/add-card/[id].tsx
 import React, { useState, useRef } from "react";
 import {
   StyleSheet,
@@ -11,13 +12,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { createCard } from "@/services/cards.api";
+import { createCard, CreateCardResponse } from "@/services/cards.api";
 import AddCardHeader from "@/app/components/cards/add-card/AddCardHeader";
 import AddCardTips from "@/app/components/cards/add-card/AddCardTips";
 import InteractiveCard, {
   InteractiveCardRef,
 } from "@/app/components/cards/add-card/InteractiveCard";
 import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
+import AchievementUnlockedModal from "@/app/components/AchievementUnlockModal";
 
 type AddCardFormData = {
   word: string;
@@ -29,6 +31,11 @@ export default function AddCardScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showTips, setShowTips] = useState(false);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<
+    CreateCardResponse["unlockedAchievements"]
+  >([]);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const [shouldGoBack, setShouldGoBack] = useState(false);
 
   const cardRef = useRef<InteractiveCardRef>(null);
 
@@ -46,14 +53,33 @@ export default function AddCardScreen() {
 
   const createCardMutation = useMutation({
     mutationFn: createCard,
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["deck", id] });
       queryClient.invalidateQueries({ queryKey: ["decks"] });
       queryClient.invalidateQueries({ queryKey: ["home"] });
+
+      // Vérifier les achievements débloqués
+      if (
+        response.unlockedAchievements &&
+        response.unlockedAchievements.length > 0
+      ) {
+        setUnlockedAchievements(response.unlockedAchievements);
+        setShowAchievementModal(true);
+      } else {
+        // Pas d'achievement
+        if (shouldGoBack) {
+          Alert.alert("✅ " + t("cards.addCard.success"));
+          router.back();
+        } else {
+          reset();
+          cardRef.current?.resetFlip();
+          Alert.alert("✅ " + t("cards.addCard.success"));
+        }
+      }
     },
     onError: (error) => {
+      console.error("Error:", error);
       Alert.alert("Error", t("cards.addCard.errors.createFailed"));
-      console.error(error);
     },
   });
 
@@ -63,19 +89,12 @@ export default function AddCardScreen() {
       return;
     }
 
-    createCardMutation.mutate(
-      {
-        word: data.word.trim(),
-        translation: data.translation.trim(),
-        deckId: Number(id),
-      },
-      {
-        onSuccess: () => {
-          Alert.alert("✅ " + t("cards.addCard.success"));
-          router.back();
-        },
-      },
-    );
+    setShouldGoBack(true);
+    createCardMutation.mutate({
+      word: data.word.trim(),
+      translation: data.translation.trim(),
+      deckId: Number(id),
+    });
   };
 
   const onAddAnother = (data: AddCardFormData) => {
@@ -84,20 +103,25 @@ export default function AddCardScreen() {
       return;
     }
 
-    createCardMutation.mutate(
-      {
-        word: data.word.trim(),
-        translation: data.translation.trim(),
-        deckId: Number(id),
-      },
-      {
-        onSuccess: () => {
-          reset();
-          cardRef.current?.resetFlip();
-          Alert.alert("✅ " + t("cards.addCard.success"));
-        },
-      },
-    );
+    setShouldGoBack(false);
+    createCardMutation.mutate({
+      word: data.word.trim(),
+      translation: data.translation.trim(),
+      deckId: Number(id),
+    });
+  };
+
+  const handleDismissAchievement = () => {
+    setShowAchievementModal(false);
+
+    if (shouldGoBack) {
+      Alert.alert("✅ " + t("cards.addCard.success"));
+      router.back();
+    } else {
+      reset();
+      cardRef.current?.resetFlip();
+      Alert.alert("✅ " + t("cards.addCard.success"));
+    }
   };
 
   return (
@@ -129,6 +153,12 @@ export default function AddCardScreen() {
           isLoading={createCardMutation.isPending}
         />
       </KeyboardAvoidingView>
+
+      <AchievementUnlockedModal
+        visible={showAchievementModal}
+        achievements={unlockedAchievements}
+        onDismiss={handleDismissAchievement}
+      />
     </SafeAreaView>
   );
 }

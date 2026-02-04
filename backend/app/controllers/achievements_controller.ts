@@ -1,3 +1,4 @@
+// app/controllers/achievements_controller.ts
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import AchievementService from '#services/achievement_service'
@@ -6,6 +7,7 @@ import AchievementService from '#services/achievement_service'
 export default class AchievementsController {
   constructor(private achievementService: AchievementService) {}
 
+  // GET /achievements - Liste tous les achievements de l'utilisateur
   async index({ auth, response }: HttpContext) {
     const user = auth.user
     if (!user) {
@@ -16,6 +18,57 @@ export default class AchievementsController {
     return response.ok(achievements)
   }
 
+  // POST /achievements/check - Vérifie et débloque les achievements
+  async check({ auth, request, response }: HttpContext) {
+    const user = auth.user
+    if (!user) {
+      return response.unauthorized({ message: 'Unauthorized' })
+    }
+
+    const { eventType, data } = request.only(['eventType', 'data'])
+
+    if (!eventType) {
+      return response.badRequest({ message: 'eventType is required' })
+    }
+
+    // Construire l'événement
+    const event = {
+      type: eventType,
+      userId: user.id,
+      ...data,
+    }
+
+    try {
+      const unlockedAchievements = await this.achievementService.processEvent(event)
+
+      // Charger les détails des achievements débloqués
+      const unlockedDetails = await Promise.all(
+        unlockedAchievements.map(async (ua) => {
+          await ua.load('achievement')
+          return {
+            id: ua.achievement.id,
+            code: ua.achievement.code,
+            name: ua.achievement.name,
+            description: ua.achievement.description,
+            icon: ua.achievement.icon,
+            rarity: ua.achievement.rarity,
+            category: ua.achievement.category,
+            unlockedAt: ua.unlockedAt,
+          }
+        })
+      )
+
+      return response.ok({
+        checked: true,
+        unlocked: unlockedDetails,
+      })
+    } catch (error) {
+      console.error('Error checking achievements:', error)
+      return response.internalServerError({ message: 'Failed to check achievements' })
+    }
+  }
+
+  // GET /achievements/stats - Statistiques des achievements
   async stats({ auth, response }: HttpContext) {
     const user = auth.user
     if (!user) {
@@ -28,10 +81,22 @@ export default class AchievementsController {
       total: achievements.length,
       unlocked: achievements.filter((a) => a.unlocked).length,
       byCategory: {
-        cards: achievements.filter((a) => a.category === 'cards'),
-        training: achievements.filter((a) => a.category === 'training'),
-        streaks: achievements.filter((a) => a.category === 'streaks'),
-        collection: achievements.filter((a) => a.category === 'collection'),
+        cards: {
+          total: achievements.filter((a) => a.category === 'cards').length,
+          unlocked: achievements.filter((a) => a.category === 'cards' && a.unlocked).length,
+        },
+        training: {
+          total: achievements.filter((a) => a.category === 'training').length,
+          unlocked: achievements.filter((a) => a.category === 'training' && a.unlocked).length,
+        },
+        streaks: {
+          total: achievements.filter((a) => a.category === 'streaks').length,
+          unlocked: achievements.filter((a) => a.category === 'streaks' && a.unlocked).length,
+        },
+        collection: {
+          total: achievements.filter((a) => a.category === 'collection').length,
+          unlocked: achievements.filter((a) => a.category === 'collection' && a.unlocked).length,
+        },
       },
       byRarity: {
         common: achievements.filter((a) => a.rarity === 'common' && a.unlocked).length,

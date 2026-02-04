@@ -1,7 +1,9 @@
 // app/services/achievement_service.ts
 import Achievement from '#models/achievement'
 import UserAchievement from '#models/user_achievement'
-import User from '#models/user'
+import Deck from '#models/deck'
+import DeckRecord from '#models/deck_record'
+import CardProgress from '#models/card_progress'
 import { DateTime } from 'luxon'
 
 export type AchievementEvent =
@@ -20,8 +22,12 @@ export default class AchievementService {
 
     for (const achievement of achievements) {
       const result = await this.checkAndUpdateAchievement(event.userId, achievement, event)
-      if (result?.unlocked) {
-        unlockedAchievements.push(result)
+      if (result?.unlocked && result.unlockedAt) {
+        // Vérifier si c'est un nouveau déblocage (débloqué maintenant)
+        const justUnlocked = result.unlockedAt.diffNow('seconds').seconds > -5 // Débloqué dans les 5 dernières secondes
+        if (justUnlocked) {
+          unlockedAchievements.push(result)
+        }
       }
     }
 
@@ -29,20 +35,20 @@ export default class AchievementService {
   }
 
   private async getAchievementsForEvent(eventType: string): Promise<Achievement[]> {
-    const typeToCondition: Record<string, string> = {
-      card_created: 'cards_created',
-      card_status_changed: 'card_status',
-      training_completed: 'trainings_completed',
-      streak_reached: 'streak',
-      deck_created: 'decks_created',
-      total_correct: 'total_correct',
+    const typeToCondition: Record<string, string[]> = {
+      card_created: ['cards_created'],
+      card_status_changed: ['card_status'],
+      training_completed: ['trainings_completed'],
+      streak_reached: ['streak'],
+      deck_created: ['decks_created'],
+      total_correct: ['total_correct'],
     }
 
-    const conditionType = typeToCondition[eventType]
-    if (!conditionType) return []
+    const conditionTypes = typeToCondition[eventType]
+    if (!conditionTypes) return []
 
     const achievements = await Achievement.all()
-    return achievements.filter((a) => a.conditions.type === conditionType)
+    return achievements.filter((a) => conditionTypes.includes(a.conditions.type))
   }
 
   private async checkAndUpdateAchievement(
@@ -65,20 +71,23 @@ export default class AchievementService {
       })
     }
 
+    // Si déjà débloqué, ne rien faire
     if (userAchievement.unlocked) {
-      return null
+      return userAchievement
     }
 
+    // Calculer la nouvelle progression
     const newProgress = await this.calculateProgress(userId, achievement, event)
     userAchievement.progress = newProgress
 
+    // Vérifier si l'achievement est débloqué
     if (newProgress >= userAchievement.target) {
       userAchievement.unlocked = true
       userAchievement.unlockedAt = DateTime.now()
     }
 
     await userAchievement.save()
-    return userAchievement.unlocked ? userAchievement : null
+    return userAchievement
   }
 
   private async calculateProgress(
@@ -99,9 +108,6 @@ export default class AchievementService {
         return 0
 
       case 'trainings_completed':
-        if (conditions.mode && event.type === 'training_completed') {
-          if (conditions.mode !== event.mode) return 0
-        }
         return await this.countTrainings(userId, conditions.mode)
 
       case 'streak':
@@ -114,10 +120,7 @@ export default class AchievementService {
         return await this.countUserDecks(userId)
 
       case 'total_correct':
-        if (event.type === 'total_correct') {
-          return event.count
-        }
-        return 0
+        return await this.countTotalCorrect(userId)
 
       default:
         return 0
@@ -125,33 +128,66 @@ export default class AchievementService {
   }
 
   private async countUserCards(userId: number): Promise<number> {
-    const user = await User.query().where('id', userId).withCount('cards').first()
-    return user?.$extras.cards_count || 0
+    // Compter les cartes dans les decks de l'utilisateur
+    const decks = await Deck.query().where('user_id', userId).preload('cards')
+    let totalCards = 0
+    for (const deck of decks) {
+      totalCards += deck.cards.length
+    }
+    return totalCards
   }
 
   private async countCardsWithStatus(userId: number, status: string): Promise<number> {
-    const result = await UserAchievement.query()
-      .from('progresses')
+    const count = await CardProgress.query()
       .where('user_id', userId)
       .where('status', status)
-      .count('* as count')
+      .count('* as total')
       .first()
-    return result?.$extras.count || 0
+    return Number(count?.$extras.total) || 0
   }
 
   private async countTrainings(userId: number, mode?: string): Promise<number> {
-    // Logique pour compter les sessions d'entraînement
-    // À adapter selon ta structure de données
-    return 0
+    const query = DeckRecord.query().where('user_id', userId)
+
+    if (mode) {
+      // Compter les attempts pour un mode spécifique
+      const record = await query.first()
+      if (!record) return 0
+
+      switch (mode) {
+        case 'speedrun':
+          return record.speedRunAttempts
+        case 'streak':
+          return record.streakMasterAttempts
+        case 'timeattack':
+          return record.timeAttackAttempts
+        case 'perfect':
+          return record.perfectRunAttempts
+        default:
+          return record.totalSessions
+      }
+    }
+
+    // Compter toutes les sessions
+    const records = await query
+    let totalSessions = 0
+    for (const record of records) {
+      totalSessions += record.totalSessions
+    }
+    return totalSessions
   }
 
   private async countUserDecks(userId: number): Promise<number> {
-    const user = await User.query().where('id', userId).withCount('decks').first()
-    return user?.$extras.decks_count || 0
+    const count = await Deck.query().where('user_id', userId).count('* as total').first()
+    return Number(count?.$extras.total) || 0
   }
 
-  private async addXpToUser(userId: number, xp: number): Promise<void> {
-    await User.query().where('id', userId).increment('xp', xp)
+  private async countTotalCorrect(userId: number): Promise<number> {
+    const count = await CardProgress.query()
+      .where('user_id', userId)
+      .sum('success_count as total')
+      .first()
+    return Number(count?.$extras.total) || 0
   }
 
   async getUserAchievements(userId: number) {
@@ -161,19 +197,33 @@ export default class AchievementService {
     return achievements.map((achievement) => {
       const userAchievement = userAchievements.find((ua) => ua.achievementId === achievement.id)
 
-      return {
-        ...achievement.serialize(),
+      const baseData = {
+        id: achievement.id,
+        code: achievement.code,
         progress: userAchievement?.progress || 0,
         target: achievement.conditions.target,
         unlocked: userAchievement?.unlocked || false,
-        unlockedAt: userAchievement?.unlockedAt,
-        ...(achievement.isSecret && !userAchievement?.unlocked
-          ? {
-              name: '???',
-              description: 'Achievement secret',
-              icon: 'help-circle',
-            }
-          : {}),
+        unlockedAt: userAchievement?.unlockedAt || null,
+        rarity: achievement.rarity,
+        category: achievement.category,
+        isSecret: achievement.isSecret,
+      }
+
+      // Cacher les détails des achievements secrets non débloqués
+      if (achievement.isSecret && !userAchievement?.unlocked) {
+        return {
+          ...baseData,
+          name: '???',
+          description: 'Achievement secret',
+          icon: 'help-circle',
+        }
+      }
+
+      return {
+        ...baseData,
+        name: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
       }
     })
   }

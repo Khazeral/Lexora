@@ -1,4 +1,3 @@
-// services/achievements.api.ts
 import { fetchAPI } from "./api";
 
 export interface Achievement {
@@ -23,8 +22,6 @@ export interface UnlockedAchievement {
   description: string;
   icon: string;
   rarity: "common" | "rare" | "epic" | "legendary";
-  category: string;
-  unlockedAt: string;
 }
 
 export interface CheckAchievementResponse {
@@ -49,12 +46,10 @@ export interface AchievementStats {
   };
 }
 
-// Récupérer tous les achievements
 export async function getAchievements(): Promise<Achievement[]> {
   return fetchAPI("/achievements", { method: "GET" });
 }
 
-// Vérifier et débloquer les achievements
 export async function checkAchievements(
   eventType: string,
   data?: Record<string, any>,
@@ -65,7 +60,6 @@ export async function checkAchievements(
   });
 }
 
-// Récupérer les statistiques
 export async function getAchievementStats(): Promise<AchievementStats> {
   return fetchAPI("/achievements/stats", { method: "GET" });
 }

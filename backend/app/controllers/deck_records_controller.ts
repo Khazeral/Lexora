@@ -1,10 +1,15 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import DeckRecordsService from '#services/deck_record_service'
+import AchievementService from '#services/achievement_service'
+import { DateTime } from 'luxon'
 
 @inject()
 export default class DeckRecordsController {
-  constructor(private deckRecordsService: DeckRecordsService) {}
+  constructor(
+    private deckRecordsService: DeckRecordsService,
+    private achievementService: AchievementService
+  ) {}
 
   async show({ params, auth, response }: HttpContext) {
     try {
@@ -54,6 +59,8 @@ export default class DeckRecordsController {
         return response.badRequest({ message: 'Invalid gameMode' })
       }
 
+      const lastSessionDate = await this.achievementService.getLastSessionDate(user.id)
+
       const record = await this.deckRecordsService.updateRecord({
         userId: user.id,
         deckId: deckId,
@@ -66,7 +73,63 @@ export default class DeckRecordsController {
         totalCards: data.totalCards,
       })
 
-      return response.ok(record)
+      let unlockedAchievements: any[] = []
+
+      const trainingUnlocked = await this.achievementService.processEvent({
+        type: 'training_completed',
+        userId: user.id,
+        mode: data.gameMode,
+      })
+      unlockedAchievements.push(...trainingUnlocked)
+
+      const currentHour = DateTime.now().hour
+      const timeUnlocked = await this.achievementService.processEvent({
+        type: 'session_time',
+        userId: user.id,
+        hour: currentHour,
+      })
+      unlockedAchievements.push(...timeUnlocked)
+
+      const dailyUnlocked = await this.achievementService.processEvent({
+        type: 'daily_sessions',
+        userId: user.id,
+      })
+      unlockedAchievements.push(...dailyUnlocked)
+
+      if (lastSessionDate) {
+        const daysAway = Math.floor(DateTime.now().diff(lastSessionDate, 'days').days)
+        if (daysAway >= 7) {
+          const comebackUnlocked = await this.achievementService.processEvent({
+            type: 'user_comeback',
+            userId: user.id,
+            daysAway: daysAway,
+          })
+          unlockedAchievements.push(...comebackUnlocked)
+        }
+      }
+
+      const unlockedDetails = await Promise.all(
+        unlockedAchievements.map(async (ua) => {
+          await ua.load('achievement')
+          return {
+            id: ua.achievement.id,
+            code: ua.achievement.code,
+            name: ua.achievement.name,
+            description: ua.achievement.description,
+            icon: ua.achievement.icon,
+            rarity: ua.achievement.rarity,
+          }
+        })
+      )
+
+      const uniqueAchievements = unlockedDetails.filter(
+        (achievement, index, self) => index === self.findIndex((a) => a.id === achievement.id)
+      )
+
+      return response.ok({
+        ...record.toJSON(),
+        unlockedAchievements: uniqueAchievements,
+      })
     } catch (error) {
       console.error('Error updating deck records:', error)
       return response.internalServerError({ message: 'Failed to update records' })

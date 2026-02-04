@@ -1,4 +1,3 @@
-// app/components/AchievementUnlockModal.tsx
 import React, { useEffect } from "react";
 import {
   View,
@@ -115,7 +114,6 @@ export default function AchievementUnlockedModal({
             colors={["#1a1a2e", "#16213e", "#1a1a2e"]}
             style={styles.card}
           >
-            {/* Badge de rareté - maintenant à l'intérieur */}
             <View
               style={[
                 styles.rarityBadge,
@@ -125,10 +123,8 @@ export default function AchievementUnlockedModal({
               <Text style={styles.rarityText}>{config.label}</Text>
             </View>
 
-            {/* Titre */}
             <Text style={styles.title}>🏆 Achievement Débloqué!</Text>
 
-            {/* Icône */}
             <View
               style={[
                 styles.iconContainer,
@@ -147,15 +143,12 @@ export default function AchievementUnlockedModal({
               </LinearGradient>
             </View>
 
-            {/* Nom */}
             <Text style={[styles.achievementName, { color: config.textColor }]}>
               {achievement.name}
             </Text>
 
-            {/* Description */}
             <Text style={styles.description}>{achievement.description}</Text>
 
-            {/* Bouton */}
             <Pressable style={styles.button} onPress={onDismiss}>
               <LinearGradient
                 colors={config.colors}
@@ -167,7 +160,6 @@ export default function AchievementUnlockedModal({
               </LinearGradient>
             </Pressable>
 
-            {/* Indicateur si plusieurs achievements */}
             {achievements.length > 1 && (
               <Text style={styles.moreText}>
                 +{achievements.length - 1} autre(s) achievement(s)

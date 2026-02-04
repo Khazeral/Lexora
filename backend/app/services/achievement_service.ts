@@ -1,4 +1,3 @@
-// app/services/achievement_service.ts
 import Achievement from '#models/achievement'
 import UserAchievement from '#models/user_achievement'
 import Deck from '#models/deck'
@@ -13,6 +12,9 @@ export type AchievementEvent =
   | { type: 'streak_reached'; userId: number; streak: number }
   | { type: 'deck_created'; userId: number }
   | { type: 'total_correct'; userId: number; count: number }
+  | { type: 'session_time'; userId: number; hour: number }
+  | { type: 'daily_sessions'; userId: number }
+  | { type: 'user_comeback'; userId: number; daysAway: number }
 
 export default class AchievementService {
   async processEvent(event: AchievementEvent): Promise<UserAchievement[]> {
@@ -23,8 +25,7 @@ export default class AchievementService {
     for (const achievement of achievements) {
       const result = await this.checkAndUpdateAchievement(event.userId, achievement, event)
       if (result?.unlocked && result.unlockedAt) {
-        // Vérifier si c'est un nouveau déblocage (débloqué maintenant)
-        const justUnlocked = result.unlockedAt.diffNow('seconds').seconds > -5 // Débloqué dans les 5 dernières secondes
+        const justUnlocked = result.unlockedAt.diffNow('seconds').seconds > -5
         if (justUnlocked) {
           unlockedAchievements.push(result)
         }
@@ -42,6 +43,9 @@ export default class AchievementService {
       streak_reached: ['streak'],
       deck_created: ['decks_created'],
       total_correct: ['total_correct'],
+      session_time: ['time_of_day'],
+      daily_sessions: ['daily_sessions'],
+      user_comeback: ['comeback_days'],
     }
 
     const conditionTypes = typeToCondition[eventType]
@@ -71,16 +75,13 @@ export default class AchievementService {
       })
     }
 
-    // Si déjà débloqué, ne rien faire
     if (userAchievement.unlocked) {
       return userAchievement
     }
 
-    // Calculer la nouvelle progression
     const newProgress = await this.calculateProgress(userId, achievement, event)
     userAchievement.progress = newProgress
 
-    // Vérifier si l'achievement est débloqué
     if (newProgress >= userAchievement.target) {
       userAchievement.unlocked = true
       userAchievement.unlockedAt = DateTime.now()
@@ -122,13 +123,33 @@ export default class AchievementService {
       case 'total_correct':
         return await this.countTotalCorrect(userId)
 
+      case 'time_of_day':
+        if (event.type === 'session_time') {
+          const hour = event.hour
+          if (hour >= conditions.startHour && hour < conditions.endHour) {
+            return 1
+          }
+        }
+        return 0
+
+      case 'daily_sessions':
+        if (event.type === 'daily_sessions') {
+          return await this.countTodaySessions(userId)
+        }
+        return 0
+
+      case 'comeback_days':
+        if (event.type === 'user_comeback') {
+          return event.daysAway >= conditions.target ? 1 : 0
+        }
+        return 0
+
       default:
         return 0
     }
   }
 
   private async countUserCards(userId: number): Promise<number> {
-    // Compter les cartes dans les decks de l'utilisateur
     const decks = await Deck.query().where('user_id', userId).preload('cards')
     let totalCards = 0
     for (const deck of decks) {
@@ -147,32 +168,37 @@ export default class AchievementService {
   }
 
   private async countTrainings(userId: number, mode?: string): Promise<number> {
-    const query = DeckRecord.query().where('user_id', userId)
+    const records = await DeckRecord.query().where('user_id', userId)
+
+    if (records.length === 0) return 0
 
     if (mode) {
-      // Compter les attempts pour un mode spécifique
-      const record = await query.first()
-      if (!record) return 0
-
-      switch (mode) {
-        case 'speedrun':
-          return record.speedRunAttempts
-        case 'streak':
-          return record.streakMasterAttempts
-        case 'timeattack':
-          return record.timeAttackAttempts
-        case 'perfect':
-          return record.perfectRunAttempts
-        default:
-          return record.totalSessions
+      let total = 0
+      for (const record of records) {
+        switch (mode) {
+          case 'speedrun':
+            total += record.speedRunAttempts || 0
+            break
+          case 'streak':
+            total += record.streakMasterAttempts || 0
+            break
+          case 'timeattack':
+            total += record.timeAttackAttempts || 0
+            break
+          case 'perfect':
+            total += record.perfectRunAttempts || 0
+            break
+          case 'classic':
+            total += record.totalSessions || 0
+            break
+        }
       }
+      return total
     }
 
-    // Compter toutes les sessions
-    const records = await query
     let totalSessions = 0
     for (const record of records) {
-      totalSessions += record.totalSessions
+      totalSessions += record.totalSessions || 0
     }
     return totalSessions
   }
@@ -188,6 +214,30 @@ export default class AchievementService {
       .sum('success_count as total')
       .first()
     return Number(count?.$extras.total) || 0
+  }
+
+  private async countTodaySessions(userId: number): Promise<number> {
+    const today = DateTime.now().startOf('day')
+    const tomorrow = today.plus({ days: 1 })
+
+    const count = await DeckRecord.query()
+      .where('user_id', userId)
+      .where('last_played_at', '>=', today.toSQL())
+      .where('last_played_at', '<', tomorrow.toSQL())
+      .count('* as total')
+      .first()
+
+    return Number(count?.$extras.total) || 0
+  }
+
+  async getLastSessionDate(userId: number): Promise<DateTime | null> {
+    const record = await DeckRecord.query()
+      .where('user_id', userId)
+      .whereNotNull('last_played_at')
+      .orderBy('last_played_at', 'desc')
+      .first()
+
+    return record?.lastPlayedAt || null
   }
 
   async getUserAchievements(userId: number) {
@@ -209,7 +259,6 @@ export default class AchievementService {
         isSecret: achievement.isSecret,
       }
 
-      // Cacher les détails des achievements secrets non débloqués
       if (achievement.isSecret && !userAchievement?.unlocked) {
         return {
           ...baseData,

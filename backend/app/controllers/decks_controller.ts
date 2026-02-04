@@ -1,8 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import DecksService from '#services/deck_service'
+import AchievementService from '#services/achievement_service'
 
 export default class DecksController {
   private decksService = new DecksService()
+  private achievementService = new AchievementService()
 
   async index({ auth, response }: HttpContext) {
     const userId = auth.user?.id
@@ -28,7 +30,30 @@ export default class DecksController {
 
     const { name } = request.only(['name'])
     const deck = await this.decksService.create({ name, userId })
-    return response.created(deck)
+
+    const unlockedAchievements = await this.achievementService.processEvent({
+      type: 'deck_created',
+      userId: userId,
+    })
+
+    const unlockedDetails = await Promise.all(
+      unlockedAchievements.map(async (ua) => {
+        await ua.load('achievement')
+        return {
+          id: ua.achievement.id,
+          code: ua.achievement.code,
+          name: ua.achievement.name,
+          description: ua.achievement.description,
+          icon: ua.achievement.icon,
+          rarity: ua.achievement.rarity,
+        }
+      })
+    )
+
+    return response.created({
+      deck,
+      unlockedAchievements: unlockedDetails,
+    })
   }
 
   async update({ params, request, auth, response }: HttpContext) {

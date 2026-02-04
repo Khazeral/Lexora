@@ -1,4 +1,3 @@
-// hooks/useAchievements.ts
 import { useState, useCallback } from "react";
 import {
   checkAchievements,

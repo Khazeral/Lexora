@@ -1,11 +1,9 @@
-// database/seeders/achievement_seeder.ts
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Achievement from '#models/achievement'
 
 export default class extends BaseSeeder {
   async run() {
     await Achievement.createMany([
-      // === CARTES ===
       {
         code: 'first_card',
         name: 'Première Carte',
@@ -57,7 +55,6 @@ export default class extends BaseSeeder {
         conditions: { type: 'cards_created', target: 500 },
       },
 
-      // === DECKS ===
       {
         code: 'first_deck',
         name: 'Premier Deck',
@@ -89,7 +86,6 @@ export default class extends BaseSeeder {
         conditions: { type: 'decks_created', target: 10 },
       },
 
-      // === COLLECTION (Statuts) ===
       {
         code: 'first_silver',
         name: 'Première Étoile',
@@ -181,7 +177,6 @@ export default class extends BaseSeeder {
         conditions: { type: 'card_status', status: 'ruby', target: 25 },
       },
 
-      // === ENTRAÎNEMENT ===
       {
         code: 'first_training',
         name: 'Premier Pas',
@@ -292,8 +287,6 @@ export default class extends BaseSeeder {
         isSecret: false,
         conditions: { type: 'trainings_completed', mode: 'timeattack', target: 10 },
       },
-
-      // === STREAKS ===
       {
         code: 'streak_10',
         name: 'En Forme',
@@ -334,8 +327,6 @@ export default class extends BaseSeeder {
         isSecret: false,
         conditions: { type: 'streak', target: 100 },
       },
-
-      // === RÉPONSES CORRECTES ===
       {
         code: 'correct_100',
         name: 'Bon Début',
@@ -376,8 +367,6 @@ export default class extends BaseSeeder {
         isSecret: false,
         conditions: { type: 'total_correct', target: 5000 },
       },
-
-      // === SECRETS ===
       {
         code: 'night_owl',
         name: 'Oiseau de Nuit',

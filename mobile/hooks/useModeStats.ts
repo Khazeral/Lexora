@@ -59,17 +59,14 @@ export default function useModeStats({
   };
 
   return useMemo(() => {
-    // Si erreur de chargement, ne pas afficher
     if (recordsError) {
       return null;
     }
 
-    // Si en cours de chargement
     if (isLoadingRecords) {
       return null;
     }
 
-    // Valeurs par défaut pour première partie (quand deckRecords est null/undefined)
     const records: DeckRecords = deckRecords || {
       bestSpeedRunTime: null,
       speedRunAttempts: 1,

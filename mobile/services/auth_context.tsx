@@ -18,7 +18,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Configuration de l'API
 const API_URL = "http://localhost:3333";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -31,15 +30,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function checkAuth() {
     try {
-      // Récupérer le token stocké localement
       const token = await AsyncStorage.getItem("auth_token");
-      
+
       if (token) {
-        // Vérifier le token auprès du backend
         const response = await fetch(`${API_URL}/me`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
@@ -48,7 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = await response.json();
           setUser(data.user || data);
         } else {
-          // Token invalide, le supprimer
           await AsyncStorage.removeItem("auth_token");
         }
       }
@@ -75,7 +71,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
 
-      // Stocker uniquement le token (pas les données utilisateur)
       await AsyncStorage.setItem("auth_token", data.token);
 
       setUser(data.user);
@@ -100,7 +95,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
 
-      // Stocker uniquement le token
       await AsyncStorage.setItem("auth_token", data.token);
 
       setUser(data.user);
@@ -113,21 +107,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function logout() {
     try {
       const token = await AsyncStorage.getItem("auth_token");
-      
+
       if (token) {
-        // Informer le backend de la déconnexion
         await fetch(`${API_URL}/logout`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
       }
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Nettoyer le token local
       await AsyncStorage.removeItem("auth_token");
       setUser(null);
       router.replace("/(auth)/login");
@@ -153,9 +145,12 @@ export async function getAuthToken(): Promise<string | null> {
   return await AsyncStorage.getItem("auth_token");
 }
 
-export async function authenticatedFetch(url: string, options: RequestInit = {}) {
+export async function authenticatedFetch(
+  url: string,
+  options: RequestInit = {},
+) {
   const token = await getAuthToken();
-  
+
   if (!token) {
     throw new Error("Non authentifié");
   }
@@ -164,7 +159,7 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
     ...options,
     headers: {
       ...options.headers,
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });

@@ -1,4 +1,3 @@
-// app/add-card/[id].tsx
 import React, { useState, useRef } from "react";
 import {
   StyleSheet,
@@ -58,7 +57,6 @@ export default function AddCardScreen() {
       queryClient.invalidateQueries({ queryKey: ["decks"] });
       queryClient.invalidateQueries({ queryKey: ["home"] });
 
-      // Vérifier les achievements débloqués
       if (
         response.unlockedAchievements &&
         response.unlockedAchievements.length > 0
@@ -66,7 +64,6 @@ export default function AddCardScreen() {
         setUnlockedAchievements(response.unlockedAchievements);
         setShowAchievementModal(true);
       } else {
-        // Pas d'achievement
         if (shouldGoBack) {
           Alert.alert("✅ " + t("cards.addCard.success"));
           router.back();

@@ -1,4 +1,3 @@
-// app/controllers/achievements_controller.ts
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import AchievementService from '#services/achievement_service'
@@ -7,7 +6,6 @@ import AchievementService from '#services/achievement_service'
 export default class AchievementsController {
   constructor(private achievementService: AchievementService) {}
 
-  // GET /achievements - Liste tous les achievements de l'utilisateur
   async index({ auth, response }: HttpContext) {
     const user = auth.user
     if (!user) {
@@ -18,7 +16,6 @@ export default class AchievementsController {
     return response.ok(achievements)
   }
 
-  // POST /achievements/check - Vérifie et débloque les achievements
   async check({ auth, request, response }: HttpContext) {
     const user = auth.user
     if (!user) {
@@ -31,7 +28,6 @@ export default class AchievementsController {
       return response.badRequest({ message: 'eventType is required' })
     }
 
-    // Construire l'événement
     const event = {
       type: eventType,
       userId: user.id,
@@ -41,7 +37,6 @@ export default class AchievementsController {
     try {
       const unlockedAchievements = await this.achievementService.processEvent(event)
 
-      // Charger les détails des achievements débloqués
       const unlockedDetails = await Promise.all(
         unlockedAchievements.map(async (ua) => {
           await ua.load('achievement')
@@ -68,7 +63,6 @@ export default class AchievementsController {
     }
   }
 
-  // GET /achievements/stats - Statistiques des achievements
   async stats({ auth, response }: HttpContext) {
     const user = auth.user
     if (!user) {

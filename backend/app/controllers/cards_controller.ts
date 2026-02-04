@@ -1,4 +1,3 @@
-// app/controllers/cards_controller.ts
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { createCardValidator, updateCardValidator } from '#validators/card'
@@ -32,18 +31,11 @@ export default class CardsController {
     const payload = await request.validateUsing(createCardValidator)
     const card = await this.service.create(payload)
 
-    console.log('=== ACHIEVEMENT DEBUG ===')
-    console.log('User ID:', user.id)
-
-    // Vérifier les achievements liés à la création de cartes
     const unlockedAchievements = await this.achievementService.processEvent({
       type: 'card_created',
       userId: user.id,
     })
 
-    console.log('Unlocked achievements:', unlockedAchievements)
-
-    // Charger les détails des achievements débloqués
     const unlockedDetails = await Promise.all(
       unlockedAchievements.map(async (ua) => {
         await ua.load('achievement')
@@ -57,8 +49,6 @@ export default class CardsController {
         }
       })
     )
-
-    console.log('Unlocked details:', unlockedDetails)
 
     return response.created({
       card,

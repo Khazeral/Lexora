@@ -1,5 +1,3 @@
-// services/deck_records.api.ts
-
 import { fetchAPI } from "./api";
 
 export interface DeckRecord {
@@ -18,6 +16,19 @@ export interface DeckRecord {
   lastPlayedAt: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface UnlockedAchievement {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  icon: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
+}
+
+export interface UpdateDeckRecordsResponse extends DeckRecord {
+  unlockedAchievements: UnlockedAchievement[];
 }
 
 export interface UpdateRecordPayload {
@@ -59,24 +70,18 @@ export async function updateDeckRecords(
     totalCards?: number;
     isPerfect?: boolean;
   },
-): Promise<DeckRecord> {
+): Promise<UpdateDeckRecordsResponse> {
   return fetchAPI(`/decks/${deckId}/records`, {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-/**
- * Récupère tous les records d'un utilisateur
- */
 export async function getUserRecords(userId: number): Promise<DeckRecord[]> {
   const data = await fetchAPI(`/users/${userId}/records`);
   return data;
 }
 
-/**
- * Récupère le leaderboard pour un deck et un mode
- */
 export async function getDeckLeaderboard(
   deckId: number,
   gameMode: string,
@@ -88,9 +93,6 @@ export async function getDeckLeaderboard(
   return data;
 }
 
-/**
- * Supprime les records d'un deck
- */
 export async function deleteDeckRecords(deckId: number): Promise<void> {
   await fetchAPI(`/decks/${deckId}/records`, {
     method: "DELETE",

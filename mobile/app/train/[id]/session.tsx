@@ -4,7 +4,7 @@ import { View, StyleSheet, Animated } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { getDeck } from "@/services/decks.api";
-import { answerCard } from "@/services/progress.api";
+import { answerCard, UnlockedAchievement } from "@/services/progress.api";
 import { getDeckRecords, updateDeckRecords } from "@/services/deck_records.api";
 import { useAuth } from "@/services/auth_context";
 import { Card } from "@/types";
@@ -19,6 +19,7 @@ import {
   CardFrontContent,
   CardBackContent,
 } from "@/app/components/train/session/CardContent";
+import AchievementUnlockedModal from "@/app/components/AchievementUnlockModal";
 import useSessionTimer from "@/hooks/useSessionTimer";
 import useCardTimer from "@/hooks/useCardTimer";
 import useSessionStats from "@/hooks/useSessionStats";
@@ -41,7 +42,12 @@ export default function TrainingSessionScreen() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipAnim, setFlipAnim] = useState(() => new Animated.Value(0));
 
-  // Ref pour éviter les problèmes de closure dans finishSession
+  const [pendingAchievements, setPendingAchievements] = useState<
+    UnlockedAchievement[]
+  >([]);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const pendingNavigationRef = useRef<(() => void) | null>(null);
+
   const cardsRef = useRef<Card[]>([]);
 
   const {
@@ -73,9 +79,19 @@ export default function TrainingSessionScreen() {
   const answerMutation = useMutation({
     mutationFn: ({ cardId, success }: { cardId: number; success: boolean }) =>
       answerCard(user!.id, cardId, success),
+    onSuccess: (response) => {
+      if (
+        response.unlockedAchievements &&
+        response.unlockedAchievements.length > 0
+      ) {
+        setPendingAchievements((prev) => [
+          ...prev,
+          ...response.unlockedAchievements,
+        ]);
+      }
+    },
   });
 
-  // Fonction placeholder pour handleSwipeLeft (sera mise à jour plus tard)
   const handleSwipeLeftRef = useRef<() => void>(() => {});
 
   const { cardTimeLeft, stopCardTimer, getTotalTimeUsed, resetTotalTime } =
@@ -89,6 +105,7 @@ export default function TrainingSessionScreen() {
     resetTotalTime();
     setCurrentIndex(0);
     setIsFlipped(false);
+    setPendingAchievements([]);
   }, [id, resetGameState, resetStats, resetTotalTime]);
 
   useEffect(() => {
@@ -101,6 +118,13 @@ export default function TrainingSessionScreen() {
     setCurrentIndex(0);
   }, [deck, isShuffle]);
 
+  const navigateToComplete = useCallback((params: Record<string, string>) => {
+    router.replace({
+      pathname: "/train/[id]/complete",
+      params,
+    });
+  }, []);
+
   const finishSession = useCallback(async () => {
     stopTimer();
     stopCardTimer();
@@ -109,7 +133,6 @@ export default function TrainingSessionScreen() {
     const finalLives = livesRef.current;
     const currentCards = cardsRef.current;
 
-    // Calculer le temps moyen par carte pour timeattack
     const totalTimeUsed = getTotalTimeUsed();
     const avgTimePerCard =
       currentCards.length > 0 ? totalTimeUsed / currentCards.length : 0;
@@ -121,33 +144,41 @@ export default function TrainingSessionScreen() {
       console.error("Error fetching previous records:", error);
     }
 
+    let recordsAchievements: UnlockedAchievement[] = [];
+
     try {
+      let recordsResponse;
+
       if (gameMode === "speedrun") {
-        await updateDeckRecords(Number(id), {
+        recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "speedrun",
           speedRunTime: elapsedTime,
           timePenalty: timePenalty,
         });
       } else if (gameMode === "streak") {
-        await updateDeckRecords(Number(id), {
+        recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "streak",
           streak: bestStreakRef.current,
         });
       } else if (gameMode === "timeattack") {
-        await updateDeckRecords(Number(id), {
+        recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "timeattack",
           avgTimePerCard: avgTimePerCard,
           totalCards: currentCards.length,
         });
       } else if (gameMode === "perfect") {
-        await updateDeckRecords(Number(id), {
+        recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "perfect",
           isPerfect: isPerfectRun,
         });
       } else {
-        await updateDeckRecords(Number(id), {
+        recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "classic",
         });
+      }
+
+      if (recordsResponse?.unlockedAchievements) {
+        recordsAchievements = recordsResponse.unlockedAchievements;
       }
     } catch (error) {
       console.error("Error updating deck records:", error);
@@ -156,28 +187,40 @@ export default function TrainingSessionScreen() {
     queryClient.invalidateQueries({ queryKey: ["deck", id] });
     queryClient.invalidateQueries({ queryKey: ["deckRecords", id] });
 
-    router.replace({
-      pathname: "/train/[id]/complete",
-      params: {
-        id,
-        sessionCorrect: sessionCorrectRef.current.toString(),
-        sessionIncorrect: sessionIncorrectRef.current.toString(),
-        sessionBestStreak: bestStreakRef.current.toString(),
-        gameMode: gameMode as string,
-        finalTime: finalTime.toString(),
-        timePenalty: timePenalty.toString(),
-        livesLeft: finalLives.toString(),
-        isPerfect: isPerfectRun.toString(),
-        avgTimePerCard: avgTimePerCard.toString(),
-        previousBestSpeedRun:
-          previousRecords?.bestSpeedRunTime?.toString() || "null",
-        previousBestStreak: previousRecords?.bestStreak?.toString() || "null",
-        previousBestAvgTime:
-          previousRecords?.bestAvgTimePerCard?.toString() || "null",
-        previousPerfectRuns:
-          previousRecords?.perfectRunsCompleted?.toString() || "null",
-      },
-    });
+    const allAchievements = [...pendingAchievements, ...recordsAchievements];
+
+    const uniqueAchievements = allAchievements.filter(
+      (achievement, index, self) =>
+        index === self.findIndex((a) => a.id === achievement.id),
+    );
+
+    const navigationParams = {
+      id: id as string,
+      sessionCorrect: sessionCorrectRef.current.toString(),
+      sessionIncorrect: sessionIncorrectRef.current.toString(),
+      sessionBestStreak: bestStreakRef.current.toString(),
+      gameMode: gameMode as string,
+      finalTime: finalTime.toString(),
+      timePenalty: timePenalty.toString(),
+      livesLeft: finalLives.toString(),
+      isPerfect: isPerfectRun.toString(),
+      avgTimePerCard: avgTimePerCard.toString(),
+      previousBestSpeedRun:
+        previousRecords?.bestSpeedRunTime?.toString() || "null",
+      previousBestStreak: previousRecords?.bestStreak?.toString() || "null",
+      previousBestAvgTime:
+        previousRecords?.bestAvgTimePerCard?.toString() || "null",
+      previousPerfectRuns:
+        previousRecords?.perfectRunsCompleted?.toString() || "null",
+    };
+
+    if (uniqueAchievements.length > 0) {
+      setPendingAchievements(uniqueAchievements);
+      pendingNavigationRef.current = () => navigateToComplete(navigationParams);
+      setShowAchievementModal(true);
+    } else {
+      navigateToComplete(navigationParams);
+    }
   }, [
     gameMode,
     id,
@@ -193,7 +236,20 @@ export default function TrainingSessionScreen() {
     getTotalTime,
     getTotalTimeUsed,
     queryClient,
+    pendingAchievements,
+    navigateToComplete,
   ]);
+
+  const handleDismissAchievement = useCallback(() => {
+    setShowAchievementModal(false);
+
+    if (pendingNavigationRef.current) {
+      pendingNavigationRef.current();
+      pendingNavigationRef.current = null;
+    }
+
+    setPendingAchievements([]);
+  }, []);
 
   const goToNextCard = useCallback(() => {
     setCurrentIndex((prev) => {
@@ -254,7 +310,6 @@ export default function TrainingSessionScreen() {
     finishSession,
   ]);
 
-  // Mettre à jour la ref de handleSwipeLeft
   useEffect(() => {
     handleSwipeLeftRef.current = handleSwipeLeft;
   }, [handleSwipeLeft]);
@@ -356,6 +411,12 @@ export default function TrainingSessionScreen() {
           />
         </View>
       </View>
+
+      <AchievementUnlockedModal
+        visible={showAchievementModal}
+        achievements={pendingAchievements}
+        onDismiss={handleDismissAchievement}
+      />
     </GestureHandlerRootView>
   );
 }

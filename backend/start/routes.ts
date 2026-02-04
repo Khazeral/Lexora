@@ -1,5 +1,6 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const AchievementsController = () => import('#controllers/achievements_controller')
 const ProgressController = () => import('#controllers/progresses_controller')
 const DeckRecordsController = () => import('#controllers/deck_records_controller')
 
@@ -45,5 +46,9 @@ router
     router.get('/progress/:userId/:cardId', [ProgressController, 'show'])
     router.post('/progress/:userId/:cardId/answer', [ProgressController, 'answer'])
     router.get('/progress/:userId/decks/:deckId', [ProgressController, 'byDeck'])
+
+    router.get('/achievements', [AchievementsController, 'index'])
+    router.post('/achievements/check', [AchievementsController, 'check'])
+    router.get('/achievements/stats', [AchievementsController, 'stats'])
   })
   .use(middleware.auth({ guards: ['api'] }))

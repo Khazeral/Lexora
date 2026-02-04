@@ -219,7 +219,6 @@ export default function TrainingCompleteScreen() {
       .slice(0, 3);
   }, [deck, totalCards]);
 
-  // Animation pour le header
   useEffect(() => {
     Animated.spring(scaleAnim, {
       toValue: 1,
@@ -229,7 +228,6 @@ export default function TrainingCompleteScreen() {
     }).start();
   }, [scaleAnim]);
 
-  // Animation pour ModeStatsCard - se lance quand modeStats est prêt
   useEffect(() => {
     if (modeStats) {
       fadeAnim.setValue(0);
@@ -241,7 +239,6 @@ export default function TrainingCompleteScreen() {
     }
   }, [modeStats, fadeAnim]);
 
-  // Animation pour les confettis et pulse quand c'est un record
   useEffect(() => {
     if (!modeStats?.isRecord || isRealError) return;
 

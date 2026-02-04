@@ -21,10 +21,11 @@ export default class CardProgressService {
         currentStreak: success ? 1 : 0,
         maxStreak: success ? 1 : 0,
         status: 'bronze',
-        isSecret: false,
       })
-      return progress
+      return { progress, newStatus: null }
     }
+
+    const oldStatus = progress.status
 
     if (success) {
       progress.successCount += 1
@@ -37,7 +38,6 @@ export default class CardProgressService {
       progress.currentStreak = 0
     }
 
-    // Mise à jour du statut selon la streak
     if (progress.maxStreak >= 10) progress.status = 'ruby'
     else if (progress.maxStreak >= 7) progress.status = 'platinum'
     else if (progress.maxStreak >= 5) progress.status = 'gold'
@@ -45,7 +45,10 @@ export default class CardProgressService {
     else progress.status = 'bronze'
 
     await progress.save()
-    return progress
+
+    const newStatus = progress.status !== oldStatus ? progress.status : null
+
+    return { progress, newStatus }
   }
 
   async byDeck(userId: number, deckId: number) {

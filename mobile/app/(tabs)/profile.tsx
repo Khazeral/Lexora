@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { useAuth } from "@/services/auth_context";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -25,6 +26,24 @@ export default function ProfileScreen() {
           <Text style={styles.username}>{user?.username}</Text>
           <Text style={styles.email}>{user?.email}</Text>
         </View>
+
+        <TouchableOpacity
+          style={styles.achievementsCard}
+          onPress={() => router.push("/achievements")}
+        >
+          <View style={styles.achievementsLeft}>
+            <View style={styles.achievementsIcon}>
+              <Ionicons name="trophy" size={28} color="#fbbf24" />
+            </View>
+            <View>
+              <Text style={styles.achievementsTitle}>Achievements</Text>
+              <Text style={styles.achievementsSubtitle}>
+                Voir tous vos trophées
+              </Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
+        </TouchableOpacity>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
@@ -112,6 +131,45 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 16,
+    color: "#64748b",
+  },
+  achievementsCard: {
+    backgroundColor: "#fff",
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#fbbf24",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#fef3c7",
+  },
+  achievementsLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  achievementsIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#fef9c3",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  achievementsTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1e293b",
+  },
+  achievementsSubtitle: {
+    fontSize: 14,
     color: "#64748b",
   },
   section: {

@@ -75,7 +75,7 @@ const getTextureConfig = (status: CardStatus): TextureConfig => {
         glowColor: "#a1a1aa",
         innerFrameColors: ["#52525b", "#27272a"],
       };
-    default: // bronze
+    default:
       return {
         baseColors: ["#1c1208", "#2a1a0a", "#1c1208"],
         frameColors: ["#d4a574", "#cd7f32", "#a0522d", "#cd7f32", "#d4a574"],
@@ -87,13 +87,11 @@ const getTextureConfig = (status: CardStatus): TextureConfig => {
   }
 };
 
-// Composant pour le cadre TCG
 function TCGFrame({ status }: { status: CardStatus }) {
   const config = getTextureConfig(status);
 
   return (
     <>
-      {/* Cadre extérieur principal */}
       <View style={styles.outerFrame}>
         <LinearGradient
           colors={config.frameColors}
@@ -103,7 +101,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Bordure intérieure avec ombre */}
       <View style={styles.innerFrameBorder}>
         <LinearGradient
           colors={config.innerFrameColors}
@@ -113,7 +110,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Coins ornementaux - Haut Gauche */}
       <View style={[styles.cornerOrnament, styles.topLeftOrnament]}>
         <View
           style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
@@ -147,7 +143,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Coins ornementaux - Haut Droit */}
       <View style={[styles.cornerOrnament, styles.topRightOrnament]}>
         <View
           style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
@@ -182,7 +177,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Coins ornementaux - Bas Gauche */}
       <View style={[styles.cornerOrnament, styles.bottomLeftOrnament]}>
         <View
           style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
@@ -217,7 +211,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Coins ornementaux - Bas Droit */}
       <View style={[styles.cornerOrnament, styles.bottomRightOrnament]}>
         <View
           style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
@@ -253,7 +246,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Décorations latérales - Gauche */}
       <View style={[styles.sideDecoration, styles.leftDecoration]}>
         {Array.from({ length: 5 }).map((_, i) => (
           <View key={`left-${i}`} style={styles.sideOrnamentContainer}>
@@ -273,7 +265,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         ))}
       </View>
 
-      {/* Décorations latérales - Droite */}
       <View style={[styles.sideDecoration, styles.rightDecoration]}>
         {Array.from({ length: 5 }).map((_, i) => (
           <View key={`right-${i}`} style={styles.sideOrnamentContainer}>
@@ -293,7 +284,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         ))}
       </View>
 
-      {/* Décoration haut */}
       <View style={[styles.topDecoration]}>
         <View
           style={[
@@ -331,7 +321,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Décoration bas */}
       <View style={[styles.bottomDecoration]}>
         <View
           style={[
@@ -361,7 +350,6 @@ function TCGFrame({ status }: { status: CardStatus }) {
         />
       </View>
 
-      {/* Filigrane intérieur */}
       <View style={styles.filigreContainer}>
         <View
           style={[
@@ -489,7 +477,6 @@ function ShinyCard({
   return (
     <GestureDetector gesture={pan}>
       <Animated.View style={[styles.flashcard, cardAnimatedStyle]}>
-        {/* Fond de base */}
         <LinearGradient
           colors={config.baseColors}
           start={{ x: 0, y: 0 }}
@@ -497,10 +484,8 @@ function ShinyCard({
           style={StyleSheet.absoluteFill}
         />
 
-        {/* Cadre TCG */}
         <TCGFrame status={status as CardStatus} />
 
-        {/* Effet holographique */}
         <Animated.View style={[styles.holoContainer, holoAnimatedStyle]}>
           <LinearGradient
             colors={[
@@ -517,7 +502,6 @@ function ShinyCard({
           />
         </Animated.View>
 
-        {/* Bande de brillance */}
         <View style={styles.shineWrapper}>
           <Animated.View style={[styles.shineBand, shineAnimatedStyle]}>
             <LinearGradient
@@ -535,7 +519,6 @@ function ShinyCard({
           </Animated.View>
         </View>
 
-        {/* Contenu de la carte */}
         <View style={styles.cardContent}>{children}</View>
       </Animated.View>
     </GestureDetector>
@@ -781,7 +764,6 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
   },
 
-  // Cadre extérieur
   outerFrame: {
     position: "absolute",
     top: 0,
@@ -794,7 +776,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 
-  // Bordure intérieure
   innerFrameBorder: {
     position: "absolute",
     top: 8,
@@ -807,7 +788,6 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
 
-  // Ornements de coin
   cornerOrnament: {
     position: "absolute",
     width: 40,
@@ -876,7 +856,6 @@ const styles = StyleSheet.create({
     left: 28,
   },
 
-  // Décorations latérales
   sideDecoration: {
     position: "absolute",
     top: 80,
@@ -907,7 +886,6 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
 
-  // Décoration haut
   topDecoration: {
     position: "absolute",
     top: 18,
@@ -932,7 +910,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
 
-  // Décoration bas
   bottomDecoration: {
     position: "absolute",
     bottom: 16,
@@ -966,7 +943,6 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  // Filigrane
   filigreContainer: {
     position: "absolute",
     top: 50,
@@ -1018,7 +994,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
   },
 
-  // Effets
   holoContainer: {
     ...StyleSheet.absoluteFillObject,
     overflow: "hidden",
@@ -1044,7 +1019,6 @@ const styles = StyleSheet.create({
     left: CARD_WIDTH / 2 - 40,
   },
 
-  // Contenu
   cardContent: {
     flex: 1,
     margin: 14,
@@ -1096,7 +1070,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
 
-  // Status et Stats
   statusContainer: {
     alignItems: "center",
     marginBottom: 24,

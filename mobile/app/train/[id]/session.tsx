@@ -7,6 +7,7 @@ import { getDeck } from "@/services/decks.api";
 import { answerCard, UnlockedAchievement } from "@/services/progress.api";
 import { getDeckRecords, updateDeckRecords } from "@/services/deck_records.api";
 import { useAuth } from "@/services/auth_context";
+import { useToast } from "@/services/toast_context";
 import { Card } from "@/types";
 import { GameMode } from "@/constants/gameMods";
 import { shuffle } from "@/utils/cardUtils";
@@ -19,7 +20,6 @@ import {
   CardFrontContent,
   CardBackContent,
 } from "@/app/components/train/session/CardContent";
-import AchievementUnlockedModal from "@/app/components/AchievementUnlockModal";
 import useSessionTimer from "@/hooks/useSessionTimer";
 import useCardTimer from "@/hooks/useCardTimer";
 import useSessionStats from "@/hooks/useSessionStats";
@@ -36,6 +36,7 @@ export default function TrainingSessionScreen() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { showAchievementToast } = useToast();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cards, setCards] = useState<Card[]>([]);
@@ -45,8 +46,6 @@ export default function TrainingSessionScreen() {
   const [pendingAchievements, setPendingAchievements] = useState<
     UnlockedAchievement[]
   >([]);
-  const [showAchievementModal, setShowAchievementModal] = useState(false);
-  const pendingNavigationRef = useRef<(() => void) | null>(null);
 
   const cardsRef = useRef<Card[]>([]);
 
@@ -192,12 +191,17 @@ export default function TrainingSessionScreen() {
     queryClient.invalidateQueries({ queryKey: ["deck", id] });
     queryClient.invalidateQueries({ queryKey: ["deckRecords", id] });
 
+    // Combiner tous les achievements
     const allAchievements = [...pendingAchievements, ...recordsAchievements];
-
     const uniqueAchievements = allAchievements.filter(
       (achievement, index, self) =>
         index === self.findIndex((a) => a.id === achievement.id),
     );
+
+    // Afficher le toast si des achievements ont été débloqués
+    if (uniqueAchievements.length > 0) {
+      showAchievementToast(uniqueAchievements.length);
+    }
 
     const navigationParams = {
       id: id as string,
@@ -219,13 +223,7 @@ export default function TrainingSessionScreen() {
         previousRecords?.perfectRunsCompleted?.toString() || "null",
     };
 
-    if (uniqueAchievements.length > 0) {
-      setPendingAchievements(uniqueAchievements);
-      pendingNavigationRef.current = () => navigateToComplete(navigationParams);
-      setShowAchievementModal(true);
-    } else {
-      navigateToComplete(navigationParams);
-    }
+    navigateToComplete(navigationParams);
   }, [
     gameMode,
     id,
@@ -243,18 +241,8 @@ export default function TrainingSessionScreen() {
     queryClient,
     pendingAchievements,
     navigateToComplete,
+    showAchievementToast,
   ]);
-
-  const handleDismissAchievement = useCallback(() => {
-    setShowAchievementModal(false);
-
-    if (pendingNavigationRef.current) {
-      pendingNavigationRef.current();
-      pendingNavigationRef.current = null;
-    }
-
-    setPendingAchievements([]);
-  }, []);
 
   const goToNextCard = useCallback(() => {
     setCurrentIndex((prev) => {
@@ -416,12 +404,6 @@ export default function TrainingSessionScreen() {
           />
         </View>
       </View>
-
-      <AchievementUnlockedModal
-        visible={showAchievementModal}
-        achievements={pendingAchievements}
-        onDismiss={handleDismissAchievement}
-      />
     </GestureHandlerRootView>
   );
 }

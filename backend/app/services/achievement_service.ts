@@ -73,6 +73,7 @@ export default class AchievementService {
         progress: 0,
         target: achievement.conditions.target,
         unlocked: false,
+        seen: false,
       })
     }
 
@@ -86,6 +87,7 @@ export default class AchievementService {
     if (newProgress >= userAchievement.target) {
       userAchievement.unlocked = true
       userAchievement.unlockedAt = DateTime.now()
+      userAchievement.seen = false
     }
 
     await userAchievement.save()
@@ -252,6 +254,24 @@ export default class AchievementService {
     return record?.lastPlayedAt || null
   }
 
+  async markAchievementsAsSeen(userId: number): Promise<void> {
+    await UserAchievement.query()
+      .where('user_id', userId)
+      .where('unlocked', true)
+      .where('seen', false)
+      .update({ seen: true })
+  }
+
+  async getUnseenCount(userId: number): Promise<number> {
+    const count = await UserAchievement.query()
+      .where('user_id', userId)
+      .where('unlocked', true)
+      .where('seen', false)
+      .count('* as total')
+      .first()
+    return Number(count?.$extras.total) || 0
+  }
+
   async getUserAchievements(userId: number) {
     const achievements = await Achievement.all()
     const userAchievements = await UserAchievement.query().where('user_id', userId)
@@ -275,7 +295,6 @@ export default class AchievementService {
       } else if (achievement.conditions.type === 'total_correct') {
         currentProgress = await this.countTotalCorrect(userId)
       } else if (achievement.conditions.type === 'streak') {
-        // Utiliser la best_streak de l'utilisateur
         currentProgress = user?.bestStreak || 0
       }
 
@@ -286,6 +305,7 @@ export default class AchievementService {
         target: achievement.conditions.target,
         unlocked: userAchievement?.unlocked || currentProgress >= achievement.conditions.target,
         unlockedAt: userAchievement?.unlockedAt || null,
+        seen: userAchievement?.seen ?? true,
         rarity: achievement.rarity,
         category: achievement.category,
         isSecret: achievement.isSecret,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   StyleSheet,
   KeyboardAvoidingView,
@@ -10,12 +10,12 @@ import { router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { createDeck, CreateDeckResponse } from "@/services/decks.api";
+import { createDeck } from "@/services/decks.api";
+import { useToast } from "@/services/toast_context";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CreateDeckActions from "../components/decks/create-deck/CreateDeckActions";
 import CreateDeckForm from "../components/decks/create-deck/CreateDeckForm";
 import CreateDeckHeader from "../components/decks/create-deck/CreateDeckHeader";
-import AchievementUnlockedModal from "../components/AchievementUnlockModal";
 
 type CreateDeckFormData = {
   name: string;
@@ -25,11 +25,7 @@ type CreateDeckFormData = {
 export default function CreateDeckScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-
-  const [unlockedAchievements, setUnlockedAchievements] = useState<
-    CreateDeckResponse["unlockedAchievements"]
-  >([]);
-  const [showAchievementModal, setShowAchievementModal] = useState(false);
+  const { showAchievementToast } = useToast();
 
   const {
     control,
@@ -52,11 +48,10 @@ export default function CreateDeckScreen() {
         response.unlockedAchievements &&
         response.unlockedAchievements.length > 0
       ) {
-        setUnlockedAchievements(response.unlockedAchievements);
-        setShowAchievementModal(true);
-      } else {
-        router.back();
+        showAchievementToast(response.unlockedAchievements.length);
       }
+
+      router.back();
     },
     onError: (error) => {
       Alert.alert("Error", t("decks.createDeck.errors.createFailed"));
@@ -72,11 +67,6 @@ export default function CreateDeckScreen() {
   };
 
   const handleCancel = () => {
-    router.back();
-  };
-
-  const handleDismissAchievement = () => {
-    setShowAchievementModal(false);
     router.back();
   };
 
@@ -103,12 +93,6 @@ export default function CreateDeckScreen() {
           isLoading={createDeckMutation.isPending}
         />
       </KeyboardAvoidingView>
-
-      <AchievementUnlockedModal
-        visible={showAchievementModal}
-        achievements={unlockedAchievements}
-        onDismiss={handleDismissAchievement}
-      />
     </SafeAreaView>
   );
 }

@@ -48,6 +48,7 @@ router
     router.get('/progress/:userId/decks/:deckId', [ProgressController, 'byDeck'])
 
     router.get('/achievements', [AchievementsController, 'index'])
+    router.get('/achievements/unseen-count', [AchievementsController, 'unseenCount'])
     router.post('/achievements/check', [AchievementsController, 'check'])
     router.get('/achievements/stats', [AchievementsController, 'stats'])
   })

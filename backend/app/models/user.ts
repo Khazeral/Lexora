@@ -39,6 +39,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
+  @column()
+  declare currentStreak: number
+
+  @column()
+  declare bestStreak: number
+
   @manyToMany(() => Achievement, {
     pivotTable: 'user_achievements',
     pivotColumns: ['progress', 'target', 'unlocked', 'unlocked_at'],

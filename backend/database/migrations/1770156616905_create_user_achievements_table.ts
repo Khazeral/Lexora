@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       table.timestamp('unlocked_at').nullable()
       table.timestamp('created_at')
       table.timestamp('updated_at')
+      table.boolean('seen').defaultTo(false)
 
       table.unique(['user_id', 'achievement_id'])
     })

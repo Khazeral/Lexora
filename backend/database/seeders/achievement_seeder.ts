@@ -390,7 +390,7 @@ export default class extends BaseSeeder {
       {
         code: 'marathon',
         name: 'Marathonien',
-        description: 'Compléter 10 sessions en une journée',
+        description: "S'entraîner avec 10 decks différents en une journée",
         icon: 'walk',
         category: 'training',
         rarity: 'epic',

@@ -37,6 +37,12 @@
       }
     }
   },
+  "achievements": {
+    "toast": {
+      "singular": "Vous avez débloqué 1 trophée !",
+      "plural": "Vous avez débloqué {{count}} trophées !"
+    }
+  },
   "home": {
     "greeting": "Bonjour,",
     "wave": "👋",
@@ -184,6 +190,16 @@
       "bestStreak": "Meilleure Série"
     },
     "modes": {
+      "classic": {
+        "complete": "Session Terminée",
+        "perfect": "Session Parfaite !",
+        "cardsCompleted": "Cartes complétées",
+        "firstSession": "Première session sur ce deck !",
+        "sessionCount": "Session n°{{count}}",
+        "successRate": "Taux de réussite",
+        "bestStreak": "Meilleure série",
+        "totalSessions": "Sessions totales"
+      },
       "speedrun": {
         "firstRun": "⚡ Premier Speed Run!",
         "firstRunSubtitle": "C'est votre premier speed run sur ce deck!",

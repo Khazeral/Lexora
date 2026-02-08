@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Dimensions,
 } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -72,6 +72,8 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
     100,
   );
 
+  const isNew = achievement.unlocked && !achievement.seen;
+
   return (
     <View
       style={[
@@ -80,6 +82,13 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         achievement.unlocked && { borderColor: config.borderColor },
       ]}
     >
+      {/* Pastille NEW */}
+      {isNew && (
+        <View style={styles.newBadge}>
+          <Text style={styles.newBadgeText}>NEW</Text>
+        </View>
+      )}
+
       {achievement.unlocked && (
         <View
           style={[styles.rarityBadge, { backgroundColor: config.borderColor }]}
@@ -135,7 +144,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         </View>
       )}
 
-      {achievement.unlocked && achievement.unlockedAt && (
+      {achievement.unlocked && !isNew && (
         <View style={styles.unlockedBadge}>
           <Ionicons name="checkmark-circle" size={14} color="#10b981" />
           <Text style={styles.unlockedText}>Débloqué</Text>
@@ -212,15 +221,18 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
 
 export default function AchievementsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  const queryClient = useQueryClient();
 
-  const {
-    data: achievements = [],
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: achievements = [], isLoading } = useQuery({
     queryKey: ["achievements"],
     queryFn: getAchievements,
   });
+
+  useEffect(() => {
+    return () => {
+      queryClient.invalidateQueries({ queryKey: ["achievements-unseen"] });
+    };
+  }, [queryClient]);
 
   const filteredAchievements = achievements.filter((a) => {
     if (selectedCategory === "all") return true;
@@ -228,6 +240,11 @@ export default function AchievementsScreen() {
   });
 
   const sortedAchievements = [...filteredAchievements].sort((a, b) => {
+    const aIsNew = a.unlocked && !a.seen;
+    const bIsNew = b.unlocked && !b.seen;
+    if (aIsNew && !bIsNew) return -1;
+    if (!aIsNew && bIsNew) return 1;
+
     if (a.unlocked && !b.unlocked) return -1;
     if (!a.unlocked && b.unlocked) return 1;
 
@@ -457,6 +474,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#e2e8f0",
     alignItems: "center",
+    position: "relative",
   },
   achievementCardUnlocked: {
     shadowColor: "#000",
@@ -464,6 +482,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+  },
+  newBadge: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    backgroundColor: "#ef4444",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    zIndex: 10,
+    shadowColor: "#ef4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  newBadgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
   rarityBadge: {
     position: "absolute",

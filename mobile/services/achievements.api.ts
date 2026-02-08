@@ -13,6 +13,7 @@ export interface Achievement {
   target: number;
   unlocked: boolean;
   unlockedAt: string | null;
+  seen: boolean;
 }
 
 export interface UnlockedAchievement {
@@ -48,6 +49,10 @@ export interface AchievementStats {
 
 export async function getAchievements(): Promise<Achievement[]> {
   return fetchAPI("/achievements", { method: "GET" });
+}
+
+export async function getUnseenCount(): Promise<{ count: number }> {
+  return fetchAPI("/achievements/unseen-count");
 }
 
 export async function checkAchievements(

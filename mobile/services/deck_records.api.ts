@@ -69,6 +69,7 @@ export async function updateDeckRecords(
     avgTimePerCard?: number;
     totalCards?: number;
     isPerfect?: boolean;
+    sessionBestStreak?: number;
   },
 ): Promise<UpdateDeckRecordsResponse> {
   return fetchAPI(`/decks/${deckId}/records`, {

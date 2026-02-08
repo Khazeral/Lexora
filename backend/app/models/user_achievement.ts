@@ -23,6 +23,9 @@ export default class UserAchievement extends BaseModel {
   @column()
   declare unlocked: boolean
 
+  @column()
+  declare seen: boolean
+
   @column.dateTime()
   declare unlockedAt: DateTime | null
 

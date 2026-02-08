@@ -21,7 +21,7 @@ export default class ProgressController {
     const { success } = request.only(['success'])
     const userId = Number.parseInt(params.userId)
 
-    const { progress, newStatus } = await this.service.answer(
+    const { progress, newStatus, firstTimeStatus, globalStreak } = await this.service.answer(
       userId,
       Number.parseInt(params.cardId),
       success
@@ -29,24 +29,17 @@ export default class ProgressController {
 
     let unlockedAchievements: any[] = []
 
-    if (newStatus) {
+    // 1. Achievement: Première fois qu'une carte atteint ce statut (collection)
+    if (firstTimeStatus) {
       const unlocked = await this.achievementService.processEvent({
         type: 'card_status_changed',
         userId: userId,
-        status: newStatus,
+        status: firstTimeStatus,
       })
       unlockedAchievements.push(...unlocked)
     }
 
-    if (success && progress.currentStreak > 0) {
-      const unlocked = await this.achievementService.processEvent({
-        type: 'streak_reached',
-        userId: userId,
-        streak: progress.currentStreak,
-      })
-      unlockedAchievements.push(...unlocked)
-    }
-
+    // 2. Achievement: Total de bonnes réponses
     if (success) {
       const unlocked = await this.achievementService.processEvent({
         type: 'total_correct',
@@ -56,6 +49,17 @@ export default class ProgressController {
       unlockedAchievements.push(...unlocked)
     }
 
+    // 3. Achievement: Streak globale atteinte
+    if (success && globalStreak > 0) {
+      const unlocked = await this.achievementService.processEvent({
+        type: 'streak_reached',
+        userId: userId,
+        streak: globalStreak,
+      })
+      unlockedAchievements.push(...unlocked)
+    }
+
+    // Charger les détails des achievements débloqués
     const unlockedDetails = await Promise.all(
       unlockedAchievements.map(async (ua) => {
         await ua.load('achievement')
@@ -70,12 +74,14 @@ export default class ProgressController {
       })
     )
 
+    // Supprimer les doublons
     const uniqueAchievements = unlockedDetails.filter(
       (achievement, index, self) => index === self.findIndex((a) => a.id === achievement.id)
     )
 
     return response.ok({
       progress,
+      globalStreak,
       unlockedAchievements: uniqueAchievements,
     })
   }

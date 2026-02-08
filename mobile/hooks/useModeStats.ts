@@ -9,6 +9,7 @@ type DeckRecords = {
   timeAttackAttempts: number;
   perfectRunsCompleted: number;
   perfectRunAttempts: number;
+  totalSessions?: number;
 };
 
 type ModeStatsParams = {
@@ -75,9 +76,55 @@ export default function useModeStats({
       timeAttackAttempts: 1,
       perfectRunsCompleted: wasPerfect ? 1 : 0,
       perfectRunAttempts: 1,
+      totalSessions: 1,
     };
 
     switch (gameMode) {
+      case "classic": {
+        const successRate =
+          sessionCorrect + sessionIncorrect > 0
+            ? Math.round(
+                (sessionCorrect / (sessionCorrect + sessionIncorrect)) * 100,
+              )
+            : 0;
+
+        const isFirstRun = (records.totalSessions || 1) <= 1;
+        const isPerfectSession = sessionIncorrect === 0 && sessionCorrect > 0;
+
+        return {
+          title: isPerfectSession
+            ? t("trainComplete.modes.classic.perfect")
+            : t("trainComplete.modes.classic.complete"),
+          mainValue: `${sessionCorrect}/${totalCards}`,
+          mainLabel: t("trainComplete.modes.classic.cardsCompleted"),
+          subtitle: isFirstRun
+            ? t("trainComplete.modes.classic.firstSession")
+            : t("trainComplete.modes.classic.sessionCount", {
+                count: records.totalSessions || 1,
+              }),
+          color: isPerfectSession ? "#10b981" : "#3b82f6",
+          icon: isPerfectSession ? "checkmark-circle" : "school",
+          isRecord: isPerfectSession,
+          stats: [
+            {
+              label: t("trainComplete.modes.classic.successRate"),
+              value: `${successRate}%`,
+              icon: "stats-chart" as const,
+            },
+            {
+              label: t("trainComplete.modes.classic.bestStreak"),
+              value: bestStreak.toString(),
+              icon: "flame" as const,
+            },
+            {
+              label: t("trainComplete.modes.classic.totalSessions"),
+              value: (records.totalSessions || 1).toString(),
+              icon: "repeat" as const,
+            },
+          ],
+        };
+      }
+
       case "speedrun": {
         const isFirstRun = previousBestSpeedRun === null;
 
@@ -370,5 +417,7 @@ export default function useModeStats({
     previousBestAvgTime,
     wasPerfect,
     previousPerfectRuns,
+    sessionCorrect,
+    sessionIncorrect,
   ]);
 }

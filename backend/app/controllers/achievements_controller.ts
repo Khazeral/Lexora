@@ -13,7 +13,20 @@ export default class AchievementsController {
     }
 
     const achievements = await this.achievementService.getUserAchievements(user.id)
+
+    await this.achievementService.markAchievementsAsSeen(user.id)
+
     return response.ok(achievements)
+  }
+
+  async unseenCount({ auth, response }: HttpContext) {
+    const user = auth.user
+    if (!user) {
+      return response.unauthorized({ message: 'Unauthorized' })
+    }
+
+    const count = await this.achievementService.getUnseenCount(user.id)
+    return response.ok({ count })
   }
 
   async check({ auth, request, response }: HttpContext) {

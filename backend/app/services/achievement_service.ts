@@ -4,6 +4,7 @@ import Deck from '#models/deck'
 import DeckRecord from '#models/deck_record'
 import CardProgress from '#models/card_progress'
 import { DateTime } from 'luxon'
+import User from '#models/user'
 
 export type AchievementEvent =
   | { type: 'card_created'; userId: number }
@@ -159,11 +160,22 @@ export default class AchievementService {
   }
 
   private async countCardsWithStatus(userId: number, status: string): Promise<number> {
+    const statusThresholds: Record<string, number> = {
+      silver: 10,
+      gold: 30,
+      platinum: 50,
+      ruby: 70,
+    }
+
+    const threshold = statusThresholds[status]
+    if (!threshold) return 0
+
     const count = await CardProgress.query()
       .where('user_id', userId)
-      .where('status', status)
+      .where('success_count', '>=', threshold)
       .count('* as total')
       .first()
+
     return Number(count?.$extras.total) || 0
   }
 
@@ -243,37 +255,59 @@ export default class AchievementService {
   async getUserAchievements(userId: number) {
     const achievements = await Achievement.all()
     const userAchievements = await UserAchievement.query().where('user_id', userId)
+    const user = await User.find(userId)
 
-    return achievements.map((achievement) => {
+    const result = []
+
+    for (const achievement of achievements) {
       const userAchievement = userAchievements.find((ua) => ua.achievementId === achievement.id)
+
+      let currentProgress = userAchievement?.progress || 0
+
+      if (achievement.conditions.type === 'card_status') {
+        currentProgress = await this.countCardsWithStatus(userId, achievement.conditions.status)
+      } else if (achievement.conditions.type === 'cards_created') {
+        currentProgress = await this.countUserCards(userId)
+      } else if (achievement.conditions.type === 'decks_created') {
+        currentProgress = await this.countUserDecks(userId)
+      } else if (achievement.conditions.type === 'trainings_completed') {
+        currentProgress = await this.countTrainings(userId, achievement.conditions.mode)
+      } else if (achievement.conditions.type === 'total_correct') {
+        currentProgress = await this.countTotalCorrect(userId)
+      } else if (achievement.conditions.type === 'streak') {
+        // Utiliser la best_streak de l'utilisateur
+        currentProgress = user?.bestStreak || 0
+      }
 
       const baseData = {
         id: achievement.id,
         code: achievement.code,
-        progress: userAchievement?.progress || 0,
+        progress: currentProgress,
         target: achievement.conditions.target,
-        unlocked: userAchievement?.unlocked || false,
+        unlocked: userAchievement?.unlocked || currentProgress >= achievement.conditions.target,
         unlockedAt: userAchievement?.unlockedAt || null,
         rarity: achievement.rarity,
         category: achievement.category,
         isSecret: achievement.isSecret,
       }
 
-      if (achievement.isSecret && !userAchievement?.unlocked) {
-        return {
+      if (achievement.isSecret && !baseData.unlocked) {
+        result.push({
           ...baseData,
           name: '???',
           description: 'Achievement secret',
           icon: 'help-circle',
-        }
+        })
+      } else {
+        result.push({
+          ...baseData,
+          name: achievement.name,
+          description: achievement.description,
+          icon: achievement.icon,
+        })
       }
+    }
 
-      return {
-        ...baseData,
-        name: achievement.name,
-        description: achievement.description,
-        icon: achievement.icon,
-      }
-    })
+    return result
   }
 }

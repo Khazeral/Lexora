@@ -154,26 +154,31 @@ export default function TrainingSessionScreen() {
           gameMode: "speedrun",
           speedRunTime: elapsedTime,
           timePenalty: timePenalty,
+          sessionBestStreak: bestStreakRef.current,
         });
       } else if (gameMode === "streak") {
         recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "streak",
           streak: bestStreakRef.current,
+          sessionBestStreak: bestStreakRef.current,
         });
       } else if (gameMode === "timeattack") {
         recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "timeattack",
           avgTimePerCard: avgTimePerCard,
           totalCards: currentCards.length,
+          sessionBestStreak: bestStreakRef.current,
         });
       } else if (gameMode === "perfect") {
         recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "perfect",
           isPerfect: isPerfectRun,
+          sessionBestStreak: bestStreakRef.current,
         });
       } else {
         recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "classic",
+          sessionBestStreak: bestStreakRef.current,
         });
       }
 

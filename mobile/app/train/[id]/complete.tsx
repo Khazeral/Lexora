@@ -136,14 +136,6 @@ export default function TrainingCompleteScreen() {
     if (!deck) return [];
 
     const getNextLevel = (maxStreak: number) => {
-      if (maxStreak >= 100)
-        return {
-          level: "max",
-          name: "Ruby",
-          icon: "diamond",
-          color: "#dc2626",
-          required: 100,
-        };
       if (maxStreak >= 70)
         return {
           level: "ruby",

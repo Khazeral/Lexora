@@ -48,6 +48,7 @@ export default class DeckRecordsController {
         'avgTimePerCard',
         'isPerfect',
         'totalCards',
+        'sessionBestStreak',
       ])
 
       if (!data.gameMode) {

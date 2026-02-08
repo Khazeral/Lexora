@@ -6,16 +6,32 @@ import {
   ScrollView,
 } from "react-native";
 import { useAuth } from "@/services/auth_context";
+import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { getUnseenCount } from "@/services/achievements.api";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const { data: unseenData } = useQuery({
+    queryKey: ["achievements-unseen"],
+    queryFn: getUnseenCount,
+  });
+
+  const unseenCount = unseenData?.count || 0;
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === "fr" ? "en" : "fr";
+    i18n.changeLanguage(newLang);
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>{t("profile.title")}</Text>
       </View>
 
       <ScrollView style={styles.content}>
@@ -36,51 +52,73 @@ export default function ProfileScreen() {
               <Ionicons name="trophy" size={28} color="#fbbf24" />
             </View>
             <View>
-              <Text style={styles.achievementsTitle}>Achievements</Text>
+              <Text style={styles.achievementsTitle}>
+                {t("profile.achievements")}
+              </Text>
               <Text style={styles.achievementsSubtitle}>
-                Voir tous vos trophées
+                {t("profile.achievementsSubtitle")}
               </Text>
             </View>
           </View>
-          <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
+          <View style={styles.achievementsRight}>
+            {unseenCount > 0 && (
+              <View style={styles.unseenBadge}>
+                <Text style={styles.unseenBadgeText}>{unseenCount}</Text>
+              </View>
+            )}
+            <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
+          </View>
         </TouchableOpacity>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Settings</Text>
-
-          <TouchableOpacity style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Ionicons
-                name="notifications-outline"
-                size={24}
-                color="#64748b"
-              />
-              <Text style={styles.settingText}>Notifications</Text>
+        <TouchableOpacity style={styles.languageCard} onPress={toggleLanguage}>
+          <View style={styles.languageLeft}>
+            <View style={styles.languageIcon}>
+              <Ionicons name="language" size={28} color="#3b82f6" />
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Ionicons name="language-outline" size={24} color="#64748b" />
-              <Text style={styles.settingText}>Language</Text>
+            <View>
+              <Text style={styles.languageTitle}>{t("profile.language")}</Text>
+              <Text style={styles.languageSubtitle}>
+                {i18n.language === "fr" ? "Français" : "English"}
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Ionicons name="help-circle-outline" size={24} color="#64748b" />
-              <Text style={styles.settingText}>Help & Support</Text>
+          </View>
+          <View style={styles.languageSwitch}>
+            <View
+              style={[
+                styles.languageOption,
+                i18n.language === "fr" && styles.languageOptionActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.languageOptionText,
+                  i18n.language === "fr" && styles.languageOptionTextActive,
+                ]}
+              >
+                FR
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
-          </TouchableOpacity>
-        </View>
+            <View
+              style={[
+                styles.languageOption,
+                i18n.language === "en" && styles.languageOptionActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.languageOptionText,
+                  i18n.language === "en" && styles.languageOptionTextActive,
+                ]}
+              >
+                EN
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
 
-        {/* Logout */}
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Ionicons name="log-out-outline" size={20} color="#fff" />
-          <Text style={styles.logoutText}>Sign Out</Text>
+          <Text style={styles.logoutText}>{t("profile.logout")}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -136,7 +174,7 @@ const styles = StyleSheet.create({
   achievementsCard: {
     backgroundColor: "#fff",
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     padding: 16,
     borderRadius: 16,
     flexDirection: "row",
@@ -172,34 +210,85 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#64748b",
   },
-  section: {
-    padding: 16,
+  achievementsRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#64748b",
-    textTransform: "uppercase",
-    marginBottom: 12,
+  unseenBadge: {
+    backgroundColor: "#ef4444",
+    minWidth: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 8,
   },
-  settingItem: {
+  unseenBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  languageCard: {
     backgroundColor: "#fff",
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
-  settingLeft: {
+  languageLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
-  settingText: {
-    fontSize: 16,
+  languageIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#eff6ff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  languageTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
     color: "#1e293b",
-    fontWeight: "500",
+  },
+  languageSubtitle: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+  languageSwitch: {
+    flexDirection: "row",
+    backgroundColor: "#f1f5f9",
+    borderRadius: 10,
+    padding: 4,
+  },
+  languageOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  languageOptionActive: {
+    backgroundColor: "#3b82f6",
+  },
+  languageOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#64748b",
+  },
+  languageOptionTextActive: {
+    color: "#fff",
   },
   logoutButton: {
     backgroundColor: "#ef4444",

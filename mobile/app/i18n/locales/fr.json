@@ -43,6 +43,13 @@
       "plural": "Vous avez débloqué {{count}} trophées !"
     }
   },
+  "profile": {
+    "title": "Profil",
+    "achievements": "Achievements",
+    "achievementsSubtitle": "Voir tous vos trophées",
+    "language": "Langue",
+    "logout": "Se déconnecter"
+  },
   "home": {
     "greeting": "Bonjour,",
     "wave": "👋",

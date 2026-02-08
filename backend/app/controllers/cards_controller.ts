@@ -1,9 +1,15 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 import { createCardValidator, updateCardValidator } from '#validators/card'
 import CardsService from '#services/card_service'
+import AchievementService from '#services/achievement_service'
 
+@inject()
 export default class CardsController {
-  private service = new CardsService()
+  constructor(
+    private service: CardsService,
+    private achievementService: AchievementService
+  ) {}
 
   async byDeck({ params, response }: HttpContext) {
     const cards = await this.service.listByDeck(params.id)
@@ -16,10 +22,38 @@ export default class CardsController {
     return response.ok(card)
   }
 
-  async create({ request, response }: HttpContext) {
+  async create({ request, response, auth }: HttpContext) {
+    const user = auth.user
+    if (!user) {
+      return response.unauthorized({ message: 'Unauthorized' })
+    }
+
     const payload = await request.validateUsing(createCardValidator)
     const card = await this.service.create(payload)
-    return response.created(card)
+
+    const unlockedAchievements = await this.achievementService.processEvent({
+      type: 'card_created',
+      userId: user.id,
+    })
+
+    const unlockedDetails = await Promise.all(
+      unlockedAchievements.map(async (ua) => {
+        await ua.load('achievement')
+        return {
+          id: ua.achievement.id,
+          code: ua.achievement.code,
+          name: ua.achievement.name,
+          description: ua.achievement.description,
+          icon: ua.achievement.icon,
+          rarity: ua.achievement.rarity,
+        }
+      })
+    )
+
+    return response.created({
+      card,
+      unlockedAchievements: unlockedDetails,
+    })
   }
 
   async update({ params, request, response }: HttpContext) {

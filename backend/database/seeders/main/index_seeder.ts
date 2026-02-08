@@ -26,5 +26,7 @@ export default class IndexSeeder extends BaseSeeder {
     await this.seed(await import('#database/seeders/deck_seeder'))
     await this.seed(await import('#database/seeders/card_seeder'))
     await this.seed(await import('#database/seeders/card_progress_seeder'))
+    await this.seed(await import('#database/seeders/achievement_seeder'))
+    await this.seed(await import('#database/seeders/user_achievement_seeder'))
   }
 }

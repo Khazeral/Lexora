@@ -1,12 +1,13 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import CardProgress from './card_progress.js'
 import Deck from './deck.js'
+import Achievement from './achievement.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -37,6 +38,18 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @column()
+  declare currentStreak: number
+
+  @column()
+  declare bestStreak: number
+
+  @manyToMany(() => Achievement, {
+    pivotTable: 'user_achievements',
+    pivotColumns: ['progress', 'target', 'unlocked', 'unlocked_at'],
+  })
+  declare achievements: ManyToMany<typeof Achievement>
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
 }

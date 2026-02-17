@@ -19,7 +19,7 @@ export default function Scanlines() {
               y1="0"
               x2={width}
               y2="0"
-              stroke="rgba(0,0,0,0.07)"
+              stroke="rgba(0,0,0,0.15)"
               strokeWidth="2"
             />
           </Pattern>

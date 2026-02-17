@@ -8,24 +8,30 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Balatro-inspired palette from KotobaCards
-        background: '#1b2838',
+        // KotobaCards exact palette - adjusted brightness
+        background: '#25603e',
         foreground: '#e8edf5',
-        card: '#24344a',
+        card: '#134c39',
         'card-foreground': '#e8edf5',
-        primary: '#5b8af5',
+        primary: '#e8453c',
         'primary-foreground': '#ffffff',
-        secondary: '#2a3d58',
-        'secondary-foreground': '#b0bfda',
-        muted: '#2a3d58',
-        'muted-foreground': '#7a8da8',
+        secondary: '#0c3429',
+        'secondary-foreground': '#8fbfaa',
+        muted: '#030f0b',
+        'muted-foreground': '#6e9e8a',
         accent: '#f5c542',
-        'accent-foreground': '#1b2838',
-        destructive: '#f06070',
+        'accent-foreground': '#0b3d2e',
+        destructive: '#e8453c',
+        'destructive-foreground': '#ffffff',
         success: '#44d9a0',
-        border: '#344b68',
-        input: '#2a3d58',
-        ring: '#5b8af5',
+        'success-foreground': '#0b3d2e',
+        border: '#2a7a60',
+        input: '#093328',
+        ring: '#e8453c',
+        info: '#5b8af5',
+        'info-foreground': '#ffffff',
+        // Dark badge background
+        badge: '#0a1f18',
         // Category colors
         cat: {
           blue: '#5b8af5',
@@ -34,7 +40,7 @@ module.exports = {
           green: '#44d9a0',
           amber: '#f5c542',
           cyan: '#45c8f0',
-          red: '#f06070',
+          red: '#e8453c',
         },
       },
     },

@@ -5,8 +5,7 @@ import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "@/app/i18n/config";
 import { ToastProvider } from "@/services/toast_context";
-import Scanlines from "@/app/components/Scanlines2";
-
+import Scanlines from "./components/Scanlines";
 const queryClient = new QueryClient();
 
 export default function RootLayout() {

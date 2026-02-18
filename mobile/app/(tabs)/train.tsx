@@ -1,4 +1,4 @@
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, FlatList } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getDecks } from "@/services/decks.api";
@@ -25,33 +25,22 @@ export default function TrainScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <TrainHeader />
 
       <FlatList
         data={sortedDecks}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{
+          padding: 24,
+          paddingBottom: 40,
+          flexGrow: 1,
+        }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={<EmptyTrainDecks />}
         renderItem={({ item }) => <TrainDeckCard deck={item} />}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
       />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  list: {
-    padding: 16,
-    paddingBottom: 32,
-    flexGrow: 1,
-  },
-  separator: {
-    height: 12,
-  },
-});

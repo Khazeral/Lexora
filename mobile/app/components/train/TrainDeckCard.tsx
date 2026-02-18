@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Deck } from "@/types";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type TrainDeckCardProps = {
   deck: Deck;
@@ -19,132 +20,62 @@ export default function TrainDeckCard({ deck }: TrainDeckCardProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, !hasCards && styles.cardDisabled]}
+      className={`flex-row items-center p-4 rounded-2xl border-2 ${
+        hasCards
+          ? "bg-card border-border"
+          : "bg-secondary border-border opacity-60"
+      }`}
+      style={hasCards ? pillShadow.card : undefined}
       disabled={!hasCards}
       onPress={() => router.push(`/train/${deck.id}/settings`)}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, !hasCards && styles.iconDisabled]}>
+      {/* Icon */}
+      <View
+        className={`w-14 h-14 rounded-xl items-center justify-center mr-4 ${
+          hasCards ? "bg-info" : "bg-muted"
+        }`}
+        style={hasCards ? pillShadow.sm : undefined}
+      >
         <Ionicons
           name="albums"
-          size={28}
-          color={hasCards ? "#3b82f6" : "#94a3b8"}
+          size={26}
+          color={hasCards ? "#fff" : "#4a7a6a"}
         />
       </View>
 
-      <View style={styles.content}>
+      {/* Content */}
+      <View className="flex-1 gap-1">
         <Text
-          style={[styles.name, !hasCards && styles.textDisabled]}
+          className={`text-base font-bold tracking-wider ${
+            hasCards ? "text-foreground" : "text-muted-foreground"
+          }`}
           numberOfLines={1}
         >
-          {deck.name}
+          {deck.name.toUpperCase()}
         </Text>
-        <View style={styles.meta}>
+
+        <View className="flex-row items-center gap-2">
           <Ionicons
             name="card-outline"
             size={14}
-            color={hasCards ? "#64748b" : "#94a3b8"}
+            color={hasCards ? "#6e9e8a" : "#4a7a6a"}
           />
-          <Text style={[styles.metaText, !hasCards && styles.textDisabled]}>
+          <Text className="text-muted-foreground text-sm">
             {hasCards ? cardCountText : t("train.deck.noCards")}
           </Text>
         </View>
       </View>
+
+      {/* Arrow */}
+      {hasCards && (
+        <View
+          className="w-10 h-10 rounded-xl bg-success items-center justify-center"
+          style={pillShadow.sm}
+        >
+          <Ionicons name="play" size={18} color="#fff" />
+        </View>
+      )}
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-  },
-  cardDisabled: {
-    backgroundColor: "#f8fafc",
-    opacity: 0.7,
-    borderColor: "#e2e8f0",
-  },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
-    backgroundColor: "#eff6ff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  iconDisabled: {
-    backgroundColor: "#f1f5f9",
-  },
-  content: {
-    flex: 1,
-    gap: 6,
-  },
-  name: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  textDisabled: {
-    color: "#94a3b8",
-  },
-  meta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  metaText: {
-    fontSize: 13,
-    color: "#64748b",
-  },
-  statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: "#dcfce7",
-    borderRadius: 12,
-    alignSelf: "flex-start",
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#10b981",
-  },
-  statusText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#166534",
-  },
-  actionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#3b82f6",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    shadowColor: "#3b82f6",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-});

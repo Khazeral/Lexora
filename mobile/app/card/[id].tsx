@@ -2,7 +2,6 @@ import { useLocalSearchParams, router } from "expo-router";
 import {
   View,
   Text,
-  StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
@@ -21,10 +20,12 @@ import Animated, {
   interpolate,
   Extrapolation,
 } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-const CARD_WIDTH = SCREEN_WIDTH - 32;
-const CARD_HEIGHT = SCREEN_HEIGHT * 0.6;
+const CARD_WIDTH = SCREEN_WIDTH - 48;
+const CARD_HEIGHT = SCREEN_HEIGHT * 0.55;
 
 type CardStatus = "bronze" | "silver" | "gold" | "platinum" | "ruby";
 
@@ -41,7 +42,7 @@ const getTextureConfig = (status: CardStatus): TextureConfig => {
   switch (status) {
     case "ruby":
       return {
-        baseColors: ["#1a0a0a", "#2d0a0a", "#1a0a0a"],
+        baseColors: ["#2d0a0a", "#4a1010", "#2d0a0a"],
         frameColors: ["#ff6b6b", "#dc2626", "#991b1b", "#dc2626", "#ff6b6b"],
         accentColor: "#fca5a5",
         shineColor: "rgba(255, 200, 200, 0.6)",
@@ -50,7 +51,7 @@ const getTextureConfig = (status: CardStatus): TextureConfig => {
       };
     case "platinum":
       return {
-        baseColors: ["#0f172a", "#1e293b", "#0f172a"],
+        baseColors: ["#1e293b", "#334155", "#1e293b"],
         frameColors: ["#f1f5f9", "#94a3b8", "#64748b", "#94a3b8", "#f1f5f9"],
         accentColor: "#e2e8f0",
         shineColor: "rgba(255, 255, 255, 0.7)",
@@ -59,7 +60,7 @@ const getTextureConfig = (status: CardStatus): TextureConfig => {
       };
     case "gold":
       return {
-        baseColors: ["#1a1207", "#2d1f0a", "#1a1207"],
+        baseColors: ["#451a03", "#78350f", "#451a03"],
         frameColors: ["#fef08a", "#fbbf24", "#f59e0b", "#fbbf24", "#fef08a"],
         accentColor: "#fde047",
         shineColor: "rgba(255, 230, 150, 0.6)",
@@ -68,21 +69,21 @@ const getTextureConfig = (status: CardStatus): TextureConfig => {
       };
     case "silver":
       return {
-        baseColors: ["#18181b", "#27272a", "#18181b"],
+        baseColors: ["#27272a", "#3f3f46", "#27272a"],
         frameColors: ["#ffffff", "#d4d4d8", "#a1a1aa", "#d4d4d8", "#ffffff"],
         accentColor: "#e4e4e7",
         shineColor: "rgba(255, 255, 255, 0.5)",
         glowColor: "#a1a1aa",
         innerFrameColors: ["#52525b", "#27272a"],
       };
-    default:
+    default: // bronze
       return {
         baseColors: ["#1c1208", "#2a1a0a", "#1c1208"],
-        frameColors: ["#d4a574", "#cd7f32", "#a0522d", "#cd7f32", "#d4a574"],
+        frameColors: ["#e8b896", "#cd7f32", "#8b5a2b", "#cd7f32", "#e8b896"],
         accentColor: "#deb887",
         shineColor: "rgba(255, 200, 150, 0.5)",
         glowColor: "#cd7f32",
-        innerFrameColors: ["#8b4513", "#3d1f0d"],
+        innerFrameColors: ["#5c3d2e", "#2a1a0a"],
       };
   }
 };
@@ -92,210 +93,49 @@ function TCGFrame({ status }: { status: CardStatus }) {
 
   return (
     <>
-      <View style={styles.outerFrame}>
-        <LinearGradient
-          colors={config.frameColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-      </View>
+      {/* Outer Frame - Gradient border */}
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderRadius: 20,
+          borderWidth: 4,
+          borderColor: config.glowColor,
+          zIndex: 1,
+        }}
+      />
 
-      <View style={styles.innerFrameBorder}>
-        <LinearGradient
-          colors={config.innerFrameColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-      </View>
+      {/* Inner glow border */}
+      <View
+        style={{
+          position: "absolute",
+          top: 4,
+          left: 4,
+          right: 4,
+          bottom: 4,
+          borderRadius: 16,
+          borderWidth: 2,
+          borderColor: config.accentColor,
+          opacity: 0.5,
+          zIndex: 2,
+        }}
+      />
 
-      <View style={[styles.cornerOrnament, styles.topLeftOrnament]}>
+      {/* Top Decoration with icon */}
+      <View className="absolute top-3 left-12 right-12 flex-row items-center justify-center z-10">
         <View
-          style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
-        >
-          <View
-            style={[
-              styles.cornerCircleInner,
-              { backgroundColor: config.glowColor },
-            ]}
-          />
-        </View>
-        <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineHorizontal,
-            { backgroundColor: config.accentColor },
-          ]}
+          className="flex-1 h-0.5 rounded-full"
+          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
         />
         <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineVertical,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.cornerDiamond,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-      </View>
-
-      <View style={[styles.cornerOrnament, styles.topRightOrnament]}>
-        <View
-          style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
-        >
-          <View
-            style={[
-              styles.cornerCircleInner,
-              { backgroundColor: config.glowColor },
-            ]}
-          />
-        </View>
-        <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineHorizontal,
-            styles.cornerLineRight,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineVertical,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.cornerDiamond,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-      </View>
-
-      <View style={[styles.cornerOrnament, styles.bottomLeftOrnament]}>
-        <View
-          style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
-        >
-          <View
-            style={[
-              styles.cornerCircleInner,
-              { backgroundColor: config.glowColor },
-            ]}
-          />
-        </View>
-        <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineHorizontal,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineVertical,
-            styles.cornerLineBottom,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.cornerDiamond,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-      </View>
-
-      <View style={[styles.cornerOrnament, styles.bottomRightOrnament]}>
-        <View
-          style={[styles.cornerCircle, { backgroundColor: config.accentColor }]}
-        >
-          <View
-            style={[
-              styles.cornerCircleInner,
-              { backgroundColor: config.glowColor },
-            ]}
-          />
-        </View>
-        <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineHorizontal,
-            styles.cornerLineRight,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.cornerLine,
-            styles.cornerLineVertical,
-            styles.cornerLineBottom,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.cornerDiamond,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-      </View>
-
-      <View style={[styles.sideDecoration, styles.leftDecoration]}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <View key={`left-${i}`} style={styles.sideOrnamentContainer}>
-            <View
-              style={[
-                styles.sideOrnament,
-                { backgroundColor: config.accentColor },
-              ]}
-            />
-            <View
-              style={[
-                styles.sideOrnamentDot,
-                { backgroundColor: config.glowColor },
-              ]}
-            />
-          </View>
-        ))}
-      </View>
-
-      <View style={[styles.sideDecoration, styles.rightDecoration]}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <View key={`right-${i}`} style={styles.sideOrnamentContainer}>
-            <View
-              style={[
-                styles.sideOrnament,
-                { backgroundColor: config.accentColor },
-              ]}
-            />
-            <View
-              style={[
-                styles.sideOrnamentDot,
-                { backgroundColor: config.glowColor },
-              ]}
-            />
-          </View>
-        ))}
-      </View>
-
-      <View style={[styles.topDecoration]}>
-        <View
-          style={[
-            styles.topOrnamentLine,
-            { backgroundColor: config.accentColor },
-          ]}
-        />
-        <View
-          style={[
-            styles.topOrnamentCenter,
-            { backgroundColor: config.glowColor },
-          ]}
+          className="w-10 h-10 rounded-full items-center justify-center mx-3 border-2"
+          style={{
+            backgroundColor: config.glowColor,
+            borderColor: config.accentColor,
+          }}
         >
           <Ionicons
             name={
@@ -309,91 +149,84 @@ function TCGFrame({ status }: { status: CardStatus }) {
                       ? "ribbon"
                       : "shield"
             }
-            size={16}
-            color={config.accentColor}
+            size={18}
+            color="#fff"
           />
         </View>
         <View
-          style={[
-            styles.topOrnamentLine,
-            { backgroundColor: config.accentColor },
-          ]}
+          className="flex-1 h-0.5 rounded-full"
+          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
         />
       </View>
 
-      <View style={[styles.bottomDecoration]}>
+      {/* Bottom Decoration with status label */}
+      <View className="absolute bottom-3 left-10 right-10 flex-row items-center justify-center z-10">
         <View
-          style={[
-            styles.bottomOrnamentWing,
-            styles.bottomOrnamentWingLeft,
-            { backgroundColor: config.accentColor },
-          ]}
+          className="w-12 h-0.5 rounded-full"
+          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
         />
         <View
-          style={[
-            styles.bottomOrnamentCenter,
-            { borderColor: config.accentColor },
-          ]}
+          className="px-4 py-1.5 rounded-full mx-3"
+          style={{
+            backgroundColor: config.glowColor,
+            shadowColor: config.glowColor,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.5,
+            shadowRadius: 8,
+            elevation: 4,
+          }}
         >
           <Text
-            style={[styles.bottomOrnamentText, { color: config.accentColor }]}
+            className="text-[11px] font-black tracking-[2px]"
+            style={{ color: "#fff" }}
           >
             {status.toUpperCase()}
           </Text>
         </View>
         <View
-          style={[
-            styles.bottomOrnamentWing,
-            styles.bottomOrnamentWingRight,
-            { backgroundColor: config.accentColor },
-          ]}
+          className="w-12 h-0.5 rounded-full"
+          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
         />
       </View>
 
-      <View style={styles.filigreContainer}>
+      {/* Corner gems/ornaments */}
+      {[
+        { top: 8, left: 8 },
+        { top: 8, right: 8 },
+        { bottom: 8, left: 8 },
+        { bottom: 8, right: 8 },
+      ].map((position, i) => (
         <View
+          key={i}
           style={[
-            styles.filigreLine,
-            styles.filigreTop,
-            { backgroundColor: `${config.accentColor}30` },
+            {
+              position: "absolute",
+              width: 16,
+              height: 16,
+              borderRadius: 8,
+              backgroundColor: config.accentColor,
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 10,
+              shadowColor: config.glowColor,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.6,
+              shadowRadius: 4,
+              elevation: 3,
+            },
+            position,
           ]}
-        />
-        <View
-          style={[
-            styles.filigreLine,
-            styles.filigreBottom,
-            { backgroundColor: `${config.accentColor}30` },
-          ]}
-        />
-        <View
-          style={[
-            styles.filigreCorner,
-            styles.filigreCornerTL,
-            { borderColor: `${config.accentColor}40` },
-          ]}
-        />
-        <View
-          style={[
-            styles.filigreCorner,
-            styles.filigreCornerTR,
-            { borderColor: `${config.accentColor}40` },
-          ]}
-        />
-        <View
-          style={[
-            styles.filigreCorner,
-            styles.filigreCornerBL,
-            { borderColor: `${config.accentColor}40` },
-          ]}
-        />
-        <View
-          style={[
-            styles.filigreCorner,
-            styles.filigreCornerBR,
-            { borderColor: `${config.accentColor}40` },
-          ]}
-        />
-      </View>
+        >
+          <View
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: config.glowColor,
+            }}
+          />
+        </View>
+      ))}
     </>
   );
 }
@@ -476,17 +309,78 @@ function ShinyCard({
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[styles.flashcard, cardAnimatedStyle]}>
+      <Animated.View
+        style={[
+          {
+            borderRadius: 20,
+            overflow: "hidden",
+            height: CARD_HEIGHT,
+          },
+          {
+            shadowColor: config.glowColor,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.4,
+            shadowRadius: 16,
+            elevation: 12,
+          },
+          cardAnimatedStyle,
+        ]}
+      >
+        {/* Base gradient background */}
         <LinearGradient
           colors={config.baseColors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
+          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
         />
+
+        {/* Inner content area with subtle gradient */}
+        <View
+          style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: 20,
+            borderRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          <LinearGradient
+            colors={[
+              `${config.glowColor}15`,
+              `${config.glowColor}05`,
+              `${config.glowColor}10`,
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+          />
+        </View>
 
         <TCGFrame status={status as CardStatus} />
 
-        <Animated.View style={[styles.holoContainer, holoAnimatedStyle]}>
+        {/* Holo Effect */}
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              overflow: "hidden",
+              zIndex: 15,
+            },
+            holoAnimatedStyle,
+          ]}
+        >
           <LinearGradient
             colors={[
               "rgba(255, 0, 0, 0.1)",
@@ -498,12 +392,40 @@ function ShinyCard({
             ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.holoGradient}
+            style={{
+              width: "200%",
+              height: "200%",
+              position: "absolute",
+              top: "-50%",
+              left: "-50%",
+            }}
           />
         </Animated.View>
 
-        <View style={styles.shineWrapper}>
-          <Animated.View style={[styles.shineBand, shineAnimatedStyle]}>
+        {/* Shine Band */}
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflow: "hidden",
+            zIndex: 20,
+          }}
+        >
+          <Animated.View
+            style={[
+              {
+                position: "absolute",
+                width: 80,
+                height: CARD_HEIGHT * 2,
+                top: -CARD_HEIGHT / 2,
+                left: CARD_WIDTH / 2 - 40,
+              },
+              shineAnimatedStyle,
+            ]}
+          >
             <LinearGradient
               colors={[
                 "transparent",
@@ -514,12 +436,20 @@ function ShinyCard({
               ]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFill}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              }}
             />
           </Animated.View>
         </View>
 
-        <View style={styles.cardContent}>{children}</View>
+        <View className="flex-1 m-5 rounded-xl z-[4] justify-center">
+          {children}
+        </View>
       </Animated.View>
     </GestureDetector>
   );
@@ -536,16 +466,16 @@ export default function CardDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#3b82f6" />
+      <View className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator size="large" color="#e8453c" />
       </View>
     );
   }
 
   if (!card) {
     return (
-      <View style={styles.center}>
-        <Text>Card not found</Text>
+      <View className="flex-1 bg-background items-center justify-center">
+        <Text className="text-foreground">Card not found</Text>
       </View>
     );
   }
@@ -566,7 +496,7 @@ export default function CardDetailScreen() {
       case "platinum":
         return "#94a3b8";
       case "gold":
-        return "#f59e0b";
+        return "#f5c542";
       case "silver":
         return "#a1a1aa";
       default:
@@ -590,572 +520,214 @@ export default function CardDetailScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
         <TouchableOpacity
           onPress={() => router.back()}
-          style={styles.backButton}
+          className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
+          style={pillShadow.sm}
+          activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={24} color="#1e293b" />
+          <Ionicons name="arrow-back" size={22} color="#e8edf5" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Card Details</Text>
-        <View style={styles.placeholder} />
+        <Text className="text-foreground text-lg font-bold tracking-wider">
+          CARD DETAILS
+        </Text>
+        <View className="w-12" />
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.cardContainer}>
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="pb-10"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Card Container */}
+        <View className="mx-6 mt-6" style={{ minHeight: CARD_HEIGHT }}>
           <ShinyCard status={progress.status}>
-            <View style={styles.cardInnerContent}>
-              <View style={styles.cardSide}>
-                <Text style={styles.sideLabel}>FRONT</Text>
-                <Text style={styles.cardText}>{card.word}</Text>
+            <View className="flex-1 px-6 py-8 justify-center">
+              {/* Front */}
+              <View className="items-center py-5">
+                <View
+                  className="px-4 py-1 rounded-full mb-4"
+                  style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                >
+                  <Text className="text-[10px] font-bold text-white/60 tracking-[3px]">
+                    FRONT
+                  </Text>
+                </View>
+                <Text
+                  className="text-3xl font-bold text-white text-center"
+                  style={{
+                    textShadowColor: "rgba(0, 0, 0, 0.5)",
+                    textShadowOffset: { width: 2, height: 2 },
+                    textShadowRadius: 6,
+                  }}
+                >
+                  {card.word}
+                </Text>
               </View>
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <View style={styles.dividerDiamond} />
-                <View style={styles.dividerLine} />
+
+              {/* Divider */}
+              <View className="flex-row items-center px-4 my-4">
+                <View className="flex-1 h-px bg-white/20" />
+                <View
+                  className="w-3 h-3 rotate-45 mx-4"
+                  style={{ backgroundColor: getStatusColor(progress.status) }}
+                />
+                <View className="flex-1 h-px bg-white/20" />
               </View>
-              <View style={styles.cardSide}>
-                <Text style={styles.sideLabel}>BACK</Text>
-                <Text style={styles.cardText}>{card.translation}</Text>
+
+              {/* Back */}
+              <View className="items-center py-5">
+                <View
+                  className="px-4 py-1 rounded-full mb-4"
+                  style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
+                >
+                  <Text className="text-[10px] font-bold text-white/60 tracking-[3px]">
+                    BACK
+                  </Text>
+                </View>
+                <Text
+                  className="text-3xl font-bold text-white text-center"
+                  style={{
+                    textShadowColor: "rgba(0, 0, 0, 0.5)",
+                    textShadowOffset: { width: 2, height: 2 },
+                    textShadowRadius: 6,
+                  }}
+                >
+                  {card.translation}
+                </Text>
               </View>
             </View>
           </ShinyCard>
         </View>
 
-        <View style={styles.statusContainer}>
+        {/* Status Badge */}
+        <View className="items-center mt-6 mb-4">
           <View
+            className="flex-row items-center gap-2 px-6 py-3 rounded-full"
             style={[
-              styles.statusBadge,
               { backgroundColor: getStatusColor(progress.status) },
+              pillShadow.default,
             ]}
           >
             <Ionicons
               name={getStatusIcon(progress.status) as any}
-              size={24}
+              size={22}
               color="#fff"
             />
-            <Text style={styles.statusText}>
+            <Text className="text-white text-base font-black tracking-wider">
               {progress.status.toUpperCase()}
             </Text>
           </View>
         </View>
 
-        <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Statistics</Text>
+        {/* Stats Section */}
+        <View className="px-6 mt-4">
+          <Text className="text-muted-foreground text-xs font-bold tracking-[3px] mb-4">
+            STATISTICS
+          </Text>
 
-          <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Ionicons name="checkmark-circle" size={32} color="#10b981" />
-              <Text style={styles.statValue}>{progress.successCount}</Text>
-              <Text style={styles.statLabel}>Correct</Text>
-            </View>
-
-            <View style={styles.statCard}>
-              <Ionicons name="close-circle" size={32} color="#ef4444" />
-              <Text style={styles.statValue}>{progress.failureCount}</Text>
-              <Text style={styles.statLabel}>Incorrect</Text>
-            </View>
-
-            <View style={styles.statCard}>
-              <Ionicons name="flash" size={32} color="#f59e0b" />
-              <Text style={styles.statValue}>{progress.currentStreak}</Text>
-              <Text style={styles.statLabel}>Current Streak</Text>
-            </View>
-
-            <View style={styles.statCard}>
-              <Ionicons name="trophy" size={32} color="#3b82f6" />
-              <Text style={styles.statValue}>{progress.maxStreak}</Text>
-              <Text style={styles.statLabel}>Best Streak</Text>
-            </View>
+          {/* Stats Grid */}
+          <View className="flex-row flex-wrap gap-3 mb-6">
+            <StatCard
+              icon="checkmark-circle"
+              iconColor="#44d9a0"
+              value={progress.successCount}
+              label="CORRECT"
+            />
+            <StatCard
+              icon="close-circle"
+              iconColor="#e8453c"
+              value={progress.failureCount}
+              label="INCORRECT"
+            />
+            <StatCard
+              icon="flash"
+              iconColor="#f5c542"
+              value={progress.currentStreak}
+              label="STREAK"
+            />
+            <StatCard
+              icon="trophy"
+              iconColor="#5b8af5"
+              value={progress.maxStreak}
+              label="BEST"
+            />
           </View>
 
-          <View style={styles.milestone}>
-            <Text style={styles.milestoneTitle}>Next Milestone</Text>
-            {progress.maxStreak < 10 && (
-              <Text style={styles.milestoneText}>
-                🥈 {10 - progress.maxStreak} more correct in a row for Silver
-              </Text>
-            )}
-            {progress.maxStreak >= 10 && progress.maxStreak < 30 && (
-              <Text style={styles.milestoneText}>
-                🥇 {30 - progress.maxStreak} more correct in a row for Gold
-              </Text>
-            )}
-            {progress.maxStreak >= 30 && progress.maxStreak < 50 && (
-              <Text style={styles.milestoneText}>
-                💎 {50 - progress.maxStreak} more correct in a row for Platinum
-              </Text>
-            )}
-            {progress.maxStreak >= 50 && progress.maxStreak < 70 && (
-              <Text style={styles.milestoneText}>
-                ❤️‍🔥 {70 - progress.maxStreak} more correct in a row for Ruby
-              </Text>
-            )}
-            {progress.maxStreak >= 70 && (
-              <Text style={styles.milestoneText}>
-                🎉 You&apos;ve reached the maximum rank!
-              </Text>
-            )}
+          {/* Milestone */}
+          <View
+            className="bg-card rounded-2xl p-4 border-2 border-border mb-4"
+            style={pillShadow.sm}
+          >
+            <Text className="text-muted-foreground text-xs font-bold tracking-wider mb-2">
+              NEXT MILESTONE
+            </Text>
+            <Text className="text-foreground text-base">
+              {progress.maxStreak < 10 &&
+                `🥈 ${10 - progress.maxStreak} more correct in a row for Silver`}
+              {progress.maxStreak >= 10 &&
+                progress.maxStreak < 30 &&
+                `🥇 ${30 - progress.maxStreak} more correct in a row for Gold`}
+              {progress.maxStreak >= 30 &&
+                progress.maxStreak < 50 &&
+                `💎 ${50 - progress.maxStreak} more correct in a row for Platinum`}
+              {progress.maxStreak >= 50 &&
+                progress.maxStreak < 70 &&
+                `❤️‍🔥 ${70 - progress.maxStreak} more correct in a row for Ruby`}
+              {progress.maxStreak >= 70 &&
+                "🎉 You've reached the maximum rank!"}
+            </Text>
           </View>
 
+          {/* New Card Banner */}
           {progress.successCount === 0 && progress.failureCount === 0 && (
-            <View style={styles.newCardBanner}>
-              <Ionicons name="sparkles" size={24} color="#3b82f6" />
-              <Text style={styles.newCardText}>
+            <View
+              className="flex-row items-center gap-3 p-4 bg-card rounded-2xl border-2 border-info"
+              style={pillShadow.sm}
+            >
+              <View
+                className="w-10 h-10 rounded-xl bg-info items-center justify-center"
+                style={pillShadow.sm}
+              >
+                <Ionicons name="sparkles" size={20} color="#fff" />
+              </View>
+              <Text className="flex-1 text-foreground text-sm">
                 New card! Start practicing to track your progress.
               </Text>
             </View>
           )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  placeholder: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-  },
-  cardContainer: {
-    margin: 16,
-    minHeight: CARD_HEIGHT,
-  },
-  flashcard: {
-    backgroundColor: "#0a0a0a",
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 15,
-    overflow: "hidden",
-    height: CARD_HEIGHT,
-  },
+type StatCardProps = {
+  icon: keyof typeof Ionicons.glyphMap;
+  iconColor: string;
+  value: number;
+  label: string;
+};
 
-  outerFrame: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 20,
-    borderWidth: 8,
-    borderColor: "transparent",
-    zIndex: 1,
-  },
-
-  innerFrameBorder: {
-    position: "absolute",
-    top: 8,
-    left: 8,
-    right: 8,
-    bottom: 8,
-    borderRadius: 14,
-    borderWidth: 3,
-    borderColor: "transparent",
-    zIndex: 2,
-  },
-
-  cornerOrnament: {
-    position: "absolute",
-    width: 40,
-    height: 40,
-    zIndex: 10,
-  },
-  topLeftOrnament: {
-    top: 12,
-    left: 12,
-  },
-  topRightOrnament: {
-    top: 12,
-    right: 12,
-  },
-  bottomLeftOrnament: {
-    bottom: 12,
-    left: 12,
-  },
-  bottomRightOrnament: {
-    bottom: 12,
-    right: 12,
-  },
-  cornerCircle: {
-    position: "absolute",
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cornerCircleInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  cornerLine: {
-    position: "absolute",
-    backgroundColor: "#fff",
-  },
-  cornerLineHorizontal: {
-    top: 9,
-    left: 22,
-    width: 18,
-    height: 2,
-  },
-  cornerLineRight: {
-    left: undefined,
-    right: 22,
-  },
-  cornerLineVertical: {
-    top: 22,
-    left: 9,
-    width: 2,
-    height: 18,
-  },
-  cornerLineBottom: {
-    top: undefined,
-    bottom: 22,
-  },
-  cornerDiamond: {
-    position: "absolute",
-    width: 8,
-    height: 8,
-    transform: [{ rotate: "45deg" }],
-    top: 28,
-    left: 28,
-  },
-
-  sideDecoration: {
-    position: "absolute",
-    top: 80,
-    bottom: 80,
-    width: 20,
-    justifyContent: "space-around",
-    alignItems: "center",
-    zIndex: 5,
-  },
-  leftDecoration: {
-    left: 14,
-  },
-  rightDecoration: {
-    right: 14,
-  },
-  sideOrnamentContainer: {
-    alignItems: "center",
-  },
-  sideOrnament: {
-    width: 12,
-    height: 3,
-    borderRadius: 1,
-  },
-  sideOrnamentDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 3,
-  },
-
-  topDecoration: {
-    position: "absolute",
-    top: 18,
-    left: 60,
-    right: 60,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-  },
-  topOrnamentLine: {
-    flex: 1,
-    height: 2,
-    borderRadius: 1,
-  },
-  topOrnamentCenter: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 8,
-  },
-
-  bottomDecoration: {
-    position: "absolute",
-    bottom: 16,
-    left: 50,
-    right: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-  },
-  bottomOrnamentWing: {
-    width: 40,
-    height: 3,
-    borderRadius: 1,
-  },
-  bottomOrnamentWingLeft: {
-    marginRight: 8,
-  },
-  bottomOrnamentWingRight: {
-    marginLeft: 8,
-  },
-  bottomOrnamentCenter: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderRadius: 10,
-  },
-  bottomOrnamentText: {
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 2,
-  },
-
-  filigreContainer: {
-    position: "absolute",
-    top: 50,
-    left: 40,
-    right: 40,
-    bottom: 50,
-    zIndex: 3,
-  },
-  filigreLine: {
-    position: "absolute",
-    left: 20,
-    right: 20,
-    height: 1,
-  },
-  filigreTop: {
-    top: 0,
-  },
-  filigreBottom: {
-    bottom: 0,
-  },
-  filigreCorner: {
-    position: "absolute",
-    width: 15,
-    height: 15,
-    borderWidth: 1,
-  },
-  filigreCornerTL: {
-    top: -5,
-    left: 0,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-  },
-  filigreCornerTR: {
-    top: -5,
-    right: 0,
-    borderLeftWidth: 0,
-    borderBottomWidth: 0,
-  },
-  filigreCornerBL: {
-    bottom: -5,
-    left: 0,
-    borderRightWidth: 0,
-    borderTopWidth: 0,
-  },
-  filigreCornerBR: {
-    bottom: -5,
-    right: 0,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
-  },
-
-  holoContainer: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: "hidden",
-    zIndex: 15,
-  },
-  holoGradient: {
-    width: "200%",
-    height: "200%",
-    position: "absolute",
-    top: "-50%",
-    left: "-50%",
-  },
-  shineWrapper: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: "hidden",
-    zIndex: 20,
-  },
-  shineBand: {
-    position: "absolute",
-    width: 80,
-    height: CARD_HEIGHT * 2,
-    top: -CARD_HEIGHT / 2,
-    left: CARD_WIDTH / 2 - 40,
-  },
-
-  cardContent: {
-    flex: 1,
-    margin: 14,
-    borderRadius: 10,
-    zIndex: 4,
-    justifyContent: "center",
-  },
-  cardInnerContent: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "center",
-  },
-  cardSide: {
-    alignItems: "center",
-    paddingVertical: 24,
-  },
-  sideLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "rgba(255, 255, 255, 0.5)",
-    textTransform: "uppercase",
-    letterSpacing: 3,
-    marginBottom: 12,
-  },
-  cardText: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#ffffff",
-    textAlign: "center",
-    textShadowColor: "rgba(0, 0, 0, 0.5)",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 6,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-  },
-  dividerDiamond: {
-    width: 8,
-    height: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    transform: [{ rotate: "45deg" }],
-    marginHorizontal: 12,
-  },
-
-  statusContainer: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 24,
-  },
-  statusText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  statsSection: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 16,
-  },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginBottom: 24,
-  },
-  statCard: {
-    flex: 1,
-    minWidth: "45%",
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#64748b",
-    marginTop: 4,
-  },
-  milestone: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  milestoneTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#64748b",
-    marginBottom: 8,
-  },
-  milestoneText: {
-    fontSize: 16,
-    color: "#1e293b",
-  },
-  newCardBanner: {
-    backgroundColor: "#eff6ff",
-    padding: 16,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    borderWidth: 1,
-    borderColor: "#dbeafe",
-  },
-  newCardText: {
-    flex: 1,
-    fontSize: 14,
-    color: "#1e40af",
-    fontWeight: "500",
-  },
-});
+function StatCard({ icon, iconColor, value, label }: StatCardProps) {
+  return (
+    <View
+      className="flex-1 min-w-[45%] bg-card rounded-2xl p-4 items-center border-2 border-border"
+      style={pillShadow.sm}
+    >
+      <View
+        className="w-12 h-12 rounded-xl items-center justify-center mb-2"
+        style={[{ backgroundColor: iconColor }, pillShadow.sm]}
+      >
+        <Ionicons name={icon} size={24} color="#fff" />
+      </View>
+      <Text className="text-foreground text-2xl font-bold">{value}</Text>
+      <Text className="text-muted-foreground text-[10px] font-bold tracking-wider mt-1">
+        {label}
+      </Text>
+    </View>
+  );
+}

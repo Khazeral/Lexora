@@ -2,65 +2,59 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
+  FlatList,
 } from "react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { getAchievements, Achievement } from "@/services/achievements.api";
+import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 48 - 12) / 2;
+const GRID_PADDING = 24;
+const GRID_GAP = 12;
+const CARD_WIDTH = (width - GRID_PADDING * 2 - GRID_GAP) / 2;
 
 type Category = "all" | "cards" | "training" | "streaks" | "collection";
 
 const categories: { key: Category; label: string; icon: string }[] = [
-  { key: "all", label: "Tous", icon: "grid" },
-  { key: "cards", label: "Cartes", icon: "albums" },
-  { key: "training", label: "Entraînement", icon: "fitness" },
-  { key: "streaks", label: "Séries", icon: "flame" },
-  { key: "collection", label: "Collection", icon: "diamond" },
+  { key: "all", label: "ALL", icon: "grid" },
+  { key: "cards", label: "CARDS", icon: "albums" },
+  { key: "training", label: "TRAIN", icon: "fitness" },
+  { key: "streaks", label: "STREAK", icon: "flame" },
+  { key: "collection", label: "COLLECT", icon: "diamond" },
 ];
 
 const getRarityConfig = (rarity: string) => {
   switch (rarity) {
     case "legendary":
       return {
-        colors: ["#fbbf24", "#f59e0b", "#d97706"] as const,
-        bgColor: "#fffbeb",
         borderColor: "#fbbf24",
-        textColor: "#b45309",
-        label: "Légendaire",
+        label: "LEGENDARY",
+        iconBg: "#fbbf24",
       };
     case "epic":
       return {
-        colors: ["#a855f7", "#9333ea", "#7c3aed"] as const,
-        bgColor: "#faf5ff",
         borderColor: "#a855f7",
-        textColor: "#7c3aed",
-        label: "Épique",
+        label: "EPIC",
+        iconBg: "#a855f7",
       };
     case "rare":
       return {
-        colors: ["#3b82f6", "#2563eb", "#1d4ed8"] as const,
-        bgColor: "#eff6ff",
         borderColor: "#3b82f6",
-        textColor: "#1d4ed8",
-        label: "Rare",
+        label: "RARE",
+        iconBg: "#3b82f6",
       };
     default:
       return {
-        colors: ["#6b7280", "#4b5563", "#374151"] as const,
-        bgColor: "#f9fafb",
-        borderColor: "#d1d5db",
-        textColor: "#4b5563",
-        label: "Commun",
+        borderColor: "#6b7280",
+        label: "COMMON",
+        iconBg: "#6b7280",
       };
   }
 };
@@ -71,83 +65,167 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
     (achievement.progress / achievement.target) * 100,
     100,
   );
-
   const isNew = achievement.unlocked && !achievement.seen;
+  const isUnlocked = achievement.unlocked;
 
   return (
     <View
       style={[
-        styles.achievementCard,
-        achievement.unlocked && styles.achievementCardUnlocked,
-        achievement.unlocked && { borderColor: config.borderColor },
+        {
+          width: CARD_WIDTH,
+          backgroundColor: "#134c39",
+          borderRadius: 16,
+          padding: 16,
+          borderWidth: 2,
+          borderColor: isUnlocked ? config.borderColor : "#2a7a60",
+        },
+        pillShadow.sm,
       ]}
     >
-      {/* Pastille NEW */}
-      {isNew && (
-        <View style={styles.newBadge}>
-          <Text style={styles.newBadgeText}>NEW</Text>
-        </View>
-      )}
-
-      {achievement.unlocked && (
-        <View
-          style={[styles.rarityBadge, { backgroundColor: config.borderColor }]}
-        >
-          <Text style={styles.rarityBadgeText}>{config.label}</Text>
-        </View>
-      )}
-
+      {/* Badge en haut */}
       <View
-        style={[
-          styles.iconContainer,
-          achievement.unlocked
-            ? { backgroundColor: config.bgColor }
-            : styles.iconContainerLocked,
-        ]}
+        style={{
+          position: "absolute",
+          top: -10,
+          left: 0,
+          right: 0,
+          alignItems: "center",
+          zIndex: 10,
+        }}
       >
-        {achievement.unlocked ? (
-          <LinearGradient colors={config.colors} style={styles.iconGradient}>
+        <View
+          style={{
+            backgroundColor: isNew ? pillColors.red : config.borderColor,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderRadius: 8,
+          }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 9,
+              fontWeight: "800",
+              letterSpacing: 1,
+            }}
+          >
+            {isNew ? "NEW" : config.label}
+          </Text>
+        </View>
+      </View>
+
+      {/* Icon */}
+      <View style={{ alignItems: "center", marginTop: 12, marginBottom: 12 }}>
+        {isUnlocked ? (
+          <View
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 16,
+              backgroundColor: config.iconBg,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Ionicons name={achievement.icon as any} size={28} color="#fff" />
-          </LinearGradient>
+          </View>
         ) : (
-          <Ionicons name={achievement.icon as any} size={28} color="#cbd5e1" />
+          <View
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 16,
+              backgroundColor: "#0a1f18",
+              borderWidth: 2,
+              borderColor: "#2a7a60",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons
+              name={achievement.icon as any}
+              size={28}
+              color="#4a7a6a"
+            />
+          </View>
         )}
       </View>
 
+      {/* Name */}
       <Text
-        style={[
-          styles.achievementName,
-          !achievement.unlocked && styles.achievementNameLocked,
-        ]}
+        style={{
+          color: isUnlocked ? "#e8edf5" : "#6e9e8a",
+          fontSize: 12,
+          fontWeight: "700",
+          textAlign: "center",
+          marginBottom: 4,
+          letterSpacing: 0.5,
+        }}
         numberOfLines={2}
       >
-        {achievement.name}
+        {achievement.name.toUpperCase()}
       </Text>
 
-      <Text style={styles.achievementDescription} numberOfLines={2}>
+      {/* Description */}
+      <Text
+        style={{
+          color: "#6e9e8a",
+          fontSize: 10,
+          textAlign: "center",
+          lineHeight: 14,
+          marginBottom: 12,
+        }}
+        numberOfLines={2}
+      >
         {achievement.description}
       </Text>
 
-      {!achievement.unlocked && (
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <LinearGradient
-              colors={config.colors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[styles.progressFill, { width: `${progress}%` }]}
-            />
-          </View>
-          <Text style={styles.progressText}>
-            {achievement.progress}/{achievement.target}
+      {/* Progress or Unlocked */}
+      {isUnlocked ? (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+          }}
+        >
+          <Ionicons name="checkmark-circle" size={14} color="#44d9a0" />
+          <Text style={{ color: "#44d9a0", fontSize: 11, fontWeight: "700" }}>
+            UNLOCKED
           </Text>
         </View>
-      )}
-
-      {achievement.unlocked && !isNew && (
-        <View style={styles.unlockedBadge}>
-          <Ionicons name="checkmark-circle" size={14} color="#10b981" />
-          <Text style={styles.unlockedText}>Débloqué</Text>
+      ) : (
+        <View style={{ gap: 4 }}>
+          <View
+            style={{
+              height: 8,
+              backgroundColor: "#0a1f18",
+              borderRadius: 4,
+              overflow: "hidden",
+              borderWidth: 1,
+              borderColor: "#2a7a60",
+            }}
+          >
+            <View
+              style={{
+                width: `${progress}%`,
+                height: "100%",
+                backgroundColor: config.borderColor,
+                borderRadius: 4,
+              }}
+            />
+          </View>
+          <Text
+            style={{
+              color: "#6e9e8a",
+              fontSize: 10,
+              textAlign: "center",
+              fontWeight: "600",
+            }}
+          >
+            {achievement.progress}/{achievement.target}
+          </Text>
         </View>
       )}
     </View>
@@ -170,51 +248,166 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
   };
 
   return (
-    <View style={styles.statsHeader}>
-      <LinearGradient
-        colors={["#1e293b", "#334155", "#1e293b"]}
-        style={styles.statsGradient}
+    <View
+      style={[
+        {
+          marginHorizontal: GRID_PADDING,
+          marginBottom: 16,
+          borderRadius: 16,
+          backgroundColor: "#134c39",
+          borderWidth: 2,
+          borderColor: "#2a7a60",
+          padding: 20,
+        },
+        pillShadow.card,
+      ]}
+    >
+      {/* Main Stats */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 16,
+          marginBottom: 16,
+        }}
       >
-        <View style={styles.mainStats}>
-          <View style={styles.trophyIcon}>
-            <Ionicons name="trophy" size={40} color="#fbbf24" />
-          </View>
-          <View style={styles.mainStatsText}>
-            <Text style={styles.statsTitle}>
-              {unlocked}/{total} Achievements
-            </Text>
-            <Text style={styles.statsSubtitle}>{percentage}% complété</Text>
-          </View>
+        <View
+          style={[
+            {
+              width: 64,
+              height: 64,
+              borderRadius: 16,
+              backgroundColor: "#f5c542",
+              alignItems: "center",
+              justifyContent: "center",
+            },
+            pillShadow.sm,
+          ]}
+        >
+          <Ionicons name="trophy" size={32} color="#0b3d2e" />
         </View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: "#e8edf5", fontSize: 28, fontWeight: "900" }}>
+            {unlocked}/{total}
+          </Text>
+          <Text style={{ color: "#6e9e8a", fontSize: 14 }}>
+            {percentage}% completed
+          </Text>
+        </View>
+      </View>
 
-        <View style={styles.globalProgressBar}>
-          <LinearGradient
-            colors={["#fbbf24", "#f59e0b"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[styles.globalProgressFill, { width: `${percentage}%` }]}
-          />
-        </View>
+      {/* Progress Bar */}
+      <View
+        style={{
+          height: 12,
+          backgroundColor: "#0a1f18",
+          borderRadius: 6,
+          marginBottom: 16,
+          overflow: "hidden",
+          borderWidth: 1,
+          borderColor: "#2a7a60",
+        }}
+      >
+        <View
+          style={{
+            width: `${percentage}%`,
+            height: "100%",
+            backgroundColor: "#f5c542",
+            borderRadius: 6,
+          }}
+        />
+      </View>
 
-        <View style={styles.rarityStats}>
-          <View style={styles.rarityStat}>
-            <Ionicons name="diamond" size={16} color="#fbbf24" />
-            <Text style={styles.rarityStatText}>{rarityStats.legendary}</Text>
-          </View>
-          <View style={styles.rarityStat}>
-            <Ionicons name="star" size={16} color="#a855f7" />
-            <Text style={styles.rarityStatText}>{rarityStats.epic}</Text>
-          </View>
-          <View style={styles.rarityStat}>
-            <Ionicons name="medal" size={16} color="#3b82f6" />
-            <Text style={styles.rarityStatText}>{rarityStats.rare}</Text>
-          </View>
-          <View style={styles.rarityStat}>
-            <Ionicons name="ellipse" size={16} color="#6b7280" />
-            <Text style={styles.rarityStatText}>{rarityStats.common}</Text>
-          </View>
+      {/* Rarity Stats */}
+      <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <Ionicons name="diamond" size={18} color="#fbbf24" />
+          <Text style={{ color: "#e8edf5", fontWeight: "700", fontSize: 16 }}>
+            {rarityStats.legendary}
+          </Text>
         </View>
-      </LinearGradient>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <Ionicons name="star" size={18} color="#a855f7" />
+          <Text style={{ color: "#e8edf5", fontWeight: "700", fontSize: 16 }}>
+            {rarityStats.epic}
+          </Text>
+        </View>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <Ionicons name="medal" size={18} color="#3b82f6" />
+          <Text style={{ color: "#e8edf5", fontWeight: "700", fontSize: 16 }}>
+            {rarityStats.rare}
+          </Text>
+        </View>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <Ionicons name="ellipse" size={18} color="#6b7280" />
+          <Text style={{ color: "#e8edf5", fontWeight: "700", fontSize: 16 }}>
+            {rarityStats.common}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function CategoriesFilter({
+  selected,
+  onSelect,
+}: {
+  selected: Category;
+  onSelect: (cat: Category) => void;
+}) {
+  return (
+    <View style={{ height: 70, marginBottom: 16 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: GRID_PADDING,
+          paddingVertical: 10,
+          gap: 10,
+        }}
+      >
+        {categories.map((category) => {
+          const isActive = selected === category.key;
+          return (
+            <TouchableOpacity
+              key={category.key}
+              onPress={() => onSelect(category.key)}
+              style={[
+                {
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 8,
+                  paddingHorizontal: 20,
+                  paddingVertical: 14,
+                  borderRadius: 16,
+                  borderWidth: 2,
+                  backgroundColor: isActive ? "#5b8af5" : "#134c39",
+                  borderColor: isActive ? "#5b8af5" : "#2a7a60",
+                },
+                pillShadow.sm,
+              ]}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name={category.icon as any}
+                size={18}
+                color={isActive ? "#fff" : "#6e9e8a"}
+              />
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "700",
+                  letterSpacing: 1,
+                  color: isActive ? "#fff" : "#6e9e8a",
+                }}
+              >
+                {category.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 }
@@ -248,355 +441,129 @@ export default function AchievementsScreen() {
     if (a.unlocked && !b.unlocked) return -1;
     if (!a.unlocked && b.unlocked) return 1;
 
-    const rarityOrder = { legendary: 0, epic: 1, rare: 2, common: 3 };
-    return rarityOrder[a.rarity] - rarityOrder[b.rarity];
+    const rarityOrder: Record<string, number> = {
+      legendary: 0,
+      epic: 1,
+      rare: 2,
+      common: 3,
+    };
+    return (rarityOrder[a.rarity] || 4) - (rarityOrder[b.rarity] || 4);
   });
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top"]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-        </View>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: "#25603e",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        edges={["top"]}
+      >
+        <ActivityIndicator size="large" color="#e8453c" />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <View style={styles.header}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: "#25603e" }}
+      edges={["top"]}
+    >
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: GRID_PADDING,
+          paddingVertical: 16,
+          borderBottomWidth: 2,
+          borderBottomColor: "#2a7a60",
+        }}
+      >
         <TouchableOpacity
-          style={styles.backButton}
           onPress={() => router.back()}
+          style={[
+            {
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              backgroundColor: "#134c39",
+              borderWidth: 2,
+              borderColor: "#2a7a60",
+              alignItems: "center",
+              justifyContent: "center",
+            },
+            pillShadow.sm,
+          ]}
+          activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={24} color="#1e293b" />
+          <Ionicons name="arrow-back" size={22} color="#e8edf5" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Achievements</Text>
-        <View style={styles.headerPlaceholder} />
+        <Text
+          style={{
+            color: "#e8edf5",
+            fontSize: 18,
+            fontWeight: "700",
+            letterSpacing: 2,
+          }}
+        >
+          ACHIEVEMENTS
+        </Text>
+        <View style={{ width: 48 }} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <StatsHeader achievements={achievements} />
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.categoriesContainer}
-          contentContainerStyle={styles.categoriesContent}
-        >
-          {categories.map((category) => (
-            <TouchableOpacity
-              key={category.key}
+      <FlatList
+        data={sortedAchievements}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        contentContainerStyle={{
+          paddingHorizontal: GRID_PADDING,
+          paddingTop: 24,
+          paddingBottom: 40,
+        }}
+        columnWrapperStyle={{
+          justifyContent: "space-between",
+          marginBottom: 20,
+        }}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View style={{ marginBottom: 8 }}>
+            <StatsHeader achievements={achievements} />
+            <CategoriesFilter
+              selected={selectedCategory}
+              onSelect={setSelectedCategory}
+            />
+          </View>
+        }
+        renderItem={({ item }) => <AchievementCard achievement={item} />}
+        ListEmptyComponent={
+          <View style={{ alignItems: "center", paddingVertical: 48, gap: 12 }}>
+            <View
               style={[
-                styles.categoryButton,
-                selectedCategory === category.key &&
-                  styles.categoryButtonActive,
+                {
+                  width: 64,
+                  height: 64,
+                  borderRadius: 16,
+                  backgroundColor: "#134c39",
+                  borderWidth: 2,
+                  borderColor: "#2a7a60",
+                  alignItems: "center",
+                  justifyContent: "center",
+                },
+                pillShadow.sm,
               ]}
-              onPress={() => setSelectedCategory(category.key)}
             >
-              <Ionicons
-                name={category.icon as any}
-                size={18}
-                color={selectedCategory === category.key ? "#fff" : "#64748b"}
-              />
-              <Text
-                style={[
-                  styles.categoryText,
-                  selectedCategory === category.key &&
-                    styles.categoryTextActive,
-                ]}
-              >
-                {category.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <View style={styles.achievementsGrid}>
-          {sortedAchievements.map((achievement) => (
-            <AchievementCard key={achievement.id} achievement={achievement} />
-          ))}
-        </View>
-
-        {sortedAchievements.length === 0 && (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="trophy-outline" size={48} color="#cbd5e1" />
-            <Text style={styles.emptyText}>
-              Aucun achievement dans cette catégorie
+              <Ionicons name="trophy-outline" size={32} color="#6e9e8a" />
+            </View>
+            <Text style={{ color: "#6e9e8a", fontSize: 14 }}>
+              No achievements in this category
             </Text>
           </View>
-        )}
-
-        <View style={styles.bottomPadding} />
-      </ScrollView>
+        }
+      />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  headerPlaceholder: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-  },
-
-  statsHeader: {
-    margin: 16,
-    borderRadius: 20,
-    overflow: "hidden",
-  },
-  statsGradient: {
-    padding: 20,
-  },
-  mainStats: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    marginBottom: 16,
-  },
-  trophyIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "rgba(251, 191, 36, 0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mainStatsText: {
-    flex: 1,
-  },
-  statsTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  statsSubtitle: {
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.7)",
-    marginTop: 2,
-  },
-  globalProgressBar: {
-    height: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 4,
-    marginBottom: 16,
-    overflow: "hidden",
-  },
-  globalProgressFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
-  rarityStats: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  rarityStat: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  rarityStatText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-
-  categoriesContainer: {
-    maxHeight: 50,
-  },
-  categoriesContent: {
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  categoryButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-  },
-  categoryButtonActive: {
-    backgroundColor: "#3b82f6",
-    borderColor: "#3b82f6",
-  },
-  categoryText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#64748b",
-  },
-  categoryTextActive: {
-    color: "#fff",
-  },
-
-  achievementsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    padding: 16,
-    gap: 12,
-  },
-  achievementCard: {
-    width: CARD_WIDTH,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: "#e2e8f0",
-    alignItems: "center",
-    position: "relative",
-  },
-  achievementCardUnlocked: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  newBadge: {
-    position: "absolute",
-    top: -8,
-    right: -8,
-    backgroundColor: "#ef4444",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    zIndex: 10,
-    shadowColor: "#ef4444",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  newBadgeText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-  },
-  rarityBadge: {
-    position: "absolute",
-    top: -8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  rarityBadgeText: {
-    color: "#fff",
-    fontSize: 9,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-    marginTop: 8,
-  },
-  iconContainerLocked: {
-    backgroundColor: "#f1f5f9",
-  },
-  iconGradient: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  achievementName: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1e293b",
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  achievementNameLocked: {
-    color: "#94a3b8",
-  },
-  achievementDescription: {
-    fontSize: 11,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 15,
-    marginBottom: 8,
-  },
-  progressContainer: {
-    width: "100%",
-    alignItems: "center",
-    gap: 4,
-  },
-  progressBar: {
-    width: "100%",
-    height: 6,
-    backgroundColor: "#e2e8f0",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 10,
-    color: "#94a3b8",
-    fontWeight: "600",
-  },
-  unlockedBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginTop: 4,
-  },
-  unlockedText: {
-    fontSize: 11,
-    color: "#10b981",
-    fontWeight: "600",
-  },
-  emptyContainer: {
-    alignItems: "center",
-    paddingVertical: 48,
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: "#94a3b8",
-  },
-
-  bottomPadding: {
-    height: 32,
-  },
-});

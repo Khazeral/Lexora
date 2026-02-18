@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type Deck = {
   name: string;
@@ -20,57 +21,30 @@ export default function DeckInfoCard({ deck }: DeckInfoCardProps) {
       : t("train.trainSettings.cards_plural", { count: deck.cards.length });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Ionicons name="albums" size={32} color="#3b82f6" />
+    <View
+      className="bg-card mx-6 my-4 p-4 rounded-2xl flex-row items-center gap-4 border-2 border-border"
+      style={pillShadow.card}
+    >
+      {/* Icon */}
+      <View
+        className="w-16 h-16 rounded-xl bg-info items-center justify-center"
+        style={pillShadow.sm}
+      >
+        <Ionicons name="albums" size={32} color="#fff" />
       </View>
-      <View style={styles.content}>
-        <Text style={styles.name} numberOfLines={1}>
-          {deck.name}
+
+      {/* Content */}
+      <View className="flex-1">
+        <Text
+          className="text-foreground text-lg font-bold tracking-wider"
+          numberOfLines={1}
+        >
+          {deck.name.toUpperCase()}
         </Text>
-        <Text style={styles.cards}>{cardCountText}</Text>
+        <Text className="text-muted-foreground text-sm mt-1">
+          {cardCountText}
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
-    margin: 16,
-    marginBottom: 8,
-    padding: 16,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: "#eff6ff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  content: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  cards: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 4,
-  },
-});

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { StyleSheet, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -53,12 +53,12 @@ export default function TrainingSettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <TrainSettingsHeader onBack={() => router.back()} />
 
       <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
+        className="flex-1"
+        contentContainerClassName="pb-8"
         showsVerticalScrollIndicator={false}
       >
         <DeckInfoCard deck={deck} />
@@ -81,16 +81,3 @@ export default function TrainingSettingsScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 32,
-  },
-});

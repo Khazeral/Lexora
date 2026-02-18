@@ -1,7 +1,8 @@
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type DeckActionsProps = {
   deckId: number;
@@ -12,65 +13,18 @@ export default function DeckActions({ deckId, hasCards }: DeckActionsProps) {
   const { t } = useTranslation();
 
   return (
-    <View style={styles.actions}>
+    <View className="absolute right-6 bottom-6 gap-3 items-end">
       <TouchableOpacity
-        style={styles.addButton}
+        className="flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
+        style={pillShadow.default}
         onPress={() => router.push(`/deck/${deckId}/add-card`)}
-        activeOpacity={0.9}
+        activeOpacity={0.8}
       >
         <Ionicons name="add" size={24} color="#fff" />
-        <Text style={styles.addButtonText}>
-          {t("decks.deckDetail.addCard")}
+        <Text className="text-white text-base font-bold tracking-wider">
+          {t("decks.deckDetail.addCard").toUpperCase()}
         </Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  actions: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    gap: 12,
-    alignItems: "flex-end",
-  },
-  studyButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "#10b981",
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 30,
-    shadowColor: "#10b981",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  studyButtonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  addButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#3b82f6",
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 30,
-    shadowColor: "#3b82f6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-});

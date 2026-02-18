@@ -1,5 +1,5 @@
 import { useLocalSearchParams, router } from "expo-router";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, FlatList } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -37,7 +37,7 @@ export default function DeckDetailScreen() {
   const hasCards = deck.cards && deck.cards.length > 0;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <DeckDetailHeader
         name={deck.name}
         cardCount={deck.cards?.length || 0}
@@ -49,7 +49,7 @@ export default function DeckDetailScreen() {
       <FlatList
         data={deck.cards || []}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerClassName="p-6 pb-28 flex-grow"
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={<EmptyCard deckId={Number(id)} />}
         renderItem={({ item }) => (
@@ -58,25 +58,10 @@ export default function DeckDetailScreen() {
             onPress={() => router.push(`/card/${item.id}`)}
           />
         )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={() => <View className="h-4" />}
       />
 
       {hasCards && <DeckActions deckId={Number(id)} hasCards={hasCards} />}
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  list: {
-    padding: 16,
-    paddingBottom: 100,
-    flexGrow: 1,
-  },
-  separator: {
-    height: 12,
-  },
-});

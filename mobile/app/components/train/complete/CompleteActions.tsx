@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type CompleteActionsProps = {
   deckId: string | string[];
@@ -11,88 +12,37 @@ export default function CompleteActions({ deckId }: CompleteActionsProps) {
   const { t } = useTranslation();
 
   return (
-    <>
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.push("/(tabs)")}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="home" size={20} color="#64748b" />
-          <Text style={styles.homeButtonText}>
-            {t("trainComplete.actions.backToHome")}
-          </Text>
-        </TouchableOpacity>
+    <View className="flex-row gap-3 p-6 bg-secondary border-t-2 border-border">
+      {/* Home Button */}
+      <TouchableOpacity
+        className="flex-1 flex-row items-center justify-center gap-3 py-4 rounded-2xl bg-card border-2 border-border"
+        style={pillShadow.sm}
+        onPress={() => router.push("/(tabs)")}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="home" size={20} color="#6e9e8a" />
+        <Text className="text-muted-foreground text-sm font-bold tracking-wider">
+          HOME
+        </Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() =>
-            router.push({
-              pathname: "/train/[id]/settings",
-              params: { id: deckId },
-            })
-          }
-          activeOpacity={0.8}
-        >
-          <Ionicons name="refresh" size={20} color="#fff" />
-          <Text style={styles.primaryButtonText}>
-            {t("trainComplete.actions.trainAgain")}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </>
+      {/* Train Again Button */}
+      <TouchableOpacity
+        className="flex-1 flex-row items-center justify-center gap-3 py-4 rounded-2xl"
+        style={[{ backgroundColor: "#44d9a0" }, pillShadow.default]}
+        onPress={() =>
+          router.push({
+            pathname: "/train/[id]/settings",
+            params: { id: deckId },
+          })
+        }
+        activeOpacity={0.8}
+      >
+        <Ionicons name="refresh" size={20} color="#0b3d2e" />
+        <Text className="text-[#0b3d2e] text-sm font-bold tracking-wider">
+          {t("trainComplete.actions.trainAgain").toUpperCase()}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  footer: {
-    flexDirection: "row",
-    gap: 12,
-    padding: 16,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-  },
-  secondaryButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 12,
-    backgroundColor: "#eff6ff",
-  },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#3b82f6",
-  },
-  primaryButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 12,
-    backgroundColor: "#3b82f6",
-  },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
-  },
-  homeButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    padding: 12,
-    backgroundColor: "#fff",
-  },
-  homeButtonText: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-});

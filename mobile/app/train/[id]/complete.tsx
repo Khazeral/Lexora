@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { View, StyleSheet, ScrollView, Animated, Easing } from "react-native";
+import { View, ScrollView } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
 import { getDeckRecords } from "@/services/deck_records.api";
@@ -13,7 +13,15 @@ import PerformanceCard from "@/app/components/train/complete/PerformanceCard";
 import StatsGrid from "@/app/components/train/complete/StatsGrid";
 import AlmostThereSection from "@/app/components/train/complete/AlmostThereSection";
 import CompleteActions from "@/app/components/train/complete/CompleteActions";
-import Confetti from "@/app/components/Confettis";
+
+// Couleurs des modes
+const MODE_COLORS: Record<string, string> = {
+  classic: "#5b8af5",
+  speedrun: "#e8453c",
+  streak: "#06b6d4",
+  timeattack: "#a855f7",
+  perfect: "#f5c542",
+};
 
 export default function TrainingCompleteScreen() {
   const {
@@ -35,18 +43,6 @@ export default function TrainingCompleteScreen() {
 
   const { t } = useTranslation();
   const { user } = useAuth();
-
-  const [scaleAnim] = useState(new Animated.Value(0));
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [pulseAnim] = useState(new Animated.Value(1));
-  const [confettiAnims] = useState(
-    Array.from({ length: 20 }, () => ({
-      translateY: new Animated.Value(-100),
-      translateX: new Animated.Value(0),
-      rotate: new Animated.Value(0),
-      opacity: new Animated.Value(1),
-    })),
-  );
 
   const { data: deck } = useQuery({
     queryKey: ["deck", id],
@@ -211,139 +207,49 @@ export default function TrainingCompleteScreen() {
       .slice(0, 3);
   }, [deck, totalCards]);
 
-  useEffect(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      tension: 50,
-      friction: 7,
-      useNativeDriver: true,
-    }).start();
-  }, [scaleAnim]);
-
-  useEffect(() => {
-    if (modeStats) {
-      fadeAnim.setValue(0);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [modeStats, fadeAnim]);
-
-  useEffect(() => {
-    if (!modeStats?.isRecord || isRealError) return;
-
-    const pulseAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.05,
-          duration: 800,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 800,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    pulseAnimation.start();
-
-    const confettiAnimations = confettiAnims.map((anim, index) => {
-      const randomX = (Math.random() - 0.5) * 400;
-      const randomRotate = Math.random() * 720;
-      const delay = index * 50;
-
-      return Animated.parallel([
-        Animated.timing(anim.translateY, {
-          toValue: 800,
-          duration: 3000,
-          delay,
-          easing: Easing.cubic,
-          useNativeDriver: true,
-        }),
-        Animated.timing(anim.translateX, {
-          toValue: randomX,
-          duration: 3000,
-          delay,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(anim.rotate, {
-          toValue: randomRotate,
-          duration: 3000,
-          delay,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(anim.opacity, {
-          toValue: 0,
-          duration: 3000,
-          delay,
-          useNativeDriver: true,
-        }),
-      ]);
-    });
-
-    Animated.parallel(confettiAnimations).start();
-
-    return () => {
-      pulseAnimation.stop();
-    };
-  }, [modeStats?.isRecord, isRealError, pulseAnim, confettiAnims]);
-
   const headerConfig = useMemo(() => {
+    const modeColor = MODE_COLORS[currentGameMode] || MODE_COLORS.classic;
+
     if (currentGameMode === "perfect" && wasPerfect) {
       return {
         icon: "diamond",
-        colors: ["#ec4899", "#db2777"],
+        color: "#f5c542",
         title: t("trainComplete.headers.perfect"),
       };
     }
     if (modeStats?.isRecord && !isRealError) {
       return {
         icon: "trophy",
-        colors: ["#10b981", "#059669"],
+        color: "#44d9a0",
         title: t("trainComplete.headers.newRecord"),
       };
     }
     return {
-      icon: "trophy",
-      colors: ["#3b82f6", "#2563eb"],
+      icon: "checkmark-circle",
+      color: modeColor,
       title: t("trainComplete.headers.complete"),
     };
   }, [currentGameMode, wasPerfect, modeStats?.isRecord, isRealError, t]);
 
   return (
-    <View style={styles.container}>
-      {modeStats?.isRecord && !isRealError && (
-        <Confetti animations={confettiAnims} />
-      )}
-
+    <View className="flex-1 bg-background">
       <CompleteHeader
         icon={headerConfig.icon}
-        colors={headerConfig.colors}
+        color={headerConfig.color}
         title={headerConfig.title}
         deckName={deck?.name}
-        scaleAnim={scaleAnim}
-        pulseAnim={pulseAnim}
         isRecord={modeStats?.isRecord && !isRealError}
       />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {modeStats && !isRealError && (
-          <ModeStatsCard
-            modeStats={modeStats}
-            fadeAnim={fadeAnim}
-            pulseAnim={pulseAnim}
-          />
-        )}
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-4"
+      >
+        {modeStats && !isRealError && <ModeStatsCard modeStats={modeStats} />}
 
         {(currentGameMode !== "perfect" || !wasPerfect) && (
-          <PerformanceCard successRate={successRate} fadeAnim={fadeAnim} />
+          <PerformanceCard successRate={successRate} />
         )}
 
         <StatsGrid
@@ -360,13 +266,3 @@ export default function TrainingCompleteScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  content: {
-    flex: 1,
-  },
-});

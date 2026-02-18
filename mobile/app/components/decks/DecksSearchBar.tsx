@@ -1,4 +1,4 @@
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 type DecksSearchBarProps = {
@@ -13,49 +13,33 @@ export default function DecksSearchBar({
   placeholder,
 }: DecksSearchBarProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.searchBox}>
-        <Ionicons name="search" size={20} color="#94a3b8" />
+    <View className="px-6 py-3">
+      <View
+        className="flex-row items-center bg-card rounded-2xl px-4 py-3 border-2 border-border"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 0,
+          elevation: 6,
+        }}
+      >
+        <Ionicons name="search" size={20} color="#6e9e8a" />
         <TextInput
-          style={styles.input}
+          className="flex-1 ml-3 text-foreground text-base"
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#6e9e8a"
           autoCapitalize="none"
           autoCorrect={false}
         />
         {value.length > 0 && (
-          <Ionicons
-            name="close-circle"
-            size={20}
-            color="#94a3b8"
-            onPress={() => onChangeText("")}
-          />
+          <TouchableOpacity onPress={() => onChangeText("")}>
+            <Ionicons name="close-circle" size={20} color="#6e9e8a" />
+          </TouchableOpacity>
         )}
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-  },
-  searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f8fafc",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#1e293b",
-  },
-});

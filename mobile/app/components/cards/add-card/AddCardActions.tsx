@@ -1,12 +1,7 @@
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
 
 type AddCardActionsProps = {
   onAdd: () => void;
@@ -22,111 +17,49 @@ export default function AddCardActions({
   const { t } = useTranslation();
 
   return (
-    <View style={styles.actions}>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.secondaryButton,
-            isLoading && styles.buttonDisabled,
-          ]}
-          onPress={onAddAnother}
-          disabled={isLoading}
-          activeOpacity={0.8}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#3b82f6" />
-          ) : (
-            <>
-              <Ionicons name="add-circle-outline" size={20} color="#3b82f6" />
-              <Text style={styles.secondaryButtonText}>
-                {t("cards.addCard.buttons.addAnother")}
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.primaryButton,
-            isLoading && styles.buttonDisabled,
-          ]}
-          onPress={onAdd}
-          disabled={isLoading}
-          activeOpacity={0.8}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.primaryButtonText}>
-              {t("cards.addCard.buttons.addAndFinish")}
+    <View className="gap-3 p-6 bg-secondary border-t-2 border-border">
+      {/* Primary Action - Add & Finish (full width) */}
+      <TouchableOpacity
+        className="flex-row items-center justify-center gap-3 py-5 rounded-2xl"
+        style={[pillShadow.default, { backgroundColor: pillColors.green }]}
+        onPress={onAdd}
+        disabled={isLoading}
+        activeOpacity={0.8}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#0b3d2e" />
+        ) : (
+          <>
+            <Ionicons name="checkmark-circle" size={24} color="#0b3d2e" />
+            <Text
+              className="text-base font-black tracking-wider"
+              style={{ color: "#0b3d2e" }}
+            >
+              AJOUTER LA CARTE
             </Text>
-          )}
-        </TouchableOpacity>
-      </View>
+          </>
+        )}
+      </TouchableOpacity>
+
+      {/* Secondary Action - Add Another (full width, outlined) */}
+      <TouchableOpacity
+        className="flex-row items-center justify-center gap-3 py-4 rounded-2xl bg-card border-2 border-info"
+        style={pillShadow.sm}
+        onPress={onAddAnother}
+        disabled={isLoading}
+        activeOpacity={0.7}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#5b8af5" />
+        ) : (
+          <>
+            <Ionicons name="add-circle" size={22} color="#5b8af5" />
+            <Text className="text-info text-sm font-bold tracking-wider">
+              AJOUTER ET CONTINUER
+            </Text>
+          </>
+        )}
+      </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  actions: {
-    gap: 12,
-    padding: 16,
-    paddingBottom: 24,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-  },
-  helpContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 4,
-  },
-  helpText: {
-    flex: 1,
-    fontSize: 12,
-    color: "#64748b",
-    lineHeight: 16,
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  button: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingVertical: 16,
-    borderRadius: 12,
-  },
-  secondaryButton: {
-    backgroundColor: "#eff6ff",
-    borderWidth: 2,
-    borderColor: "#bfdbfe",
-  },
-  secondaryButtonText: {
-    color: "#3b82f6",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  primaryButton: {
-    backgroundColor: "#3b82f6",
-    shadowColor: "#3b82f6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-});

@@ -6,13 +6,18 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Animated as RNAnimated,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getCard } from "@/services/cards.api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,20 +27,20 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import { useRef, useState } from "react";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 48;
-const CARD_HEIGHT = SCREEN_HEIGHT * 0.55;
+const CARD_HEIGHT = CARD_WIDTH * 1.4;
 
 type CardStatus = "bronze" | "silver" | "gold" | "platinum" | "ruby";
 
 interface TextureConfig {
   baseColors: [string, string, string];
-  frameColors: [string, string, string, string, string];
   accentColor: string;
   shineColor: string;
   glowColor: string;
-  innerFrameColors: [string, string];
+  icon: string;
 }
 
 const getTextureConfig = (status: CardStatus): TextureConfig => {
@@ -43,193 +48,45 @@ const getTextureConfig = (status: CardStatus): TextureConfig => {
     case "ruby":
       return {
         baseColors: ["#2d0a0a", "#4a1010", "#2d0a0a"],
-        frameColors: ["#ff6b6b", "#dc2626", "#991b1b", "#dc2626", "#ff6b6b"],
         accentColor: "#fca5a5",
         shineColor: "rgba(255, 200, 200, 0.6)",
         glowColor: "#dc2626",
-        innerFrameColors: ["#7f1d1d", "#450a0a"],
+        icon: "diamond",
       };
     case "platinum":
       return {
         baseColors: ["#1e293b", "#334155", "#1e293b"],
-        frameColors: ["#f1f5f9", "#94a3b8", "#64748b", "#94a3b8", "#f1f5f9"],
         accentColor: "#e2e8f0",
         shineColor: "rgba(255, 255, 255, 0.7)",
         glowColor: "#94a3b8",
-        innerFrameColors: ["#475569", "#1e293b"],
+        icon: "medal",
       };
     case "gold":
       return {
         baseColors: ["#451a03", "#78350f", "#451a03"],
-        frameColors: ["#fef08a", "#fbbf24", "#f59e0b", "#fbbf24", "#fef08a"],
         accentColor: "#fde047",
         shineColor: "rgba(255, 230, 150, 0.6)",
         glowColor: "#fbbf24",
-        innerFrameColors: ["#92400e", "#451a03"],
+        icon: "trophy",
       };
     case "silver":
       return {
         baseColors: ["#27272a", "#3f3f46", "#27272a"],
-        frameColors: ["#ffffff", "#d4d4d8", "#a1a1aa", "#d4d4d8", "#ffffff"],
         accentColor: "#e4e4e7",
         shineColor: "rgba(255, 255, 255, 0.5)",
         glowColor: "#a1a1aa",
-        innerFrameColors: ["#52525b", "#27272a"],
+        icon: "ribbon",
       };
-    default: // bronze
+    default:
       return {
         baseColors: ["#1c1208", "#2a1a0a", "#1c1208"],
-        frameColors: ["#e8b896", "#cd7f32", "#8b5a2b", "#cd7f32", "#e8b896"],
         accentColor: "#deb887",
         shineColor: "rgba(255, 200, 150, 0.5)",
         glowColor: "#cd7f32",
-        innerFrameColors: ["#5c3d2e", "#2a1a0a"],
+        icon: "shield",
       };
   }
 };
-
-function TCGFrame({ status }: { status: CardStatus }) {
-  const config = getTextureConfig(status);
-
-  return (
-    <>
-      {/* Outer Frame - Gradient border */}
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          borderRadius: 20,
-          borderWidth: 4,
-          borderColor: config.glowColor,
-          zIndex: 1,
-        }}
-      />
-
-      {/* Inner glow border */}
-      <View
-        style={{
-          position: "absolute",
-          top: 4,
-          left: 4,
-          right: 4,
-          bottom: 4,
-          borderRadius: 16,
-          borderWidth: 2,
-          borderColor: config.accentColor,
-          opacity: 0.5,
-          zIndex: 2,
-        }}
-      />
-
-      {/* Top Decoration with icon */}
-      <View className="absolute top-3 left-12 right-12 flex-row items-center justify-center z-10">
-        <View
-          className="flex-1 h-0.5 rounded-full"
-          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
-        />
-        <View
-          className="w-10 h-10 rounded-full items-center justify-center mx-3 border-2"
-          style={{
-            backgroundColor: config.glowColor,
-            borderColor: config.accentColor,
-          }}
-        >
-          <Ionicons
-            name={
-              status === "ruby"
-                ? "diamond"
-                : status === "platinum"
-                  ? "medal"
-                  : status === "gold"
-                    ? "trophy"
-                    : status === "silver"
-                      ? "ribbon"
-                      : "shield"
-            }
-            size={18}
-            color="#fff"
-          />
-        </View>
-        <View
-          className="flex-1 h-0.5 rounded-full"
-          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
-        />
-      </View>
-
-      {/* Bottom Decoration with status label */}
-      <View className="absolute bottom-3 left-10 right-10 flex-row items-center justify-center z-10">
-        <View
-          className="w-12 h-0.5 rounded-full"
-          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
-        />
-        <View
-          className="px-4 py-1.5 rounded-full mx-3"
-          style={{
-            backgroundColor: config.glowColor,
-            shadowColor: config.glowColor,
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.5,
-            shadowRadius: 8,
-            elevation: 4,
-          }}
-        >
-          <Text
-            className="text-[11px] font-black tracking-[2px]"
-            style={{ color: "#fff" }}
-          >
-            {status.toUpperCase()}
-          </Text>
-        </View>
-        <View
-          className="w-12 h-0.5 rounded-full"
-          style={{ backgroundColor: config.accentColor, opacity: 0.6 }}
-        />
-      </View>
-
-      {/* Corner gems/ornaments */}
-      {[
-        { top: 8, left: 8 },
-        { top: 8, right: 8 },
-        { bottom: 8, left: 8 },
-        { bottom: 8, right: 8 },
-      ].map((position, i) => (
-        <View
-          key={i}
-          style={[
-            {
-              position: "absolute",
-              width: 16,
-              height: 16,
-              borderRadius: 8,
-              backgroundColor: config.accentColor,
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 10,
-              shadowColor: config.glowColor,
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.6,
-              shadowRadius: 4,
-              elevation: 3,
-            },
-            position,
-          ]}
-        >
-          <View
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: config.glowColor,
-            }}
-          />
-        </View>
-      ))}
-    </>
-  );
-}
 
 function ShinyCard({
   children,
@@ -312,15 +169,16 @@ function ShinyCard({
       <Animated.View
         style={[
           {
-            borderRadius: 20,
-            overflow: "hidden",
+            width: CARD_WIDTH,
             height: CARD_HEIGHT,
+            borderRadius: 24,
+            overflow: "hidden",
           },
           {
             shadowColor: config.glowColor,
             shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.4,
-            shadowRadius: 16,
+            shadowOpacity: 0.5,
+            shadowRadius: 20,
             elevation: 12,
           },
           cardAnimatedStyle,
@@ -334,37 +192,57 @@ function ShinyCard({
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
         />
 
-        {/* Inner content area with subtle gradient */}
+        {/* Border */}
         <View
-          style={{
-            position: "absolute",
-            top: 20,
-            left: 20,
-            right: 20,
-            bottom: 20,
-            borderRadius: 12,
-            overflow: "hidden",
-          }}
-        >
-          <LinearGradient
-            colors={[
-              `${config.glowColor}15`,
-              `${config.glowColor}05`,
-              `${config.glowColor}10`,
-            ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            }}
-          />
-        </View>
+          className="absolute inset-0 rounded-3xl border-4"
+          style={{ borderColor: config.glowColor }}
+        />
 
-        <TCGFrame status={status as CardStatus} />
+        {/* Inner glow */}
+        <View
+          className="absolute rounded-2xl border-2 opacity-30"
+          style={{
+            top: 6,
+            left: 6,
+            right: 6,
+            bottom: 6,
+            borderColor: config.accentColor,
+          }}
+        />
+
+        {/* Corner gems */}
+        {[
+          { top: 10, left: 10 },
+          { top: 10, right: 10 },
+          { bottom: 10, left: 10 },
+          { bottom: 10, right: 10 },
+        ].map((position, i) => (
+          <View
+            key={i}
+            style={[
+              {
+                position: "absolute",
+                width: 14,
+                height: 14,
+                borderRadius: 7,
+                backgroundColor: config.accentColor,
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 10,
+              },
+              position,
+            ]}
+          >
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: config.glowColor,
+              }}
+            />
+          </View>
+        ))}
 
         {/* Holo Effect */}
         <Animated.View
@@ -418,10 +296,10 @@ function ShinyCard({
             style={[
               {
                 position: "absolute",
-                width: 80,
+                width: 100,
                 height: CARD_HEIGHT * 2,
                 top: -CARD_HEIGHT / 2,
-                left: CARD_WIDTH / 2 - 40,
+                left: CARD_WIDTH / 2 - 50,
               },
               shineAnimatedStyle,
             ]}
@@ -447,9 +325,8 @@ function ShinyCard({
           </Animated.View>
         </View>
 
-        <View className="flex-1 m-5 rounded-xl z-[4] justify-center">
-          {children}
-        </View>
+        {/* Content */}
+        <View className="flex-1 z-[25] justify-center p-6">{children}</View>
       </Animated.View>
     </GestureDetector>
   );
@@ -458,6 +335,7 @@ function ShinyCard({
 export default function CardDetailScreen() {
   const { id } = useLocalSearchParams();
   const { user } = useAuth();
+  const [showBack, setShowBack] = useState(false);
 
   const { data: card, isLoading } = useQuery({
     queryKey: ["card", id],
@@ -486,245 +364,199 @@ export default function CardDetailScreen() {
     failureCount: 0,
     currentStreak: 0,
     maxStreak: 0,
-    status: "bronze",
+    status: "bronze" as CardStatus,
   };
 
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case "ruby":
-        return "#dc2626";
-      case "platinum":
-        return "#94a3b8";
-      case "gold":
-        return "#f5c542";
-      case "silver":
-        return "#a1a1aa";
-      default:
-        return "#cd7f32";
-    }
-  };
-
-  const getStatusIcon = (status?: string) => {
-    switch (status) {
-      case "ruby":
-        return "diamond";
-      case "platinum":
-        return "medal";
-      case "gold":
-        return "trophy";
-      case "silver":
-        return "ribbon";
-      default:
-        return "shield";
-    }
-  };
+  const config = getTextureConfig(progress.status as CardStatus);
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
-          style={pillShadow.sm}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={22} color="#e8edf5" />
-        </TouchableOpacity>
-        <Text className="text-foreground text-lg font-bold tracking-wider">
-          CARD DETAILS
-        </Text>
-        <View className="w-12" />
-      </View>
-
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="pb-10"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Card Container */}
-        <View className="mx-6 mt-6" style={{ minHeight: CARD_HEIGHT }}>
-          <ShinyCard status={progress.status}>
-            <View className="flex-1 px-6 py-8 justify-center">
-              {/* Front */}
-              <View className="items-center py-5">
-                <View
-                  className="px-4 py-1 rounded-full mb-4"
-                  style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
-                >
-                  <Text className="text-[10px] font-bold text-white/60 tracking-[3px]">
-                    FRONT
-                  </Text>
-                </View>
-                <Text
-                  className="text-3xl font-bold text-white text-center"
-                  style={{
-                    textShadowColor: "rgba(0, 0, 0, 0.5)",
-                    textShadowOffset: { width: 2, height: 2 },
-                    textShadowRadius: 6,
-                  }}
-                >
-                  {card.word}
-                </Text>
-              </View>
-
-              {/* Divider */}
-              <View className="flex-row items-center px-4 my-4">
-                <View className="flex-1 h-px bg-white/20" />
-                <View
-                  className="w-3 h-3 rotate-45 mx-4"
-                  style={{ backgroundColor: getStatusColor(progress.status) }}
-                />
-                <View className="flex-1 h-px bg-white/20" />
-              </View>
-
-              {/* Back */}
-              <View className="items-center py-5">
-                <View
-                  className="px-4 py-1 rounded-full mb-4"
-                  style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
-                >
-                  <Text className="text-[10px] font-bold text-white/60 tracking-[3px]">
-                    BACK
-                  </Text>
-                </View>
-                <Text
-                  className="text-3xl font-bold text-white text-center"
-                  style={{
-                    textShadowColor: "rgba(0, 0, 0, 0.5)",
-                    textShadowOffset: { width: 2, height: 2 },
-                    textShadowRadius: 6,
-                  }}
-                >
-                  {card.translation}
-                </Text>
-              </View>
-            </View>
-          </ShinyCard>
-        </View>
-
-        {/* Status Badge */}
-        <View className="items-center mt-6 mb-4">
-          <View
-            className="flex-row items-center gap-2 px-6 py-3 rounded-full"
-            style={[
-              { backgroundColor: getStatusColor(progress.status) },
-              pillShadow.default,
-            ]}
-          >
-            <Ionicons
-              name={getStatusIcon(progress.status) as any}
-              size={22}
-              color="#fff"
-            />
-            <Text className="text-white text-base font-black tracking-wider">
-              {progress.status.toUpperCase()}
-            </Text>
-          </View>
-        </View>
-
-        {/* Stats Section */}
-        <View className="px-6 mt-4">
-          <Text className="text-muted-foreground text-xs font-bold tracking-[3px] mb-4">
-            STATISTICS
-          </Text>
-
-          {/* Stats Grid */}
-          <View className="flex-row flex-wrap gap-3 mb-6">
-            <StatCard
-              icon="checkmark-circle"
-              iconColor="#44d9a0"
-              value={progress.successCount}
-              label="CORRECT"
-            />
-            <StatCard
-              icon="close-circle"
-              iconColor="#e8453c"
-              value={progress.failureCount}
-              label="INCORRECT"
-            />
-            <StatCard
-              icon="flash"
-              iconColor="#f5c542"
-              value={progress.currentStreak}
-              label="STREAK"
-            />
-            <StatCard
-              icon="trophy"
-              iconColor="#5b8af5"
-              value={progress.maxStreak}
-              label="BEST"
-            />
-          </View>
-
-          {/* Milestone */}
-          <View
-            className="bg-card rounded-2xl p-4 border-2 border-border mb-4"
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+        <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
             style={pillShadow.sm}
+            activeOpacity={0.7}
           >
-            <Text className="text-muted-foreground text-xs font-bold tracking-wider mb-2">
-              NEXT MILESTONE
-            </Text>
-            <Text className="text-foreground text-base">
-              {progress.maxStreak < 10 &&
-                `🥈 ${10 - progress.maxStreak} more correct in a row for Silver`}
-              {progress.maxStreak >= 10 &&
-                progress.maxStreak < 30 &&
-                `🥇 ${30 - progress.maxStreak} more correct in a row for Gold`}
-              {progress.maxStreak >= 30 &&
-                progress.maxStreak < 50 &&
-                `💎 ${50 - progress.maxStreak} more correct in a row for Platinum`}
-              {progress.maxStreak >= 50 &&
-                progress.maxStreak < 70 &&
-                `❤️‍🔥 ${70 - progress.maxStreak} more correct in a row for Ruby`}
-              {progress.maxStreak >= 70 &&
-                "🎉 You've reached the maximum rank!"}
-            </Text>
+            <Ionicons name="arrow-back" size={22} color="#e8edf5" />
+          </TouchableOpacity>
+          <Text className="text-foreground text-lg font-bold tracking-wider">
+            CARD DETAILS
+          </Text>
+          <View className="w-12" />
+        </View>
+
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="pb-10"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="mx-6 mt-6">
+            <ShinyCard status={progress.status}>
+              <View
+                className="absolute top-4 self-center px-5 py-2 rounded-full flex-row items-center gap-2 z-30"
+                style={{ backgroundColor: config.glowColor }}
+              >
+                <Ionicons name={config.icon as any} size={16} color="#fff" />
+                <Text className="text-white text-[11px] font-black tracking-widest">
+                  {progress.status.toUpperCase()}
+                </Text>
+              </View>
+
+              <View className="flex-1 items-center justify-center px-4">
+                <Text
+                  className="text-3xl font-bold text-center text-white leading-10"
+                  style={{
+                    textShadowColor: "rgba(0, 0, 0, 0.5)",
+                    textShadowOffset: { width: 2, height: 2 },
+                    textShadowRadius: 4,
+                  }}
+                >
+                  {showBack ? card.translation : card.word}
+                </Text>
+              </View>
+
+              <View
+                className="absolute bottom-4 self-center px-4 py-1.5 rounded-full z-30"
+                style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
+              >
+                <Text className="text-white/70 text-[10px] font-bold tracking-widest">
+                  {showBack ? "QUESTION" : "ANSWER"}
+                </Text>
+              </View>
+            </ShinyCard>
+            <View className="flex-row justify-end mt-5">
+              <TouchableOpacity
+                onPress={() => setShowBack(!showBack)}
+                className="flex-row items-center gap-2 px-5 py-3 rounded-xl bg-card border-2 border-border"
+                style={pillShadow.sm}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="swap-horizontal" size={20} color="#6e9e8a" />
+                <Text className="text-muted-foreground text-sm font-bold tracking-wider">
+                  {showBack ? "SHOW ANSWER" : "SHOW QUESTION"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          {/* New Card Banner */}
-          {progress.successCount === 0 && progress.failureCount === 0 && (
+          {/* Stats Section */}
+          <View className="px-6 mt-8">
+            <Text className="text-muted-foreground text-xs font-bold tracking-[3px] mb-4">
+              STATISTICS
+            </Text>
+
+            {/* Stats Grid */}
+            <View className="flex-row flex-wrap gap-3 mb-6">
+              <StatCard
+                icon="checkmark-circle"
+                iconColor="#44d9a0"
+                bgColor="#1a3d2e"
+                value={progress.successCount}
+                label="CORRECT"
+              />
+              <StatCard
+                icon="close-circle"
+                iconColor="#e8453c"
+                bgColor="#3d1a1a"
+                value={progress.failureCount}
+                label="INCORRECT"
+              />
+              <StatCard
+                icon="flash"
+                iconColor="#f5c542"
+                bgColor="#3d2e1a"
+                value={progress.currentStreak}
+                label="STREAK"
+              />
+              <StatCard
+                icon="trophy"
+                iconColor="#5b8af5"
+                bgColor="#1a3a5c"
+                value={progress.maxStreak}
+                label="BEST"
+              />
+            </View>
+
             <View
-              className="flex-row items-center gap-3 p-4 bg-card rounded-2xl border-2 border-info"
+              className="bg-card rounded-2xl p-4 border-2 border-border mb-4"
               style={pillShadow.sm}
             >
-              <View
-                className="w-10 h-10 rounded-xl bg-info items-center justify-center"
-                style={pillShadow.sm}
-              >
-                <Ionicons name="sparkles" size={20} color="#fff" />
+              <View className="flex-row items-center gap-2 mb-2">
+                <Ionicons name="flag" size={16} color="#f5c542" />
+                <Text className="text-muted-foreground text-xs font-bold tracking-wider">
+                  NEXT MILESTONE
+                </Text>
               </View>
-              <Text className="flex-1 text-foreground text-sm">
-                New card! Start practicing to track your progress.
+              <Text className="text-foreground text-sm leading-5">
+                {getMilestoneText(progress.maxStreak)}
               </Text>
             </View>
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            {progress.successCount === 0 && progress.failureCount === 0 && (
+              <View
+                className="flex-row items-center gap-3 p-4 bg-card rounded-2xl border-2 border-info"
+                style={pillShadow.sm}
+              >
+                <View
+                  className="w-10 h-10 rounded-xl items-center justify-center"
+                  style={[{ backgroundColor: "#1a3a5c" }, pillShadow.sm]}
+                >
+                  <Ionicons name="sparkles" size={20} color="#5b8af5" />
+                </View>
+                <Text className="flex-1 text-foreground text-sm">
+                  New card! Start practicing to track your progress.
+                </Text>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
+}
+
+function getMilestoneText(maxStreak: number): string {
+  if (maxStreak < 10) {
+    return `🥈 ${10 - maxStreak} more correct in a row for Silver`;
+  }
+  if (maxStreak < 30) {
+    return `🥇 ${30 - maxStreak} more correct in a row for Gold`;
+  }
+  if (maxStreak < 50) {
+    return `💎 ${50 - maxStreak} more correct in a row for Platinum`;
+  }
+  if (maxStreak < 70) {
+    return `❤️‍🔥 ${70 - maxStreak} more correct in a row for Ruby`;
+  }
+  return "🎉 You've reached the maximum rank!";
 }
 
 type StatCardProps = {
   icon: keyof typeof Ionicons.glyphMap;
   iconColor: string;
+  bgColor: string;
   value: number;
   label: string;
 };
 
-function StatCard({ icon, iconColor, value, label }: StatCardProps) {
+function StatCard({ icon, iconColor, bgColor, value, label }: StatCardProps) {
   return (
     <View
       className="flex-1 min-w-[45%] bg-card rounded-2xl p-4 items-center border-2 border-border"
       style={pillShadow.sm}
     >
       <View
-        className="w-12 h-12 rounded-xl items-center justify-center mb-2"
-        style={[{ backgroundColor: iconColor }, pillShadow.sm]}
+        className="w-12 h-12 rounded-xl items-center justify-center mb-2 border-2"
+        style={[
+          { backgroundColor: bgColor, borderColor: iconColor },
+          pillShadow.sm,
+        ]}
       >
-        <Ionicons name={icon} size={24} color="#fff" />
+        <Ionicons name={icon} size={24} color={iconColor} />
       </View>
-      <Text className="text-foreground text-2xl font-bold">{value}</Text>
+      <Text className="text-foreground text-2xl font-black">{value}</Text>
       <Text className="text-muted-foreground text-[10px] font-bold tracking-wider mt-1">
         {label}
       </Text>

@@ -14,7 +14,6 @@ import StatsGrid from "@/app/components/train/complete/StatsGrid";
 import AlmostThereSection from "@/app/components/train/complete/AlmostThereSection";
 import CompleteActions from "@/app/components/train/complete/CompleteActions";
 
-// Couleurs des modes
 const MODE_COLORS: Record<string, string> = {
   classic: "#5b8af5",
   speedrun: "#e8453c",

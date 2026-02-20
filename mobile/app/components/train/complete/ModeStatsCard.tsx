@@ -26,7 +26,6 @@ type ModeStatsCardProps = {
   modeStats: ModeStats;
 };
 
-// Mapping des couleurs vers le style KotobaCards
 const getKotobaColor = (color: string) => {
   const colorMap: Record<string, { bg: string; icon: string }> = {
     "#3b82f6": { bg: "#1a3a5c", icon: "#5b8af5" },

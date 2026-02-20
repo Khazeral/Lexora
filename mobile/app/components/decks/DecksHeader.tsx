@@ -10,10 +10,9 @@ export default function DecksHeader() {
         {t("decks.title").toUpperCase()}
       </Text>
       <Text className="text-accent text-xs font-bold tracking-[3px] mt-1">
-        MANAGE YOUR DECKS
+        {t("decks.description").toUpperCase()}
       </Text>
 
-      {/* Separator line */}
       <View className="h-[2px] bg-border mt-4" />
     </View>
   );

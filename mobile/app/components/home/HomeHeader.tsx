@@ -3,13 +3,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
 import { useEffect, useRef } from "react";
 
-// Logo 4: Minimaliste moderne avec flèches - rotation + flottant + sparkle animé
 export default function HomeHeader() {
   const floatAnim = useRef(new Animated.Value(0)).current;
   const sparkleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Animation flottante du logo
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatAnim, {
@@ -25,7 +23,6 @@ export default function HomeHeader() {
       ]),
     ).start();
 
-    // Animation du sparkle - pulse seulement
     Animated.loop(
       Animated.sequence([
         Animated.timing(sparkleAnim, {
@@ -44,19 +41,16 @@ export default function HomeHeader() {
 
   return (
     <View className="pt-14 pb-4 items-center">
-      {/* Logo container */}
       <View className="mb-4 relative">
         <Animated.View
           style={{
             transform: [{ translateY: floatAnim }, { rotate: "-6deg" }],
           }}
         >
-          {/* Fond rouge */}
           <View
             className="w-24 h-24 rounded-3xl items-center justify-center overflow-hidden"
             style={[{ backgroundColor: "#e8453c" }, pillShadow.default]}
           >
-            {/* Scanlines */}
             {Array.from({ length: 20 }).map((_, i) => (
               <View
                 key={i}
@@ -65,12 +59,10 @@ export default function HomeHeader() {
               />
             ))}
 
-            {/* Flèche gauche */}
             <View className="absolute left-2 opacity-40">
               <Ionicons name="caret-back" size={16} color="#fff" />
             </View>
 
-            {/* Carte gauche (Question) */}
             <View
               className="absolute w-9 h-12 rounded-lg bg-white items-center justify-center"
               style={{
@@ -88,7 +80,6 @@ export default function HomeHeader() {
               </Text>
             </View>
 
-            {/* Carte droite (Check) */}
             <View
               className="absolute w-9 h-12 rounded-lg bg-white items-center justify-center"
               style={{
@@ -104,13 +95,11 @@ export default function HomeHeader() {
               <Ionicons name="checkmark" size={22} color="#f5c542" />
             </View>
 
-            {/* Flèche droite */}
             <View className="absolute right-2 opacity-40">
               <Ionicons name="caret-forward" size={16} color="#fff" />
             </View>
           </View>
 
-          {/* Sparkle animé */}
           <Animated.View
             className="absolute -top-2 -right-2"
             style={{
@@ -122,7 +111,6 @@ export default function HomeHeader() {
         </Animated.View>
       </View>
 
-      {/* App name */}
       <Text className="text-foreground text-3xl font-black tracking-[6px]">
         LEXORA
       </Text>

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
 import { GameMode } from "@/constants/gameMods";
 
-// Mêmes couleurs que GameModeSelector
 const MODE_BUTTON_COLORS: Record<string, string> = {
   classic: "#5b8af5",
   speedrun: "#e8453c",
@@ -33,7 +32,6 @@ export function StartTrainingButton({
   const { t } = useTranslation();
   const modeTitle = t(mode.title);
 
-  // Utiliser la couleur du mode
   const buttonColor = MODE_BUTTON_COLORS[mode.id] || "#5b8af5";
 
   return (

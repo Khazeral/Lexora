@@ -4,18 +4,16 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from "react-native";
-import { useAuth } from "@/services/auth_context";
 import { useQuery } from "@tanstack/react-query";
 import { getHomeData } from "@/services/decks.api";
 import { useState, useCallback } from "react";
 import HomeHeader from "../components/home/HomeHeader";
 import QuickStats from "../components/home/QuickStats";
 import RecentDecksSection from "../components/home/RecentDecksSection";
+import Scanlines from "../components/Scanlines";
 
 export default function HomeScreen() {
-  const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
 
   const {
     data: homeData,
@@ -42,6 +40,7 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <Scanlines />
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}

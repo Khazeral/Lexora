@@ -14,7 +14,6 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 48;
 const CARD_HEIGHT = CARD_WIDTH * 1.4;
 
-// Couleurs par statut de carte
 const STATUS_COLORS: Record<
   string,
   { bg: [string, string, string]; border: string }
@@ -70,13 +69,11 @@ export default function FlashCard({
   const buttonsAnim = useRef(new Animated.Value(0)).current;
   const colors = STATUS_COLORS[status] || STATUS_COLORS.bronze;
 
-  // Reset animations quand la carte change
   useEffect(() => {
     flipAnim.setValue(0);
     buttonsAnim.setValue(0);
   }, [cardKey]);
 
-  // Animer le flip
   useEffect(() => {
     Animated.timing(flipAnim, {
       toValue: isFlipped ? 180 : 0,
@@ -84,7 +81,6 @@ export default function FlashCard({
       useNativeDriver: true,
     }).start();
 
-    // Animer les boutons après le flip
     if (isFlipped) {
       Animated.timing(buttonsAnim, {
         toValue: 1,

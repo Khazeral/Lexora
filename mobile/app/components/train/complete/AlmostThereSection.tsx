@@ -21,14 +21,13 @@ type AlmostThereSectionProps = {
   cards: CardUpgrade[];
 };
 
-// Mapping des couleurs de niveau vers KotobaCards
 const getLevelColors = (color: string) => {
   const colorMap: Record<string, { bg: string; text: string }> = {
-    "#cd7f32": { bg: "#2a1a0a", text: "#cd7f32" }, // bronze
-    "#d1d5db": { bg: "#27272a", text: "#a1a1aa" }, // silver
-    "#f59e0b": { bg: "#3d2e1a", text: "#fbbf24" }, // gold
-    "#94a3b8": { bg: "#1e293b", text: "#94a3b8" }, // platinum
-    "#dc2626": { bg: "#3d1a1a", text: "#dc2626" }, // ruby
+    "#cd7f32": { bg: "#2a1a0a", text: "#cd7f32" },
+    "#d1d5db": { bg: "#27272a", text: "#a1a1aa" },
+    "#f59e0b": { bg: "#3d2e1a", text: "#fbbf24" },
+    "#94a3b8": { bg: "#1e293b", text: "#94a3b8" },
+    "#dc2626": { bg: "#3d1a1a", text: "#dc2626" },
   };
   return colorMap[color] || { bg: "#2a1a0a", text: "#cd7f32" };
 };
@@ -43,7 +42,6 @@ export default function AlmostThereSection({ cards }: AlmostThereSectionProps) {
       className="mx-6 mt-4 p-4 bg-card rounded-2xl border-2 border-border"
       style={pillShadow.card}
     >
-      {/* Header */}
       <View className="flex-row items-center gap-3 mb-4">
         <View
           className="w-10 h-10 rounded-xl bg-info items-center justify-center"
@@ -56,7 +54,6 @@ export default function AlmostThereSection({ cards }: AlmostThereSectionProps) {
         </Text>
       </View>
 
-      {/* Cards */}
       {cards.map((card, index) => {
         const levelColors = getLevelColors(card.nextLevel.color);
 

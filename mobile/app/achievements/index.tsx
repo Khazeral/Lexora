@@ -166,7 +166,6 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         {achievement.name.toUpperCase()}
       </Text>
 
-      {/* Description */}
       <Text
         style={{
           color: "#6e9e8a",
@@ -180,7 +179,6 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         {achievement.description}
       </Text>
 
-      {/* Progress or Unlocked */}
       {isUnlocked ? (
         <View
           style={{

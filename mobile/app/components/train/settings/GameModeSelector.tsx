@@ -5,7 +5,6 @@ import { GAME_MODES, GameMode } from "@/constants/gameMods";
 import ClassicModeOptions from "./ClassicModeOptions";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
 
-// Mapping des couleurs vers le style KotobaCards
 const MODE_COLORS: Record<
   string,
   { bg: string; icon: string; border: string }

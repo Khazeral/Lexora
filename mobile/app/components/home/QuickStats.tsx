@@ -24,9 +24,7 @@ export default function QuickStats({
 
   return (
     <View className="px-6 mt-4">
-      {/* Pills row */}
       <View className="flex-row justify-center gap-3 flex-wrap">
-        {/* Decks pill - Blue */}
         <View
           className="flex-row items-center px-5 py-3 rounded-full"
           style={[{ backgroundColor: pillColors.blue }, pillShadow.default]}

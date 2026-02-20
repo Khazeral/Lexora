@@ -271,6 +271,7 @@
   },
   "decks": {
     "title": "My Decks",
+    "description": "Manage your decks",
     "empty": {
       "title": "No Decks Yet",
       "subtitle": "Create your first deck to start learning",

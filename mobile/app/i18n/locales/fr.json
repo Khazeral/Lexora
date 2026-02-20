@@ -51,8 +51,6 @@
     "logout": "Se déconnecter"
   },
   "home": {
-    "greeting": "Bonjour,",
-    "wave": "👋",
     "stats": {
       "totalDecks": "Decks totaux",
       "totalCards": "Cartes totales"
@@ -272,6 +270,7 @@
   },
   "decks": {
     "title": "Mes Decks",
+    "description": "Gérez vos decks",
     "empty": {
       "title": "Aucun deck",
       "subtitle": "Créez votre premier deck pour commencer à apprendre",

@@ -59,7 +59,6 @@ export const glowStyles = StyleSheet.create({
   },
 });
 
-// Card container glow (for the KotobaCards style borders)
 export const cardGlow = StyleSheet.create({
   default: {
     shadowColor: "#5b8af5",
@@ -77,7 +76,6 @@ export const cardGlow = StyleSheet.create({
   },
 });
 
-// Balatro-style shadows (black drop shadow)
 export const pillShadow = StyleSheet.create({
   default: {
     shadowColor: "#000",
@@ -102,7 +100,6 @@ export const pillShadow = StyleSheet.create({
   },
 });
 
-// Pill colors (KotobaCards)
 export const pillColors = {
   blue: "#5b8af5",
   yellow: "#f5c542",
@@ -113,7 +110,6 @@ export const pillColors = {
   cyan: "#45c8f0",
 };
 
-// Deck card colors
 export const deckColors = [
   { bg: "#5b8af5", glow: glowStyles.blue },
   { bg: "#b08dff", glow: glowStyles.purple },
@@ -124,7 +120,6 @@ export const deckColors = [
   { bg: "#45c8f0", glow: glowStyles.blue },
 ];
 
-// Category color map
 export const categoryColorMap: Record<string, string> = {
   Salutations: pillColors.blue,
   Nombres: pillColors.purple,

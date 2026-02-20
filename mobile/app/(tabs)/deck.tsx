@@ -76,7 +76,6 @@ export default function DecksScreen() {
         ItemSeparatorComponent={() => <View className="h-5" />}
       />
 
-      {/* FAB Create Button */}
       <TouchableOpacity
         className="absolute right-6 bottom-8 flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
         style={pillShadow.default}

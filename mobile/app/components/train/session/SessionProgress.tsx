@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { GameMode } from "@/constants/gameMods";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
 
-// Couleurs des modes
 const MODE_COLORS: Record<string, { icon: string; bg: string }> = {
   classic: { icon: "#5b8af5", bg: "#1a3a5c" },
   speedrun: { icon: "#e8453c", bg: "#3d1a1a" },

@@ -9,7 +9,6 @@ export default function EmptyTrainDecks() {
 
   return (
     <View className="flex-1 items-center justify-center pt-12 px-8">
-      {/* Icon Circle */}
       <View
         className="w-28 h-28 rounded-3xl bg-card border-2 border-border items-center justify-center mb-6"
         style={pillShadow.card}
@@ -22,17 +21,14 @@ export default function EmptyTrainDecks() {
         </View>
       </View>
 
-      {/* Title */}
       <Text className="text-foreground text-xl font-bold tracking-wider text-center mb-2">
         {t("train.empty.title").toUpperCase()}
       </Text>
 
-      {/* Subtitle */}
       <Text className="text-muted-foreground text-sm text-center leading-5 mb-8">
         {t("train.empty.subtitle")}
       </Text>
 
-      {/* Button */}
       <TouchableOpacity
         className="flex-row items-center gap-3 px-6 py-4 rounded-2xl"
         style={[pillShadow.default, { backgroundColor: pillColors.blue }]}

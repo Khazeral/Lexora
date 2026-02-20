@@ -29,7 +29,6 @@ export default class ProgressController {
 
     let unlockedAchievements: any[] = []
 
-    // 1. Achievement: Première fois qu'une carte atteint ce statut (collection)
     if (firstTimeStatus) {
       const unlocked = await this.achievementService.processEvent({
         type: 'card_status_changed',
@@ -39,7 +38,6 @@ export default class ProgressController {
       unlockedAchievements.push(...unlocked)
     }
 
-    // 2. Achievement: Total de bonnes réponses
     if (success) {
       const unlocked = await this.achievementService.processEvent({
         type: 'total_correct',
@@ -49,7 +47,6 @@ export default class ProgressController {
       unlockedAchievements.push(...unlocked)
     }
 
-    // 3. Achievement: Streak globale atteinte
     if (success && globalStreak > 0) {
       const unlocked = await this.achievementService.processEvent({
         type: 'streak_reached',
@@ -59,7 +56,6 @@ export default class ProgressController {
       unlockedAchievements.push(...unlocked)
     }
 
-    // Charger les détails des achievements débloqués
     const unlockedDetails = await Promise.all(
       unlockedAchievements.map(async (ua) => {
         await ua.load('achievement')
@@ -74,7 +70,6 @@ export default class ProgressController {
       })
     )
 
-    // Supprimer les doublons
     const uniqueAchievements = unlockedDetails.filter(
       (achievement, index, self) => index === self.findIndex((a) => a.id === achievement.id)
     )

@@ -6,7 +6,6 @@ export default class CardSeeder extends BaseSeeder {
   async run() {
     const animaux = await Deck.findByOrFail('name', 'Animaux')
 
-    // 9 cartes pour devenir Silver (successCount >= 10)
     await Card.createMany([
       { word: 'dog', translation: 'chien', deckId: animaux.id },
       { word: 'cat', translation: 'chat', deckId: animaux.id },
@@ -19,7 +18,6 @@ export default class CardSeeder extends BaseSeeder {
       { word: 'chicken', translation: 'poulet', deckId: animaux.id },
     ])
 
-    // 9 cartes pour rester Bronze (successCount < 10)
     await Card.createMany([
       { word: 'lion', translation: 'lion', deckId: animaux.id },
       { word: 'tiger', translation: 'tigre', deckId: animaux.id },

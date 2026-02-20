@@ -184,7 +184,6 @@ function ShinyCard({
           cardAnimatedStyle,
         ]}
       >
-        {/* Base gradient background */}
         <LinearGradient
           colors={config.baseColors}
           start={{ x: 0, y: 0 }}
@@ -192,13 +191,11 @@ function ShinyCard({
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
         />
 
-        {/* Border */}
         <View
           className="absolute inset-0 rounded-3xl border-4"
           style={{ borderColor: config.glowColor }}
         />
 
-        {/* Inner glow */}
         <View
           className="absolute rounded-2xl border-2 opacity-30"
           style={{
@@ -210,7 +207,6 @@ function ShinyCard({
           }}
         />
 
-        {/* Corner gems */}
         {[
           { top: 10, left: 10 },
           { top: 10, right: 10 },
@@ -244,7 +240,6 @@ function ShinyCard({
           </View>
         ))}
 
-        {/* Holo Effect */}
         <Animated.View
           style={[
             {
@@ -280,7 +275,6 @@ function ShinyCard({
           />
         </Animated.View>
 
-        {/* Shine Band */}
         <View
           style={{
             position: "absolute",
@@ -325,7 +319,6 @@ function ShinyCard({
           </Animated.View>
         </View>
 
-        {/* Content */}
         <View className="flex-1 z-[25] justify-center p-6">{children}</View>
       </Animated.View>
     </GestureDetector>
@@ -441,13 +434,11 @@ export default function CardDetailScreen() {
             </View>
           </View>
 
-          {/* Stats Section */}
           <View className="px-6 mt-8">
             <Text className="text-muted-foreground text-xs font-bold tracking-[3px] mb-4">
               STATISTICS
             </Text>
 
-            {/* Stats Grid */}
             <View className="flex-row flex-wrap gap-3 mb-6">
               <StatCard
                 icon="checkmark-circle"

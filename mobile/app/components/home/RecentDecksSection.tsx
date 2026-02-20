@@ -62,18 +62,9 @@ function DeckCard({ deck, index }: DeckCardProps) {
           {deck.name}
         </Text>
         <Text className="text-muted-foreground text-sm mt-0.5">
-          {deck.cardCount > 1
-            ? t("decks.card.cards_plural", { count: deck.cardCount })
-            : t("decks.card.cards", { count: deck.cardCount })}
-        </Text>
-      </View>
-
-      <View
-        className="rounded-full px-4 py-2"
-        style={{ backgroundColor: "#0a1f18" }}
-      >
-        <Text className="text-muted-foreground text-base font-bold">
-          {deck.cardCount}
+          {deck.cardCount === 1
+            ? t("decks.card.cards", { count: deck.cardCount })
+            : t("decks.card.cards_plural", { count: deck.cardCount })}
         </Text>
       </View>
     </TouchableOpacity>

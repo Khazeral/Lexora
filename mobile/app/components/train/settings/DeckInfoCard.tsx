@@ -25,7 +25,6 @@ export default function DeckInfoCard({ deck }: DeckInfoCardProps) {
       className="bg-card mx-6 my-4 p-4 rounded-2xl flex-row items-center gap-4 border-2 border-border"
       style={pillShadow.card}
     >
-      {/* Icon */}
       <View
         className="w-16 h-16 rounded-xl bg-info items-center justify-center"
         style={pillShadow.sm}
@@ -33,7 +32,6 @@ export default function DeckInfoCard({ deck }: DeckInfoCardProps) {
         <Ionicons name="albums" size={32} color="#fff" />
       </View>
 
-      {/* Content */}
       <View className="flex-1">
         <Text
           className="text-foreground text-lg font-bold tracking-wider"

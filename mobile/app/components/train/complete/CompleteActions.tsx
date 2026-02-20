@@ -13,7 +13,6 @@ export default function CompleteActions({ deckId }: CompleteActionsProps) {
 
   return (
     <View className="flex-row gap-3 p-6 bg-secondary border-t-2 border-border">
-      {/* Home Button */}
       <TouchableOpacity
         className="flex-1 flex-row items-center justify-center gap-3 py-4 rounded-2xl bg-card border-2 border-border"
         style={pillShadow.sm}
@@ -26,7 +25,6 @@ export default function CompleteActions({ deckId }: CompleteActionsProps) {
         </Text>
       </TouchableOpacity>
 
-      {/* Train Again Button */}
       <TouchableOpacity
         className="flex-1 flex-row items-center justify-center gap-3 py-4 rounded-2xl"
         style={[{ backgroundColor: "#44d9a0" }, pillShadow.default]}

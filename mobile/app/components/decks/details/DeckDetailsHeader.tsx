@@ -23,7 +23,6 @@ export default function DeckDetailHeader({
 
   return (
     <View className="flex-row items-center justify-between px-6 py-4 bg-background border-b-2 border-border">
-      {/* Back Button */}
       <TouchableOpacity
         onPress={onBack}
         className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
@@ -34,7 +33,6 @@ export default function DeckDetailHeader({
         <Ionicons name="arrow-back" size={22} color="#e8edf5" />
       </TouchableOpacity>
 
-      {/* Header Info */}
       <View className="flex-1 items-center px-4">
         <Text
           className="text-foreground text-lg font-bold tracking-wider"
@@ -47,7 +45,6 @@ export default function DeckDetailHeader({
         </Text>
       </View>
 
-      {/* Placeholder for alignment */}
       <View className="w-12" />
     </View>
   );

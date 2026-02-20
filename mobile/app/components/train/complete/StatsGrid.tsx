@@ -57,7 +57,6 @@ export default function StatsGrid({
           className="flex-1 min-w-[45%] bg-card p-4 rounded-2xl items-center border-2 border-border"
           style={pillShadow.sm}
         >
-          {/* Icon */}
           <View
             className="w-14 h-14 rounded-xl items-center justify-center mb-3"
             style={[{ backgroundColor: stat.bgColor }, pillShadow.sm]}
@@ -69,12 +68,10 @@ export default function StatsGrid({
             />
           </View>
 
-          {/* Value */}
           <Text className="text-foreground text-2xl font-black mb-1">
             {stat.value}
           </Text>
 
-          {/* Label */}
           <Text className="text-muted-foreground text-[10px] font-bold tracking-wider text-center">
             {stat.label.toUpperCase()}
           </Text>

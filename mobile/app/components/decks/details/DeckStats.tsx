@@ -34,7 +34,6 @@ export default function DeckStats({ cards }: DeckStatsProps) {
 
   return (
     <View className="flex-row px-6 py-4 gap-3">
-      {/* Mastery Stat */}
       <View
         className="flex-1 bg-card rounded-2xl p-4 items-center border-2 border-border"
         style={pillShadow.sm}
@@ -53,7 +52,6 @@ export default function DeckStats({ cards }: DeckStatsProps) {
         </Text>
       </View>
 
-      {/* To Review Stat */}
       <View
         className="flex-1 bg-card rounded-2xl p-4 items-center border-2 border-border"
         style={pillShadow.sm}

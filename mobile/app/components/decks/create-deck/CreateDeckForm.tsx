@@ -17,7 +17,6 @@ export default function CreateDeckForm({
 
   return (
     <View className="gap-6">
-      {/* Illustration */}
       <View className="items-center py-6">
         <View
           className="w-20 h-20 rounded-2xl bg-info items-center justify-center mb-4"
@@ -30,7 +29,6 @@ export default function CreateDeckForm({
         </Text>
       </View>
 
-      {/* Name Input */}
       <View className="gap-2">
         <Text className="text-foreground text-sm font-bold tracking-wider">
           {t("decks.createDeck.form.nameLabel").toUpperCase()}
@@ -72,7 +70,6 @@ export default function CreateDeckForm({
         )}
       </View>
 
-      {/* Description Input */}
       <View className="gap-2">
         <Text className="text-foreground text-sm font-bold tracking-wider">
           {t("decks.createDeck.form.descriptionLabel").toUpperCase()}

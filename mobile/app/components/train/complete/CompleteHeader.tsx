@@ -21,7 +21,6 @@ export default function CompleteHeader({
   return (
     <SafeAreaView edges={["top"]} className="bg-background">
       <View className="items-center py-8 px-6 border-b-2 border-border">
-        {/* Icon Container */}
         <View
           className="w-28 h-28 rounded-3xl items-center justify-center mb-4"
           style={[
@@ -37,7 +36,6 @@ export default function CompleteHeader({
           <Ionicons name={icon as any} size={56} color="#fff" />
         </View>
 
-        {/* Record Badge */}
         {isRecord && (
           <View
             className="flex-row items-center gap-2 px-4 py-2 rounded-full mb-3"
@@ -50,12 +48,10 @@ export default function CompleteHeader({
           </View>
         )}
 
-        {/* Title */}
         <Text className="text-foreground text-2xl font-black tracking-wider text-center mb-2">
           {title.toUpperCase()}
         </Text>
 
-        {/* Deck Name */}
         {deckName && (
           <Text className="text-muted-foreground text-base text-center">
             {deckName}

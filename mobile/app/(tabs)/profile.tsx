@@ -26,7 +26,6 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      {/* Header */}
       <View className="px-6 py-4 border-b-2 border-border">
         <Text className="text-foreground text-3xl font-bold tracking-wider">
           {t("profile.title").toUpperCase()}
@@ -38,12 +37,10 @@ export default function ProfileScreen() {
         contentContainerClassName="p-6"
         showsVerticalScrollIndicator={false}
       >
-        {/* User Card */}
         <View
           className="bg-card rounded-2xl p-6 border-2 border-border items-center mb-6"
           style={pillShadow.card}
         >
-          {/* Avatar */}
           <View
             className="w-24 h-24 rounded-2xl bg-info items-center justify-center mb-4"
             style={pillShadow.default}
@@ -57,7 +54,6 @@ export default function ProfileScreen() {
           <Text className="text-muted-foreground text-sm">{user?.email}</Text>
         </View>
 
-        {/* Achievements Card */}
         <TouchableOpacity
           className="bg-card rounded-2xl p-4 border-2 border-accent mb-4 flex-row items-center justify-between"
           style={pillShadow.card}
@@ -96,7 +92,6 @@ export default function ProfileScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Language Card */}
         <TouchableOpacity
           className="bg-card rounded-2xl p-4 border-2 border-border mb-4 flex-row items-center justify-between"
           style={pillShadow.card}
@@ -120,7 +115,6 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* Language Switch */}
           <View className="flex-row bg-secondary rounded-xl p-1">
             <View
               className={`px-4 py-2 rounded-lg ${i18n.language === "fr" ? "bg-info" : ""}`}
@@ -145,7 +139,6 @@ export default function ProfileScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Settings Card */}
         <TouchableOpacity
           className="bg-card rounded-2xl p-4 border-2 border-border mb-4 flex-row items-center justify-between"
           style={pillShadow.card}
@@ -172,7 +165,6 @@ export default function ProfileScreen() {
           <Ionicons name="chevron-forward" size={24} color="#6e9e8a" />
         </TouchableOpacity>
 
-        {/* Help Card */}
         <TouchableOpacity
           className="bg-card rounded-2xl p-4 border-2 border-border mb-6 flex-row items-center justify-between"
           style={pillShadow.card}
@@ -199,7 +191,6 @@ export default function ProfileScreen() {
           <Ionicons name="chevron-forward" size={24} color="#6e9e8a" />
         </TouchableOpacity>
 
-        {/* Logout Button */}
         <TouchableOpacity
           className="rounded-2xl p-4 flex-row items-center justify-center gap-3"
           style={[pillShadow.default, { backgroundColor: pillColors.red }]}
@@ -212,7 +203,6 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Version */}
         <Text className="text-muted-foreground text-xs text-center mt-6 tracking-wider">
           LEXORA v1.0.0
         </Text>

@@ -14,7 +14,6 @@ export default function TrainSettingsHeader({
 
   return (
     <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
-      {/* Close Button */}
       <TouchableOpacity
         onPress={onBack}
         className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
@@ -25,12 +24,10 @@ export default function TrainSettingsHeader({
         <Ionicons name="close" size={24} color="#e8edf5" />
       </TouchableOpacity>
 
-      {/* Title */}
       <Text className="text-foreground text-lg font-bold tracking-wider">
         {t("train.trainSettings.title").toUpperCase()}
       </Text>
 
-      {/* Placeholder */}
       <View className="w-12" />
     </View>
   );

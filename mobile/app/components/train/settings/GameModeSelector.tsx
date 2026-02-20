@@ -37,7 +37,6 @@ export default function GameModeSelector({
 
   return (
     <View className="px-6 mb-4">
-      {/* Section Title */}
       <Text className="text-foreground text-lg font-bold tracking-wider mb-1">
         {t("train.trainSettings.gameMode.title").toUpperCase()}
       </Text>
@@ -45,7 +44,6 @@ export default function GameModeSelector({
         {t("train.trainSettings.gameMode.subtitle")}
       </Text>
 
-      {/* Mode Cards */}
       {GAME_MODES.map((mode) => {
         const isSelected = selectedMode === mode.id;
         const colors = MODE_COLORS[mode.id] || {
@@ -70,7 +68,6 @@ export default function GameModeSelector({
               onPress={() => onSelectMode(mode.id)}
               activeOpacity={0.7}
             >
-              {/* Mode Icon - toujours avec sa propre couleur */}
               <View
                 className="w-14 h-14 rounded-xl items-center justify-center mr-4"
                 style={{ backgroundColor: colors.bg }}
@@ -82,14 +79,12 @@ export default function GameModeSelector({
                 />
               </View>
 
-              {/* Mode Content */}
               <View className="flex-1">
                 <View className="flex-row items-center justify-between mb-1">
                   <Text className="text-foreground text-base font-bold tracking-wide flex-1">
                     {t(mode.title).toUpperCase()}
                   </Text>
 
-                  {/* Difficulty Badge - avec la couleur du mode */}
                   <View
                     className="px-3 py-1 rounded-lg ml-2"
                     style={{ backgroundColor: colors.bg }}
@@ -108,7 +103,6 @@ export default function GameModeSelector({
                 </Text>
               </View>
 
-              {/* Checkmark - avec la couleur du mode */}
               {isSelected && (
                 <View className="ml-3">
                   <Ionicons
@@ -120,7 +114,6 @@ export default function GameModeSelector({
               )}
             </TouchableOpacity>
 
-            {/* Classic Mode Options */}
             {isClassicSelected && (
               <ClassicModeOptions
                 shuffleCards={shuffleCards}

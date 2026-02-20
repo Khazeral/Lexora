@@ -20,7 +20,6 @@ export default function SessionHeader({
   return (
     <SafeAreaView edges={["top"]} className="bg-background">
       <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
-        {/* Close Button */}
         <TouchableOpacity
           onPress={onClose}
           className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
@@ -30,7 +29,6 @@ export default function SessionHeader({
           <Ionicons name="close" size={24} color="#e8edf5" />
         </TouchableOpacity>
 
-        {/* Center */}
         <View className="flex-1 items-center gap-1 mx-4">
           <Text
             className="text-foreground text-base font-bold tracking-wider"
@@ -48,7 +46,6 @@ export default function SessionHeader({
           )}
         </View>
 
-        {/* Placeholder */}
         <View className="w-12" />
       </View>
     </SafeAreaView>

@@ -35,7 +35,6 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
 
     return (
       <View className="gap-5">
-        {/* Instructions */}
         <View
           className="flex-row items-center gap-3 p-4 bg-card rounded-2xl border-2 border-info"
           style={pillShadow.sm}
@@ -51,7 +50,6 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
           </Text>
         </View>
 
-        {/* Card Container */}
         <View className="items-center my-2">
           <Pressable
             onPress={handleFlip}
@@ -69,7 +67,6 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
               pillShadow.card,
             ]}
           >
-            {/* Badge */}
             <View
               className="absolute top-5 right-5 flex-row items-center gap-1.5 px-4 py-2 rounded-full"
               style={[
@@ -92,9 +89,7 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
               </Text>
             </View>
 
-            {/* Card Content */}
             <View className="flex-1 justify-center relative">
-              {/* Front Face */}
               <View
                 className="gap-5 items-center absolute w-full top-0 bottom-0 justify-center"
                 style={flipped ? { opacity: 0, zIndex: -1 } : {}}
@@ -175,7 +170,6 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
                 )}
               </View>
 
-              {/* Back Face */}
               <View
                 className="gap-5 items-center absolute w-full top-0 bottom-0 justify-center"
                 style={!flipped ? { opacity: 0, zIndex: -1 } : {}}
@@ -262,7 +256,6 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
               </View>
             </View>
 
-            {/* Flip Button */}
             <View className="mt-4">
               <Pressable
                 className="flex-row items-center justify-center gap-2 py-3 px-5 rounded-full"
@@ -295,7 +288,6 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
             </View>
           </Pressable>
 
-          {/* Card Shadow */}
           <View
             className="absolute -bottom-2 rounded-full opacity-30"
             style={{

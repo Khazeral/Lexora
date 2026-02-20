@@ -18,7 +18,6 @@ export default function AddCardActions({
 
   return (
     <View className="gap-3 p-6 bg-secondary border-t-2 border-border">
-      {/* Primary Action - Add & Finish (full width) */}
       <TouchableOpacity
         className="flex-row items-center justify-center gap-3 py-5 rounded-2xl"
         style={[pillShadow.default, { backgroundColor: pillColors.green }]}
@@ -41,7 +40,6 @@ export default function AddCardActions({
         )}
       </TouchableOpacity>
 
-      {/* Secondary Action - Add Another (full width, outlined) */}
       <TouchableOpacity
         className="flex-row items-center justify-center gap-3 py-4 rounded-2xl bg-card border-2 border-info"
         style={pillShadow.sm}

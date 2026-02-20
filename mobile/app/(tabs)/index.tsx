@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getHomeData } from "@/services/decks.api";
 import { useState, useCallback } from "react";
 import HomeHeader from "../components/home/HomeHeader";
-import QuickStats from "../components/home/QuickStats";
 import RecentDecksSection from "../components/home/RecentDecksSection";
 import Scanlines from "../components/Scanlines";
 
@@ -54,11 +53,6 @@ export default function HomeScreen() {
       >
         <HomeHeader />
 
-        <QuickStats
-          totalDecks={homeData?.totalDecks || 0}
-          totalCards={homeData?.totalCards || 0}
-          isLoading={isLoading}
-        />
         <RecentDecksSection decks={homeData?.recentDecks || []} />
 
         <View className="h-32" />

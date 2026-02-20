@@ -30,12 +30,10 @@ export default function PerformanceCard({ successRate }: PerformanceCardProps) {
       className="mx-6 mb-4 p-6 bg-card rounded-2xl border-2 border-border"
       style={pillShadow.card}
     >
-      {/* Message */}
       <Text className="text-foreground text-xl font-bold text-center mb-4 tracking-wider">
         {getMessage().toUpperCase()}
       </Text>
 
-      {/* Rate */}
       <View className="items-center mb-4">
         <Text className="text-muted-foreground text-xs font-bold tracking-widest mb-2">
           {t("trainComplete.performance.successRate").toUpperCase()}
@@ -53,7 +51,6 @@ export default function PerformanceCard({ successRate }: PerformanceCardProps) {
         </Text>
       </View>
 
-      {/* Progress Bar */}
       <View className="h-4 bg-badge-dark rounded-full overflow-hidden border border-border">
         <View
           className="h-full rounded-full"

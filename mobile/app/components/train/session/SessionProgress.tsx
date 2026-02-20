@@ -37,9 +37,7 @@ export default function SessionProgress({
 
   return (
     <View className="px-6 py-4 bg-secondary border-b-2 border-border">
-      {/* Header Row */}
       <View className="flex-row items-center justify-between mb-3">
-        {/* Progress Text */}
         <Text className="text-foreground text-base font-bold">
           {currentIndex + 1}
           <Text className="text-muted-foreground font-normal">
@@ -48,7 +46,6 @@ export default function SessionProgress({
           </Text>
         </Text>
 
-        {/* Mode Indicator */}
         {gameMode === "speedrun" && (
           <View
             className="flex-row items-center gap-2 px-4 py-2 rounded-xl border-2"
@@ -148,7 +145,6 @@ export default function SessionProgress({
         )}
       </View>
 
-      {/* Progress Bar */}
       <View className="h-3 bg-badge-dark rounded-full overflow-hidden border border-border">
         <View
           className="h-full rounded-full"

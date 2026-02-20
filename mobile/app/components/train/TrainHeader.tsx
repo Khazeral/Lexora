@@ -9,7 +9,6 @@ export default function TrainHeader() {
   return (
     <View className="border-b-2 border-border px-6 py-5">
       <View className="flex-row items-center gap-4">
-        {/* Icon */}
         <View
           className="w-16 h-16 rounded-2xl bg-accent items-center justify-center"
           style={pillShadow.default}
@@ -17,7 +16,6 @@ export default function TrainHeader() {
           <Ionicons name="school" size={32} color="#0b3d2e" />
         </View>
 
-        {/* Text */}
         <View className="flex-1">
           <Text className="text-foreground text-2xl font-bold tracking-wider">
             {t("train.title").toUpperCase()}

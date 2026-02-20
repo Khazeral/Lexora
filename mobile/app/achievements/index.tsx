@@ -82,7 +82,6 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         pillShadow.sm,
       ]}
     >
-      {/* Badge en haut */}
       <View
         style={{
           position: "absolute",
@@ -114,7 +113,6 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         </View>
       </View>
 
-      {/* Icon */}
       <View style={{ alignItems: "center", marginTop: 12, marginBottom: 12 }}>
         {isUnlocked ? (
           <View
@@ -151,7 +149,6 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         )}
       </View>
 
-      {/* Name */}
       <Text
         style={{
           color: isUnlocked ? "#e8edf5" : "#6e9e8a",
@@ -260,7 +257,6 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
         pillShadow.card,
       ]}
     >
-      {/* Main Stats */}
       <View
         style={{
           flexDirection: "row",
@@ -294,7 +290,6 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
         </View>
       </View>
 
-      {/* Progress Bar */}
       <View
         style={{
           height: 12,
@@ -316,7 +311,6 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
         />
       </View>
 
-      {/* Rarity Stats */}
       <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
           <Ionicons name="diamond" size={18} color="#fbbf24" />
@@ -469,7 +463,6 @@ export default function AchievementsScreen() {
       style={{ flex: 1, backgroundColor: "#25603e" }}
       edges={["top"]}
     >
-      {/* Header */}
       <View
         style={{
           flexDirection: "row",

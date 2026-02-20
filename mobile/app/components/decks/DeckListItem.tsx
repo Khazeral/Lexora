@@ -24,7 +24,7 @@ export default function DeckListItem({ deck, index }: DeckListItemProps) {
     >
       <View
         className="w-14 h-14 rounded-xl items-center justify-center"
-        style={[{ backgroundColor: colorConfig.bg }, pillShadow.sm]}
+        style={[{ backgroundColor: colorConfig.bg }]}
       >
         <Ionicons name="albums" size={26} color="#fff" />
       </View>
@@ -37,15 +37,6 @@ export default function DeckListItem({ deck, index }: DeckListItemProps) {
           {deck.cardCount > 1
             ? t("decks.card.cards_plural", { count: deck.cardCount })
             : t("decks.card.cards", { count: deck.cardCount })}
-        </Text>
-      </View>
-
-      <View
-        className="rounded-full px-4 py-2"
-        style={{ backgroundColor: "#0a1f18" }}
-      >
-        <Text className="text-muted-foreground text-base font-bold">
-          {cardCount}
         </Text>
       </View>
     </TouchableOpacity>

@@ -40,7 +40,6 @@ export default function CardItem({ card, onPress }: CardItemProps) {
       onPress={onPress}
       activeOpacity={0.7}
     >
-      {/* Badge carré à gauche */}
       <View
         className="w-12 h-12 rounded-xl items-center justify-center mr-4"
         style={[{ backgroundColor: colors.bg }, pillShadow.sm]}

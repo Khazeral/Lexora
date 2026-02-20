@@ -47,7 +47,6 @@ export default function ModeStatsCard({ modeStats }: ModeStatsCardProps) {
       className="mx-6 my-4 p-6 bg-card rounded-2xl border-2 border-border"
       style={pillShadow.card}
     >
-      {/* Header */}
       <View className="flex-row items-center gap-4 mb-6">
         <View
           className="w-16 h-16 rounded-xl items-center justify-center"
@@ -69,7 +68,6 @@ export default function ModeStatsCard({ modeStats }: ModeStatsCardProps) {
         </View>
       </View>
 
-      {/* Main Value */}
       <View className="items-center mb-6">
         <Text
           className="text-5xl font-black mb-1"
@@ -87,7 +85,6 @@ export default function ModeStatsCard({ modeStats }: ModeStatsCardProps) {
         </Text>
       </View>
 
-      {/* Comparison */}
       {modeStats.comparison && (
         <View className="border-t-2 border-border pt-4">
           <View className="flex-row items-center justify-between">
@@ -132,7 +129,6 @@ export default function ModeStatsCard({ modeStats }: ModeStatsCardProps) {
         </View>
       )}
 
-      {/* Additional Stats */}
       {modeStats.stats && modeStats.stats.length > 0 && (
         <View className="flex-row gap-3 border-t-2 border-border pt-4 mt-4">
           {modeStats.stats.map((stat, index) => (

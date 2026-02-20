@@ -64,7 +64,6 @@ export default function AlmostThereSection({ cards }: AlmostThereSectionProps) {
             onPress={() => router.push(`/card/${card.id}`)}
             activeOpacity={0.7}
           >
-            {/* Card Header */}
             <View className="flex-row justify-between items-center mb-3">
               <View className="flex-1 mr-3">
                 <Text
@@ -81,7 +80,6 @@ export default function AlmostThereSection({ cards }: AlmostThereSectionProps) {
                 </Text>
               </View>
 
-              {/* Remaining Badge */}
               <View
                 className="flex-row items-center gap-2 px-3 py-1.5 rounded-lg"
                 style={{ backgroundColor: levelColors.bg }}
@@ -100,7 +98,6 @@ export default function AlmostThereSection({ cards }: AlmostThereSectionProps) {
               </View>
             </View>
 
-            {/* Progress */}
             <View className="flex-row items-center gap-3">
               <View className="flex-1 h-2 bg-badge-dark rounded-full overflow-hidden border border-border">
                 <View

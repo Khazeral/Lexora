@@ -30,7 +30,6 @@ export default function TrainDeckCard({ deck }: TrainDeckCardProps) {
       onPress={() => router.push(`/train/${deck.id}/settings`)}
       activeOpacity={0.7}
     >
-      {/* Icon */}
       <View
         className={`w-14 h-14 rounded-xl items-center justify-center mr-4 ${
           hasCards ? "bg-info" : "bg-muted"
@@ -44,7 +43,6 @@ export default function TrainDeckCard({ deck }: TrainDeckCardProps) {
         />
       </View>
 
-      {/* Content */}
       <View className="flex-1 gap-1">
         <Text
           className={`text-base font-bold tracking-wider ${
@@ -67,7 +65,6 @@ export default function TrainDeckCard({ deck }: TrainDeckCardProps) {
         </View>
       </View>
 
-      {/* Arrow */}
       {hasCards && (
         <View
           className="w-10 h-10 rounded-xl bg-success items-center justify-center"

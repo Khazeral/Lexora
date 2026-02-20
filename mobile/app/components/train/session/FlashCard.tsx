@@ -115,13 +115,11 @@ export default function FlashCard({
 
   return (
     <View className="items-center">
-      {/* Card */}
       <TouchableOpacity
         activeOpacity={0.95}
         onPress={onFlip}
         style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
       >
-        {/* Front Face */}
         <Animated.View
           style={[
             {
@@ -141,13 +139,11 @@ export default function FlashCard({
             colors={colors.bg}
             style={{ flex: 1, padding: 32, justifyContent: "center" }}
           >
-            {/* Border */}
             <View
               className="absolute top-0 left-0 right-0 bottom-0 rounded-3xl border-2"
               style={{ borderColor: colors.border }}
             />
 
-            {/* Status Badge */}
             <View
               className="absolute top-4 self-center px-4 py-1.5 rounded-full"
               style={{ backgroundColor: colors.border }}
@@ -157,7 +153,6 @@ export default function FlashCard({
               </Text>
             </View>
 
-            {/* Content */}
             <View className="items-center">
               <Text
                 className="text-[10px] font-bold tracking-widest mb-4 opacity-60"
@@ -177,7 +172,6 @@ export default function FlashCard({
               </Text>
             </View>
 
-            {/* Tap Hint */}
             <View className="absolute bottom-6 self-center flex-row items-center gap-2 opacity-50">
               <Ionicons name="hand-left" size={18} color="#fff" />
               <Text className="text-white text-xs">Tap to reveal</Text>
@@ -185,7 +179,6 @@ export default function FlashCard({
           </LinearGradient>
         </Animated.View>
 
-        {/* Back Face */}
         <Animated.View
           style={[
             {
@@ -205,13 +198,11 @@ export default function FlashCard({
             colors={colors.bg}
             style={{ flex: 1, padding: 32, justifyContent: "center" }}
           >
-            {/* Border */}
             <View
               className="absolute top-0 left-0 right-0 bottom-0 rounded-3xl border-2"
               style={{ borderColor: colors.border }}
             />
 
-            {/* Content */}
             <View className="items-center">
               <Text
                 className="text-[10px] font-bold tracking-widest mb-4 opacity-60"
@@ -234,7 +225,6 @@ export default function FlashCard({
         </Animated.View>
       </TouchableOpacity>
 
-      {/* Answer Buttons */}
       <Animated.View
         className="flex-row gap-4 mt-6"
         style={{
@@ -243,7 +233,6 @@ export default function FlashCard({
         }}
         pointerEvents={isFlipped ? "auto" : "none"}
       >
-        {/* Miss Button */}
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center gap-3 py-5 rounded-2xl border-2"
           style={[
@@ -259,7 +248,6 @@ export default function FlashCard({
           </Text>
         </TouchableOpacity>
 
-        {/* Hit Button */}
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center gap-3 py-5 rounded-2xl border-2"
           style={[

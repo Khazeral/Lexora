@@ -21,7 +21,7 @@ export default function CompleteActions({ deckId }: CompleteActionsProps) {
       >
         <Ionicons name="home" size={20} color="#6e9e8a" />
         <Text className="text-muted-foreground text-sm font-bold tracking-wider">
-          HOME
+          {t("trainComplete.actions.quit").toUpperCase()}
         </Text>
       </TouchableOpacity>
 

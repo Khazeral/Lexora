@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { getUnseenCount } from "@/services/achievements.api";
 import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
+import Scanlines from "../components/Scanlines";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -25,6 +26,7 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <Scanlines />
       <View className="px-6 pt-16 pb-4">
         <Text className="text-foreground text-3xl font-black tracking-[4px]">
           {t("profile.title").toUpperCase()}
@@ -36,7 +38,7 @@ export default function ProfileScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerClassName="p-6"
+        contentContainerClassName="p-6 pb-4"
         showsVerticalScrollIndicator={false}
       >
         <View className="bg-card rounded-2xl p-6 border-2 border-border items-center mb-6">
@@ -127,59 +129,9 @@ export default function ProfileScreen() {
             </View>
           </View>
         </TouchableOpacity>
+      </ScrollView>
 
-        <TouchableOpacity
-          className="bg-card rounded-2xl p-4 border-2 border-border mb-4 flex-row items-center justify-between"
-          style={pillShadow.card}
-          onPress={() => {}}
-          activeOpacity={0.7}
-        >
-          <View className="flex-row items-center gap-4">
-            <View
-              className="w-14 h-14 rounded-xl items-center justify-center"
-              style={[{ backgroundColor: "#6e9e8a" }]}
-            >
-              <Ionicons name="settings" size={28} color="#fff" />
-            </View>
-            <View>
-              <Text className="text-foreground text-lg font-bold tracking-wider">
-                SETTINGS
-              </Text>
-              <Text className="text-muted-foreground text-sm">
-                App preferences
-              </Text>
-            </View>
-          </View>
-
-          <Ionicons name="chevron-forward" size={24} color="#6e9e8a" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="bg-card rounded-2xl p-4 border-2 border-border mb-6 flex-row items-center justify-between"
-          style={pillShadow.card}
-          onPress={() => {}}
-          activeOpacity={0.7}
-        >
-          <View className="flex-row items-center gap-4">
-            <View
-              className="w-14 h-14 rounded-xl items-center justify-center"
-              style={[{ backgroundColor: "#8b5cf6" }]}
-            >
-              <Ionicons name="help-circle" size={28} color="#fff" />
-            </View>
-            <View>
-              <Text className="text-foreground text-lg font-bold tracking-wider">
-                HELP
-              </Text>
-              <Text className="text-muted-foreground text-sm">
-                FAQ & Support
-              </Text>
-            </View>
-          </View>
-
-          <Ionicons name="chevron-forward" size={24} color="#6e9e8a" />
-        </TouchableOpacity>
-
+      <View className="px-6 pb-28 pt-4">
         <TouchableOpacity
           className="rounded-2xl p-4 flex-row items-center justify-center gap-3"
           style={[pillShadow.default, { backgroundColor: pillColors.red }]}
@@ -192,10 +144,10 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
 
-        <Text className="text-muted-foreground text-xs text-center mt-6 tracking-wider">
+        <Text className="text-muted-foreground text-xs text-center mt-4 tracking-wider">
           LEXORA v1.0.0
         </Text>
-      </ScrollView>
+      </View>
     </View>
   );
 }

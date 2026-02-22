@@ -13,12 +13,10 @@ import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createCard, CreateCardResponse } from "@/services/cards.api";
 import AddCardHeader from "@/app/components/cards/add-card/AddCardHeader";
-import AddCardTips from "@/app/components/cards/add-card/AddCardTips";
 import InteractiveCard, {
   InteractiveCardRef,
 } from "@/app/components/cards/add-card/InteractiveCard";
 import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
-import AchievementUnlockedModal from "@/app/components/AchievementUnlockModal";
 import Scanlines from "@/app/components/Scanlines";
 
 type AddCardFormData = {
@@ -30,11 +28,9 @@ export default function AddCardScreen() {
   const { id } = useLocalSearchParams();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [showTips, setShowTips] = useState(false);
   const [unlockedAchievements, setUnlockedAchievements] = useState<
     CreateCardResponse["unlockedAchievements"]
   >([]);
-  const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [shouldGoBack, setShouldGoBack] = useState(false);
 
   const cardRef = useRef<InteractiveCardRef>(null);
@@ -63,7 +59,6 @@ export default function AddCardScreen() {
         response.unlockedAchievements.length > 0
       ) {
         setUnlockedAchievements(response.unlockedAchievements);
-        setShowAchievementModal(true);
       } else {
         if (shouldGoBack) {
           Alert.alert("✅ " + t("cards.addCard.success"));
@@ -107,19 +102,6 @@ export default function AddCardScreen() {
       translation: data.translation.trim(),
       deckId: Number(id),
     });
-  };
-
-  const handleDismissAchievement = () => {
-    setShowAchievementModal(false);
-
-    if (shouldGoBack) {
-      Alert.alert("✅ " + t("cards.addCard.success"));
-      router.back();
-    } else {
-      reset();
-      cardRef.current?.resetFlip();
-      Alert.alert("✅ " + t("cards.addCard.success"));
-    }
   };
 
   return (

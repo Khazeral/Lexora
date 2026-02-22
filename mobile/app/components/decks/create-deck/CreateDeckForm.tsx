@@ -25,7 +25,7 @@ export default function CreateDeckForm({
           <Ionicons name="albums" size={40} color="#fff" />
         </View>
         <Text className="text-muted-foreground text-sm text-center px-6">
-          Create a new deck to organize your flashcards
+          {t("decks.createDeck.description")}
         </Text>
       </View>
 

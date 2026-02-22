@@ -12,8 +12,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { getAchievements, Achievement } from "@/services/achievements.api";
+import {
+  getAchievementName,
+  getAchievementDescription,
+} from "@/utils/achievementsUtils";
 import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
+import Scanlines from "../components/Scanlines";
 
 const { width } = Dimensions.get("window");
 const GRID_PADDING = 24;
@@ -22,44 +28,21 @@ const CARD_WIDTH = (width - GRID_PADDING * 2 - GRID_GAP) / 2;
 
 type Category = "all" | "cards" | "training" | "streaks" | "collection";
 
-const categories: { key: Category; label: string; icon: string }[] = [
-  { key: "all", label: "ALL", icon: "grid" },
-  { key: "cards", label: "CARDS", icon: "albums" },
-  { key: "training", label: "TRAIN", icon: "fitness" },
-  { key: "streaks", label: "STREAK", icon: "flame" },
-  { key: "collection", label: "COLLECT", icon: "diamond" },
-];
-
 const getRarityConfig = (rarity: string) => {
   switch (rarity) {
     case "legendary":
-      return {
-        borderColor: "#fbbf24",
-        label: "LEGENDARY",
-        iconBg: "#fbbf24",
-      };
+      return { borderColor: "#fbbf24", label: "LEGENDARY", iconBg: "#fbbf24" };
     case "epic":
-      return {
-        borderColor: "#a855f7",
-        label: "EPIC",
-        iconBg: "#a855f7",
-      };
+      return { borderColor: "#a855f7", label: "EPIC", iconBg: "#a855f7" };
     case "rare":
-      return {
-        borderColor: "#3b82f6",
-        label: "RARE",
-        iconBg: "#3b82f6",
-      };
+      return { borderColor: "#3b82f6", label: "RARE", iconBg: "#3b82f6" };
     default:
-      return {
-        borderColor: "#6b7280",
-        label: "COMMON",
-        iconBg: "#6b7280",
-      };
+      return { borderColor: "#6b7280", label: "COMMON", iconBg: "#6b7280" };
   }
 };
 
 function AchievementCard({ achievement }: { achievement: Achievement }) {
+  const { t } = useTranslation();
   const config = getRarityConfig(achievement.rarity);
   const progress = Math.min(
     (achievement.progress / achievement.target) * 100,
@@ -108,7 +91,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
               letterSpacing: 1,
             }}
           >
-            {isNew ? "NEW" : config.label}
+            {isNew ? t("achievements.new", "NEW") : config.label}
           </Text>
         </View>
       </View>
@@ -160,7 +143,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         }}
         numberOfLines={2}
       >
-        {achievement.name.toUpperCase()}
+        {getAchievementName(achievement.code, achievement.name).toUpperCase()}
       </Text>
 
       <Text
@@ -173,7 +156,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         }}
         numberOfLines={2}
       >
-        {achievement.description}
+        {getAchievementDescription(achievement.code, achievement.description)}
       </Text>
 
       {isUnlocked ? (
@@ -187,7 +170,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         >
           <Ionicons name="checkmark-circle" size={14} color="#44d9a0" />
           <Text style={{ color: "#44d9a0", fontSize: 11, fontWeight: "700" }}>
-            UNLOCKED
+            {t("achievements.unlocked", "UNLOCKED")}
           </Text>
         </View>
       ) : (
@@ -228,6 +211,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
 }
 
 function StatsHeader({ achievements }: { achievements: Achievement[] }) {
+  const { t } = useTranslation();
   const total = achievements.length;
   const unlocked = achievements.filter((a) => a.unlocked).length;
   const percentage = total > 0 ? Math.round((unlocked / total) * 100) : 0;
@@ -246,7 +230,6 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
     <View
       style={[
         {
-          marginHorizontal: GRID_PADDING,
           marginBottom: 16,
           borderRadius: 16,
           backgroundColor: "#134c39",
@@ -254,7 +237,6 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
           borderColor: "#2a7a60",
           padding: 20,
         },
-        pillShadow.card,
       ]}
     >
       <View
@@ -275,7 +257,6 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
               alignItems: "center",
               justifyContent: "center",
             },
-            pillShadow.sm,
           ]}
         >
           <Ionicons name="trophy" size={32} color="#0b3d2e" />
@@ -285,7 +266,7 @@ function StatsHeader({ achievements }: { achievements: Achievement[] }) {
             {unlocked}/{total}
           </Text>
           <Text style={{ color: "#6e9e8a", fontSize: 14 }}>
-            {percentage}% completed
+            {t("achievements.completed", { count: unlocked })}
           </Text>
         </View>
       </View>
@@ -348,63 +329,96 @@ function CategoriesFilter({
   selected: Category;
   onSelect: (cat: Category) => void;
 }) {
+  const { t } = useTranslation();
+
+  const categories: { key: Category; label: string; icon: string }[] = [
+    {
+      key: "all",
+      label: t("achievements.filters.all", "ALL"),
+      icon: "grid",
+    },
+    {
+      key: "cards",
+      label: t("achievements.filters.cards", "CARDS"),
+      icon: "albums",
+    },
+    {
+      key: "training",
+      label: t("achievements.filters.train", "TRAIN"),
+      icon: "fitness",
+    },
+    {
+      key: "streaks",
+      label: t("achievements.filters.streak", "STREAK"),
+      icon: "flame",
+    },
+    {
+      key: "collection",
+      label: t("achievements.filters.collect", "COLLECT"),
+      icon: "diamond",
+    },
+  ];
+
   return (
-    <View style={{ height: 70, marginBottom: 16 }}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: GRID_PADDING,
-          paddingVertical: 10,
-          gap: 10,
-        }}
-      >
-        {categories.map((category) => {
-          const isActive = selected === category.key;
-          return (
-            <TouchableOpacity
-              key={category.key}
-              onPress={() => onSelect(category.key)}
-              style={[
-                {
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 8,
-                  paddingHorizontal: 20,
-                  paddingVertical: 14,
-                  borderRadius: 16,
-                  borderWidth: 2,
-                  backgroundColor: isActive ? "#5b8af5" : "#134c39",
-                  borderColor: isActive ? "#5b8af5" : "#2a7a60",
-                },
-                pillShadow.sm,
-              ]}
-              activeOpacity={0.7}
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{
+        gap: 8,
+        paddingHorizontal: GRID_PADDING,
+        paddingVertical: 4,
+      }}
+      style={{
+        marginBottom: 16,
+        marginHorizontal: -GRID_PADDING,
+      }}
+    >
+      {categories.map((category) => {
+        const isActive = selected === category.key;
+        return (
+          <TouchableOpacity
+            key={category.key}
+            onPress={() => onSelect(category.key)}
+            style={[
+              {
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                borderRadius: 12,
+                backgroundColor: isActive ? "#5b8af5" : "#134c39",
+                borderWidth: 1.5,
+                borderColor: isActive ? "#5b8af5" : "#2a7a60",
+              },
+              pillShadow.sm,
+            ]}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={category.icon as any}
+              size={16}
+              color={isActive ? "#fff" : "#6e9e8a"}
+            />
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: "700",
+                letterSpacing: 0.5,
+                color: isActive ? "#fff" : "#6e9e8a",
+              }}
             >
-              <Ionicons
-                name={category.icon as any}
-                size={18}
-                color={isActive ? "#fff" : "#6e9e8a"}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: "700",
-                  letterSpacing: 1,
-                  color: isActive ? "#fff" : "#6e9e8a",
-                }}
-              >
-                {category.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    </View>
+              {category.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </ScrollView>
   );
 }
 
 export default function AchievementsScreen() {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
   const queryClient = useQueryClient();
 
@@ -463,6 +477,7 @@ export default function AchievementsScreen() {
       style={{ flex: 1, backgroundColor: "#25603e" }}
       edges={["top"]}
     >
+      <Scanlines />
       <View
         style={{
           flexDirection: "row",
@@ -499,7 +514,7 @@ export default function AchievementsScreen() {
             letterSpacing: 2,
           }}
         >
-          ACHIEVEMENTS
+          {t("achievements.title")}
         </Text>
         <View style={{ width: 48 }} />
       </View>
@@ -548,7 +563,7 @@ export default function AchievementsScreen() {
               <Ionicons name="trophy-outline" size={32} color="#6e9e8a" />
             </View>
             <Text style={{ color: "#6e9e8a", fontSize: 14 }}>
-              No achievements in this category
+              {t("achievements.empty", "No achievements in this category")}
             </Text>
           </View>
         }

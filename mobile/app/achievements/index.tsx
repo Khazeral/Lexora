@@ -470,8 +470,6 @@ export default function AchievementsScreen() {
           justifyContent: "space-between",
           paddingHorizontal: GRID_PADDING,
           paddingVertical: 16,
-          borderBottomWidth: 2,
-          borderBottomColor: "#2a7a60",
         }}
       >
         <TouchableOpacity

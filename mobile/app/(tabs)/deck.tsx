@@ -17,6 +17,7 @@ import DecksHeader from "@/app/components/decks/DecksHeader";
 import DecksSearchBar from "@/app/components/decks/DecksSearchBar";
 import EmptyDecks from "../components/decks/EmptyDeck";
 import DeckListItem from "../components/decks/DeckListItem";
+import Scanlines from "../components/Scanlines";
 
 export default function DecksScreen() {
   const { t } = useTranslation();
@@ -48,6 +49,7 @@ export default function DecksScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <Scanlines />
       <DecksHeader />
 
       {decks.length > 0 && (
@@ -77,8 +79,8 @@ export default function DecksScreen() {
       />
 
       <TouchableOpacity
-        className="absolute right-6 bottom-8 flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
-        style={pillShadow.default}
+        className="absolute right-6 bottom-32 flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
+        style={[pillShadow.default, { zIndex: 2 }]}
         onPress={() => router.push("/deck/create")}
         activeOpacity={0.8}
       >

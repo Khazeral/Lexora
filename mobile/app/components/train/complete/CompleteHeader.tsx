@@ -19,8 +19,8 @@ export default function CompleteHeader({
   isRecord = false,
 }: CompleteHeaderProps) {
   return (
-    <SafeAreaView edges={["top"]} className="bg-background">
-      <View className="items-center py-8 px-6 border-b-2 border-border">
+    <SafeAreaView edges={["top"]}>
+      <View className="items-center py-8 px-6 ">
         <View
           className="w-28 h-28 rounded-3xl items-center justify-center mb-4"
           style={[
@@ -39,23 +39,13 @@ export default function CompleteHeader({
         {isRecord && (
           <View
             className="flex-row items-center gap-2 px-4 py-2 rounded-full mb-3"
-            style={[{ backgroundColor: "#f5c542" }, pillShadow.sm]}
+            style={[{ backgroundColor: "#f5c542" }]}
           >
             <Ionicons name="trophy" size={16} color="#0b3d2e" />
-            <Text className="text-[#0b3d2e] text-xs font-black tracking-wider">
+            <Text className="text-[#0b3d2e] text-sm font-black tracking-wider">
               NEW RECORD
             </Text>
           </View>
-        )}
-
-        <Text className="text-foreground text-2xl font-black tracking-wider text-center mb-2">
-          {title.toUpperCase()}
-        </Text>
-
-        {deckName && (
-          <Text className="text-muted-foreground text-base text-center">
-            {deckName}
-          </Text>
         )}
       </View>
     </SafeAreaView>

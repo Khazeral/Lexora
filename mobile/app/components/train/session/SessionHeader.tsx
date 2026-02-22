@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type SessionHeaderProps = {
   deckName: string;
@@ -18,12 +17,11 @@ export default function SessionHeader({
   const { t } = useTranslation();
 
   return (
-    <SafeAreaView edges={["top"]} className="bg-background">
+    <SafeAreaView edges={["top"]}>
       <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
         <TouchableOpacity
           onPress={onClose}
           className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
-          style={pillShadow.sm}
           activeOpacity={0.7}
         >
           <Ionicons name="close" size={24} color="#e8edf5" />

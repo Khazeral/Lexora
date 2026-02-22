@@ -34,7 +34,6 @@ export default function TrainDeckCard({ deck }: TrainDeckCardProps) {
         className={`w-14 h-14 rounded-xl items-center justify-center mr-4 ${
           hasCards ? "bg-info" : "bg-muted"
         }`}
-        style={hasCards ? pillShadow.sm : undefined}
       >
         <Ionicons
           name="albums"

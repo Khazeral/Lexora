@@ -42,7 +42,7 @@ export default function CardItem({ card, onPress }: CardItemProps) {
     >
       <View
         className="w-12 h-12 rounded-xl items-center justify-center mr-4"
-        style={[{ backgroundColor: colors.bg }, pillShadow.sm]}
+        style={[{ backgroundColor: colors.bg }]}
       >
         <Ionicons name={levelConfig.icon} size={24} color={colors.text} />
       </View>

@@ -12,8 +12,6 @@ export default function DecksHeader() {
       <Text className="text-accent text-xs font-bold tracking-[3px] mt-1">
         {t("decks.description").toUpperCase()}
       </Text>
-
-      <View className="h-[2px] bg-border mt-4" />
     </View>
   );
 }

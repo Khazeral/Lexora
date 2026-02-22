@@ -7,6 +7,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import TrainHeader from "../components/train/TrainHeader";
 import TrainDeckCard from "../components/train/TrainDeckCard";
 import EmptyTrainDecks from "../components/train/EmptyTrainDeck";
+import Scanlines from "../components/Scanlines";
 
 export default function TrainScreen() {
   const { data: decks = [], isLoading } = useQuery<Deck[]>({
@@ -25,7 +26,8 @@ export default function TrainScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+    <View className="flex-1 bg-background">
+      <Scanlines />
       <TrainHeader />
 
       <FlatList
@@ -41,6 +43,6 @@ export default function TrainScreen() {
         renderItem={({ item }) => <TrainDeckCard deck={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
       />
-    </SafeAreaView>
+    </View>
   );
 }

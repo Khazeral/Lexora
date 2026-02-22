@@ -132,10 +132,7 @@ export default function SessionProgress({
         {gameMode === "classic" && (
           <View
             className="flex-row items-center gap-2 px-4 py-2 rounded-xl border-2"
-            style={[
-              { backgroundColor: colors.bg, borderColor: colors.icon },
-              pillShadow.sm,
-            ]}
+            style={[{ backgroundColor: colors.bg, borderColor: colors.icon }]}
           >
             <Ionicons name="albums" size={18} color={colors.icon} />
             <Text style={{ color: colors.icon }} className="text-sm font-bold">

@@ -19,6 +19,7 @@ import useCardTimer from "@/hooks/useCardTimer";
 import useSessionStats from "@/hooks/useSessionStats";
 import useGameModeState from "@/hooks/useGameModeState";
 import FlashCard from "@/app/components/train/session/FlashCard";
+import Scanlines from "@/app/components/Scanlines";
 
 export default function TrainingSessionScreen() {
   const {
@@ -347,6 +348,7 @@ export default function TrainingSessionScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <Scanlines />
       <SessionHeader
         deckName={deck?.name || ""}
         isReverse={isReverse === "true"}

@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
-
 type DeckDetailHeaderProps = {
   name: string;
   cardCount: number;
@@ -17,12 +16,12 @@ export default function DeckDetailHeader({
   const { t } = useTranslation();
 
   const cardCountText =
-    cardCount === 1
+    cardCount <= 1
       ? t("decks.deckDetail.cards", { count: cardCount })
       : t("decks.deckDetail.cards_plural", { count: cardCount });
 
   return (
-    <View className="flex-row items-center justify-between px-6 py-4 bg-background border-b-2 border-border">
+    <View className="flex-row items-center justify-between px-6 py-4 ">
       <TouchableOpacity
         onPress={onBack}
         className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"

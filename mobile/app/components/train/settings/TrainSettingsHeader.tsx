@@ -13,22 +13,27 @@ export default function TrainSettingsHeader({
   const { t } = useTranslation();
 
   return (
-    <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
-      <TouchableOpacity
-        onPress={onBack}
-        className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
-        style={pillShadow.sm}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        activeOpacity={0.7}
-      >
-        <Ionicons name="close" size={24} color="#e8edf5" />
-      </TouchableOpacity>
+    <View className="px-6 pt-16 pb-4">
+      <View className="flex-row items-start justify-between">
+        <View className="flex-1 mr-4">
+          <Text className="text-foreground text-2xl font-black tracking-[4px]">
+            {t("train.trainSettings.title").toUpperCase()}
+          </Text>
+          <Text className="text-accent text-xs font-bold tracking-[3px] mt-1">
+            {t("train.trainSettings.subtitle", "PARAMÈTRES").toUpperCase()}
+          </Text>
+        </View>
 
-      <Text className="text-foreground text-lg font-bold tracking-wider">
-        {t("train.trainSettings.title").toUpperCase()}
-      </Text>
-
-      <View className="w-12" />
+        <TouchableOpacity
+          onPress={onBack}
+          className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center mt-1"
+          style={pillShadow.sm}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="close" size={24} color="#e8edf5" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

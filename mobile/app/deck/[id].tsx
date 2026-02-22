@@ -10,6 +10,7 @@ import DeckStats from "../components/decks/details/DeckStats";
 import EmptyCard from "../components/cards/EmptyCard";
 import CardItem from "../components/cards/CardItem";
 import DeckActions from "../components/decks/details/DeckActions";
+import Scanlines from "../components/Scanlines";
 
 export default function DeckDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -38,13 +39,12 @@ export default function DeckDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <Scanlines />
       <DeckDetailHeader
         name={deck.name}
         cardCount={deck.cards?.length || 0}
         onBack={() => router.back()}
       />
-
-      {hasCards && <DeckStats cards={deck.cards} />}
 
       <FlatList
         data={deck.cards || []}

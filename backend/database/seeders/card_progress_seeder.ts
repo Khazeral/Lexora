@@ -31,11 +31,11 @@ export default class CardProgressSeeder extends BaseSeeder {
         {
           userId: user.id,
           cardId: card.id,
-          successCount: 15,
+          successCount: 105,
           failureCount: 2,
           currentStreak: 3,
           maxStreak: 8,
-          status: 'silver',
+          status: 'ruby',
         }
       )
     }

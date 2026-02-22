@@ -1,7 +1,14 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Switch,
+} from "react-native";
 import { useTranslation } from "react-i18next";
-import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type AddCardActionsProps = {
   onAdd: () => void;
@@ -15,13 +22,29 @@ export default function AddCardActions({
   isLoading,
 }: AddCardActionsProps) {
   const { t } = useTranslation();
+  const [continueMode, setContinueMode] = useState(false);
 
   return (
-    <View className="gap-3 p-6 bg-secondary border-t-2 border-border">
+    <View className="p-6 bg-secondary rounded-t-2xl gap-4">
+      <View className="flex-row items-center justify-between px-2">
+        <Text className="text-muted-foreground text-sm font-semibold">
+          {t(
+            "cards.addCard.buttons.addAnother",
+            "Ajouter une autre carte après",
+          )}
+        </Text>
+        <Switch
+          value={continueMode}
+          onValueChange={setContinueMode}
+          trackColor={{ false: "#1a3d2e", true: "#44d9a0" }}
+          thumbColor="#fff"
+        />
+      </View>
+
       <TouchableOpacity
-        className="flex-row items-center justify-center gap-3 py-5 rounded-2xl"
-        style={[pillShadow.default, { backgroundColor: pillColors.green }]}
-        onPress={onAdd}
+        className="py-4 rounded-2xl items-center justify-center flex-row gap-3"
+        style={[pillShadow.default, { backgroundColor: "#44d9a0" }]}
+        onPress={continueMode ? onAddAnother : onAdd}
         disabled={isLoading}
         activeOpacity={0.8}
       >
@@ -29,31 +52,18 @@ export default function AddCardActions({
           <ActivityIndicator size="small" color="#0b3d2e" />
         ) : (
           <>
-            <Ionicons name="checkmark-circle" size={24} color="#0b3d2e" />
+            <Ionicons
+              name={continueMode ? "add-circle" : "checkmark-circle"}
+              size={22}
+              color="#0b3d2e"
+            />
             <Text
-              className="text-base font-black tracking-wider"
+              className="text-base font-bold tracking-wider"
               style={{ color: "#0b3d2e" }}
             >
-              AJOUTER LA CARTE
-            </Text>
-          </>
-        )}
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        className="flex-row items-center justify-center gap-3 py-4 rounded-2xl bg-card border-2 border-info"
-        style={pillShadow.sm}
-        onPress={onAddAnother}
-        disabled={isLoading}
-        activeOpacity={0.7}
-      >
-        {isLoading ? (
-          <ActivityIndicator size="small" color="#5b8af5" />
-        ) : (
-          <>
-            <Ionicons name="add-circle" size={22} color="#5b8af5" />
-            <Text className="text-info text-sm font-bold tracking-wider">
-              AJOUTER ET CONTINUER
+              {continueMode
+                ? t("cards.addCard.buttons.addAndContinue").toUpperCase()
+                : t("cards.addCard.buttons.addAndFinish").toUpperCase()}
             </Text>
           </>
         )}

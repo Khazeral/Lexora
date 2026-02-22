@@ -1,6 +1,5 @@
 import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type ModeStats = {
   title: string;
@@ -22,11 +21,7 @@ type ModeStats = {
   }[];
 };
 
-type ModeStatsCardProps = {
-  modeStats: ModeStats;
-};
-
-const getKotobaColor = (color: string) => {
+const getColor = (color: string) => {
   const colorMap: Record<string, { bg: string; icon: string }> = {
     "#3b82f6": { bg: "#1a3a5c", icon: "#5b8af5" },
     "#f59e0b": { bg: "#3d2e1a", icon: "#f5c542" },
@@ -39,18 +34,15 @@ const getKotobaColor = (color: string) => {
   return colorMap[color] || { bg: "#1a3a5c", icon: "#5b8af5" };
 };
 
-export default function ModeStatsCard({ modeStats }: ModeStatsCardProps) {
-  const colors = getKotobaColor(modeStats.color);
+export default function ModeStatsCard({ modeStats }: { modeStats: ModeStats }) {
+  const colors = getColor(modeStats.color);
 
   return (
-    <View
-      className="mx-6 my-4 p-6 bg-card rounded-2xl border-2 border-border"
-      style={pillShadow.card}
-    >
+    <View className="mx-6 my-4 p-6 bg-card rounded-2xl border-2 border-border">
       <View className="flex-row items-center gap-4 mb-6">
         <View
           className="w-16 h-16 rounded-xl items-center justify-center"
-          style={[{ backgroundColor: colors.bg }, pillShadow.sm]}
+          style={[{ backgroundColor: colors.bg }]}
         >
           <Ionicons
             name={modeStats.icon as any}
@@ -75,7 +67,7 @@ export default function ModeStatsCard({ modeStats }: ModeStatsCardProps) {
             color: colors.icon,
             textShadowColor: colors.icon,
             textShadowOffset: { width: 0, height: 0 },
-            textShadowRadius: modeStats.isRecord ? 20 : 0,
+            textShadowRadius: modeStats.isRecord ? 4 : 0,
           }}
         >
           {modeStats.mainValue}

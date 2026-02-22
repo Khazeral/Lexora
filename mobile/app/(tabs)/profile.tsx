@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { getUnseenCount } from "@/services/achievements.api";
 import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
 
@@ -25,10 +24,13 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
-      <View className="px-6 py-4 border-b-2 border-border">
-        <Text className="text-foreground text-3xl font-bold tracking-wider">
+    <View className="flex-1 bg-background">
+      <View className="px-6 pt-16 pb-4">
+        <Text className="text-foreground text-3xl font-black tracking-[4px]">
           {t("profile.title").toUpperCase()}
+        </Text>
+        <Text className="text-accent text-xs font-bold tracking-[3px] mt-1">
+          {t("profile.subtitle", "VOTRE PROFIL").toUpperCase()}
         </Text>
       </View>
 
@@ -37,14 +39,8 @@ export default function ProfileScreen() {
         contentContainerClassName="p-6"
         showsVerticalScrollIndicator={false}
       >
-        <View
-          className="bg-card rounded-2xl p-6 border-2 border-border items-center mb-6"
-          style={pillShadow.card}
-        >
-          <View
-            className="w-24 h-24 rounded-2xl bg-info items-center justify-center mb-4"
-            style={pillShadow.default}
-          >
+        <View className="bg-card rounded-2xl p-6 border-2 border-border items-center mb-6">
+          <View className="w-24 h-24 rounded-2xl bg-info items-center justify-center mb-4">
             <Ionicons name="person" size={48} color="#fff" />
           </View>
 
@@ -61,10 +57,7 @@ export default function ProfileScreen() {
           activeOpacity={0.7}
         >
           <View className="flex-row items-center gap-4">
-            <View
-              className="w-14 h-14 rounded-xl bg-accent items-center justify-center"
-              style={pillShadow.sm}
-            >
+            <View className="w-14 h-14 rounded-xl bg-accent items-center justify-center">
               <Ionicons name="trophy" size={28} color="#0b3d2e" />
             </View>
             <View>
@@ -94,15 +87,11 @@ export default function ProfileScreen() {
 
         <TouchableOpacity
           className="bg-card rounded-2xl p-4 border-2 border-border mb-4 flex-row items-center justify-between"
-          style={pillShadow.card}
           onPress={toggleLanguage}
           activeOpacity={0.7}
         >
           <View className="flex-row items-center gap-4">
-            <View
-              className="w-14 h-14 rounded-xl bg-info items-center justify-center"
-              style={pillShadow.sm}
-            >
+            <View className="w-14 h-14 rounded-xl bg-info items-center justify-center">
               <Ionicons name="language" size={28} color="#fff" />
             </View>
             <View>
@@ -148,7 +137,7 @@ export default function ProfileScreen() {
           <View className="flex-row items-center gap-4">
             <View
               className="w-14 h-14 rounded-xl items-center justify-center"
-              style={[pillShadow.sm, { backgroundColor: "#6e9e8a" }]}
+              style={[{ backgroundColor: "#6e9e8a" }]}
             >
               <Ionicons name="settings" size={28} color="#fff" />
             </View>
@@ -174,7 +163,7 @@ export default function ProfileScreen() {
           <View className="flex-row items-center gap-4">
             <View
               className="w-14 h-14 rounded-xl items-center justify-center"
-              style={[pillShadow.sm, { backgroundColor: "#8b5cf6" }]}
+              style={[{ backgroundColor: "#8b5cf6" }]}
             >
               <Ionicons name="help-circle" size={28} color="#fff" />
             </View>
@@ -207,6 +196,6 @@ export default function ProfileScreen() {
           LEXORA v1.0.0
         </Text>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

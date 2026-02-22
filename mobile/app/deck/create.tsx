@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CreateDeckActions from "../components/decks/create-deck/CreateDeckActions";
 import CreateDeckForm from "../components/decks/create-deck/CreateDeckForm";
 import CreateDeckHeader from "../components/decks/create-deck/CreateDeckHeader";
+import Scanlines from "../components/Scanlines";
 
 type CreateDeckFormData = {
   name: string;
@@ -71,6 +72,7 @@ export default function CreateDeckScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <Scanlines />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -78,7 +80,7 @@ export default function CreateDeckScreen() {
         <CreateDeckHeader onBack={handleCancel} />
 
         <ScrollView
-          className="flex-1 bg-background"
+          className="flex-1"
           contentContainerClassName="p-6 pb-10"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}

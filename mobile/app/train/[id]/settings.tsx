@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { getDeck } from "@/services/decks.api";
 import { GAME_MODES, GameMode } from "@/constants/gameMods";
 import LoadingScreen from "@/app/components/LoadingScreen";
 import TrainSettingsHeader from "@/app/components/train/settings/TrainSettingsHeader";
-import DeckInfoCard from "@/app/components/train/settings/DeckInfoCard";
 import GameModeSelector from "@/app/components/train/settings/GameModeSelector";
 import { StartTrainingButton } from "@/app/components/train/settings/StartTrainingButton";
+import Scanlines from "@/app/components/Scanlines";
 
 export default function TrainingSettingsScreen() {
   const { id } = useLocalSearchParams();
@@ -53,7 +52,8 @@ export default function TrainingSettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+    <View className="flex-1 bg-background">
+      <Scanlines />
       <TrainSettingsHeader onBack={() => router.back()} />
 
       <ScrollView
@@ -61,8 +61,6 @@ export default function TrainingSettingsScreen() {
         contentContainerClassName="pb-8"
         showsVerticalScrollIndicator={false}
       >
-        <DeckInfoCard deck={deck} />
-
         <GameModeSelector
           selectedMode={gameMode}
           onSelectMode={setGameMode}
@@ -78,6 +76,6 @@ export default function TrainingSettingsScreen() {
         onStart={handleStart}
         disabled={deck.cards.length === 0}
       />
-    </SafeAreaView>
+    </View>
   );
 }

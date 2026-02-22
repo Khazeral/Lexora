@@ -2,10 +2,12 @@ import { View, Text, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function HomeHeader() {
   const floatAnim = useRef(new Animated.Value(0)).current;
   const sparkleAnim = useRef(new Animated.Value(1)).current;
+  const { t } = useTranslation();
 
   useEffect(() => {
     Animated.loop(
@@ -40,7 +42,7 @@ export default function HomeHeader() {
   }, [floatAnim, sparkleAnim]);
 
   return (
-    <View className="pt-14 pb-4 items-center">
+    <View className="pt-24 pb-4 items-center">
       <View className="mb-4 relative">
         <Animated.View
           style={{
@@ -114,8 +116,8 @@ export default function HomeHeader() {
       <Text className="text-foreground text-3xl font-black tracking-[6px]">
         LEXORA
       </Text>
-      <Text className="text-accent text-xs font-bold tracking-[4px] mt-1">
-        LEARN VOCABULARY
+      <Text className="text-accent text-xs font-bold tracking-[2px] mt-1">
+        {t("home.description")}
       </Text>
     </View>
   );

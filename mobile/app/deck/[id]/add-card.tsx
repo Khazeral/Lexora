@@ -19,6 +19,7 @@ import InteractiveCard, {
 } from "@/app/components/cards/add-card/InteractiveCard";
 import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
 import AchievementUnlockedModal from "@/app/components/AchievementUnlockModal";
+import Scanlines from "@/app/components/Scanlines";
 
 type AddCardFormData = {
   word: string;
@@ -123,24 +124,19 @@ export default function AddCardScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <Scanlines />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <AddCardHeader
-          onBack={() => router.back()}
-          onToggleTips={() => setShowTips(!showTips)}
-          showingTips={showTips}
-        />
+        <AddCardHeader onBack={() => router.back()} />
 
         <ScrollView
-          className="flex-1 bg-background"
+          className="flex-1 "
           contentContainerClassName="p-6 pb-10"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {showTips && <AddCardTips />}
-
           <InteractiveCard ref={cardRef} control={control} errors={errors} />
         </ScrollView>
 
@@ -150,12 +146,6 @@ export default function AddCardScreen() {
           isLoading={createCardMutation.isPending}
         />
       </KeyboardAvoidingView>
-
-      <AchievementUnlockedModal
-        visible={showAchievementModal}
-        achievements={unlockedAchievements}
-        onDismiss={handleDismissAchievement}
-      />
     </SafeAreaView>
   );
 }

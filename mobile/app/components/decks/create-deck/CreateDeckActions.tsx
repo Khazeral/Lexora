@@ -16,7 +16,7 @@ export default function CreateDeckActions({
   const { t } = useTranslation();
 
   return (
-    <View className="flex-row gap-3 p-6 bg-secondary border-t-2 border-border">
+    <View className="flex-row gap-3 p-6 bg-secondary rounded-t-2xl">
       <TouchableOpacity
         className="flex-1 py-4 rounded-2xl bg-success items-center justify-center"
         style={[pillShadow.default, { backgroundColor: pillColors.red }]}

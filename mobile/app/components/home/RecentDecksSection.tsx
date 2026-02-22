@@ -20,10 +20,11 @@ type RecentDecksSectionProps = {
 };
 
 export default function RecentDecksSection({ decks }: RecentDecksSectionProps) {
+  const { t } = useTranslation();
   return (
     <View className="mt-8 px-6">
-      <Text className="text-xs text-muted-foreground font-bold tracking-[3px] mb-4">
-        CATEGORIES
+      <Text className="text-sm text-white font-semibold tracking-[3px] mb-4">
+        {t("home.recentDecks.categories").toUpperCase()}
       </Text>
 
       {decks.length > 0 ? (
@@ -52,7 +53,7 @@ function DeckCard({ deck, index }: DeckCardProps) {
     >
       <View
         className="w-14 h-14 rounded-xl items-center justify-center"
-        style={[{ backgroundColor: colorConfig.bg }, pillShadow.sm]}
+        style={[{ backgroundColor: colorConfig.bg }]}
       >
         <Ionicons name="chatbubble-outline" size={26} color="#fff" />
       </View>
@@ -62,7 +63,7 @@ function DeckCard({ deck, index }: DeckCardProps) {
           {deck.name}
         </Text>
         <Text className="text-muted-foreground text-sm mt-0.5">
-          {deck.cardCount === 1
+          {deck.cardCount <= 1
             ? t("decks.card.cards", { count: deck.cardCount })
             : t("decks.card.cards_plural", { count: deck.cardCount })}
         </Text>

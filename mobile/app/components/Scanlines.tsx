@@ -44,6 +44,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 0,
-    elevation: 9999,
+    elevation: 10,
   },
 });

@@ -11,7 +11,7 @@ export default function CreateDeckHeader({ onBack }: CreateDeckHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <View className="flex-row items-center justify-between px-6 pt-8 pb-4 bg-background border-b-2 border-border">
+    <View className="flex-row items-center justify-between px-6 pt-8 pb-4">
       <TouchableOpacity
         onPress={onBack}
         className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"

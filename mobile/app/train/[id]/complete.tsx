@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { View, ScrollView } from "react-native";
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import PerformanceCard from "@/app/components/train/complete/PerformanceCard";
 import StatsGrid from "@/app/components/train/complete/StatsGrid";
 import AlmostThereSection from "@/app/components/train/complete/AlmostThereSection";
 import CompleteActions from "@/app/components/train/complete/CompleteActions";
+import Scanlines from "@/app/components/Scanlines";
 
 const MODE_COLORS: Record<string, string> = {
   classic: "#5b8af5",
@@ -232,6 +233,7 @@ export default function TrainingCompleteScreen() {
 
   return (
     <View className="flex-1 bg-background">
+      <Scanlines />
       <CompleteHeader
         icon={headerConfig.icon}
         color={headerConfig.color}
@@ -254,7 +256,6 @@ export default function TrainingCompleteScreen() {
         <StatsGrid
           correct={totalCorrect}
           incorrect={totalIncorrect}
-          totalCards={totalCards}
           bestStreak={bestStreak}
         />
 

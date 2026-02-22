@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type CardUpgrade = {
   id: number;
@@ -17,10 +16,6 @@ type CardUpgrade = {
   percentToNext: number;
 };
 
-type AlmostThereSectionProps = {
-  cards: CardUpgrade[];
-};
-
 const getLevelColors = (color: string) => {
   const colorMap: Record<string, { bg: string; text: string }> = {
     "#cd7f32": { bg: "#2a1a0a", text: "#cd7f32" },
@@ -32,21 +27,19 @@ const getLevelColors = (color: string) => {
   return colorMap[color] || { bg: "#2a1a0a", text: "#cd7f32" };
 };
 
-export default function AlmostThereSection({ cards }: AlmostThereSectionProps) {
+export default function AlmostThereSection({
+  cards,
+}: {
+  cards: CardUpgrade[];
+}) {
   const { t } = useTranslation();
 
   if (cards.length === 0) return null;
 
   return (
-    <View
-      className="mx-6 mt-4 p-4 bg-card rounded-2xl border-2 border-border"
-      style={pillShadow.card}
-    >
+    <View className="mx-6 mt-4 p-4 bg-card rounded-2xl border-2 border-border">
       <View className="flex-row items-center gap-3 mb-4">
-        <View
-          className="w-10 h-10 rounded-xl bg-info items-center justify-center"
-          style={pillShadow.sm}
-        >
+        <View className="w-10 h-10 rounded-xl bg-info items-center justify-center">
           <Ionicons name="trending-up" size={20} color="#fff" />
         </View>
         <Text className="text-foreground text-base font-bold tracking-wider">

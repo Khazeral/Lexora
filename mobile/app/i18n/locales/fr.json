@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "home": "Accueil",
+    "decks": "Decks",
+    "train": "Révisions",
+    "profile": "Profil"
+  },
   "auth": {
     "login": {
       "title": "Flashcard Pro",
@@ -51,12 +57,9 @@
     "logout": "Se déconnecter"
   },
   "home": {
-    "stats": {
-      "totalDecks": "Decks totaux",
-      "totalCards": "Cartes totales"
-    },
-
+    "description": "Mémorisez avec les cartes",
     "recentDecks": {
+      "categories": "Catégories",
       "title": "Decks récents",
       "seeAll": "Voir tout",
       "cards": "{{count}} cartes",
@@ -177,16 +180,16 @@
   },
   "trainComplete": {
     "headers": {
-      "perfect": "Course Parfaite! 💎",
-      "newRecord": "Nouveau Record! 🎉",
-      "complete": "Session Terminée! 🎉"
+      "perfect": "Course Parfaite !",
+      "newRecord": "Nouveau Record !",
+      "complete": "Session Terminée !"
     },
     "performance": {
-      "outstanding": "🏆 Exceptionnel!",
-      "greatJob": "🌟 Excellent travail!",
-      "goodEffort": "👍 Bon effort!",
-      "keepPracticing": "💪 Continuez à pratiquer!",
-      "roomForImprovement": "📚 Place à l'amélioration!",
+      "outstanding": "🏆 Exceptionnel !",
+      "greatJob": "🌟 Excellent travail !",
+      "goodEffort": "👍 Bon effort !",
+      "keepPracticing": "💪 Continuez à pratiquer !",
+      "roomForImprovement": "📚 Place à l'amélioration !",
       "successRate": "Taux de réussite"
     },
     "stats": {
@@ -207,53 +210,53 @@
         "totalSessions": "Sessions totales"
       },
       "speedrun": {
-        "firstRun": "⚡ Premier Speed Run!",
-        "firstRunSubtitle": "C'est votre premier speed run sur ce deck!",
-        "newRecord": "🎉 Nouveau Record!",
+        "firstRun": "⚡ Premier Speed Run !",
+        "firstRunSubtitle": "C'est votre premier speed run sur ce deck !",
+        "newRecord": "🎉 Nouveau Record !",
         "complete": "Speed Run Terminé",
         "yourTime": "Votre Temps",
         "previousBest": "Meilleur Précédent",
-        "beatRecord": "Vous avez battu votre record de {{seconds}} secondes!",
+        "beatRecord": "Vous avez battu votre record de {{seconds}} secondes !",
         "slower": "{{seconds}} secondes plus lent que votre meilleur",
         "penalties": "Pénalités",
         "netTime": "Temps Net",
         "attempts": "Tentatives"
       },
       "streak": {
-        "firstRun": "🔥 Première Série!",
+        "firstRun": "🔥 Première Série !",
         "bestStreak": "Meilleure Série",
         "yourStreak": "Votre Série",
-        "newRecord": "🔥 Nouveau Record de Série!",
+        "newRecord": "🔥 Nouveau Record de Série !",
         "complete": "Maître de Série",
         "livesLeft": "Vies Restantes",
-        "livesRemaining": "Vous avez gardé {{count}} vie!",
-        "livesRemaining_plural": "Vous avez gardé {{count}} vies!",
-        "beatRecord": "Vous avez battu votre record de {{count}}!",
+        "livesRemaining": "Vous avez gardé {{count}} vie !",
+        "livesRemaining_plural": "Vous avez gardé {{count}} vies !",
+        "beatRecord": "Vous avez battu votre record de {{count}} !",
         "awayFromRecord": "{{count}} de votre record",
         "record": "Record",
         "cards": "Cartes"
       },
       "timeattack": {
-        "firstRun": "🎯 Première Attaque Temporelle!",
+        "firstRun": "🎯 Première Attaque Temporelle !",
         "avgPerCard": "Moy par Carte",
-        "firstAttempt": "Excellente première tentative!",
-        "newRecord": "🎯 Nouveau Record!",
+        "firstAttempt": "Excellente première tentative !",
+        "newRecord": "🎯 Nouveau Record !",
         "complete": "Attaque Temporelle Terminée",
-        "improved": "Vous avez amélioré votre temps moyen!",
-        "keepPracticing": "Continuez à pratiquer pour de meilleurs temps!",
+        "improved": "Vous avez amélioré votre temps moyen !",
+        "keepPracticing": "Continuez à pratiquer pour de meilleurs temps !",
         "totalTime": "Temps Total",
         "cards": "Cartes",
         "attempts": "Tentatives"
       },
       "perfect": {
-        "success": "💎 Course Parfaite!",
+        "success": "💎 Course Parfaite !",
         "flawless": "IMPECCABLE",
         "victory": "Victoire",
-        "runsCompleted": "{{count}} course parfaite terminée!",
-        "runsCompleted_plural": "{{count}} courses parfaites terminées!",
+        "runsCompleted": "{{count}} course parfaite terminée !",
+        "runsCompleted_plural": "{{count}} courses parfaites terminées !",
         "failed": "💔 Course Parfaite Échouée",
         "perfectRuns": "Courses Parfaites",
-        "tryAgain": "Continuez! Vous réussirez la prochaine fois.",
+        "tryAgain": "Continuez ! Vous réussirez la prochaine fois.",
         "successRate": "Taux de réussite",
         "totalAttempts": "Total Tentatives"
       }
@@ -332,19 +335,16 @@
   "cards": {
     "addCard": {
       "title": "Ajouter une carte",
-      "instructions": "Touchez la carte pour basculer entre recto et verso",
-      "flipToFront": "Retour au recto",
-      "flipToBack": "Voir le verso",
-      "hint": "Touchez n'importe où sur la carte pour la retourner",
+      "button": "Ajouter la carte",
       "form": {
         "wordLabel": "Recto",
-        "wordPlaceholder": "Hello",
+        "wordPlaceholder": "Question",
         "wordRequired": "Le recto est requis",
         "translationLabel": "Verso",
-        "translationPlaceholder": "Bonjour",
+        "translationPlaceholder": "Réponse",
         "translationRequired": "Le verso est requis",
-        "front": "Recto",
-        "back": "Verso"
+        "front": "Question",
+        "back": "Réponse"
       },
       "buttons": {
         "addAnother": "Ajouter une autre",

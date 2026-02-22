@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "home": "Home",
+    "decks": "Decks",
+    "train": "Train",
+    "profile": "Profile"
+  },
   "auth": {
     "login": {
       "title": "Flashcard Pro",
@@ -51,13 +57,9 @@
     "logout": "Sign Out"
   },
   "home": {
-    "greeting": "Hello,",
-    "wave": "👋",
-    "stats": {
-      "totalDecks": "Total Decks",
-      "totalCards": "Total Cards"
-    },
+    "description": "Memorize with flashcards",
     "recentDecks": {
+      "categories": "Categories",
       "title": "Recent Decks",
       "seeAll": "See All",
       "cards": "{{count}} cards",
@@ -178,16 +180,16 @@
   },
   "trainComplete": {
     "headers": {
-      "perfect": "Perfect Run! 💎",
-      "newRecord": "New Record! 🎉",
-      "complete": "Session Complete! 🎉"
+      "perfect": "Perfect Run !",
+      "newRecord": "New Record !",
+      "complete": "Session Complete !"
     },
     "performance": {
-      "outstanding": "🏆 Outstanding!",
-      "greatJob": "🌟 Great job!",
-      "goodEffort": "👍 Good effort!",
-      "keepPracticing": "💪 Keep practicing!",
-      "roomForImprovement": "📚 Room for improvement!",
+      "outstanding": "🏆 Outstanding !",
+      "greatJob": "🌟 Great job !",
+      "goodEffort": "👍 Good effort !",
+      "keepPracticing": "💪 Keep practicing !",
+      "roomForImprovement": "📚 Room for improvement !",
       "successRate": "Success Rate"
     },
     "stats": {
@@ -199,9 +201,9 @@
     "modes": {
       "classic": {
         "complete": "Session Complete",
-        "perfect": "Perfect Session!",
+        "perfect": "Perfect Session !",
         "cardsCompleted": "Cards completed",
-        "firstSession": "First session on this deck!",
+        "firstSession": "First session on this deck !",
         "sessionCount": "Session #{{count}}",
         "successRate": "Success rate",
         "bestStreak": "Best streak",
@@ -209,58 +211,58 @@
       },
       "speedrun": {
         "firstRun": "⚡ First Speed Run!",
-        "firstRunSubtitle": "This is your first speed run on this deck!",
-        "newRecord": "🎉 New Record!",
+        "firstRunSubtitle": "This is your first speed run on this deck !",
+        "newRecord": "🎉 New Record !",
         "complete": "Speed Run Complete",
         "yourTime": "Your Time",
         "previousBest": "Previous Best",
-        "beatRecord": "You beat your record by {{seconds}} seconds!",
+        "beatRecord": "You beat your record by {{seconds}} seconds !",
         "slower": "{{seconds}} seconds slower than your best",
         "penalties": "Penalties",
         "netTime": "Net Time",
         "attempts": "Attempts"
       },
       "streak": {
-        "firstRun": "🔥 First Streak Run!",
+        "firstRun": "🔥 First Streak Run !",
         "bestStreak": "Best Streak",
         "yourStreak": "Your Streak",
-        "newRecord": "🔥 New Streak Record!",
+        "newRecord": "🔥 New Streak Record !",
         "complete": "Streak Master",
         "livesLeft": "Lives Left",
-        "livesRemaining": "You kept {{count}} life remaining!",
-        "livesRemaining_plural": "You kept {{count}} lives remaining!",
-        "beatRecord": "You beat your record by {{count}}!",
+        "livesRemaining": "You kept {{count}} life remaining !",
+        "livesRemaining_plural": "You kept {{count}} lives remaining !",
+        "beatRecord": "You beat your record by {{count}} !",
         "awayFromRecord": "{{count}} away from your record",
         "record": "Record",
         "cards": "Cards"
       },
       "timeattack": {
-        "firstRun": "🎯 First Time Attack!",
+        "firstRun": "🎯 First Time Attack !",
         "avgPerCard": "Avg per Card",
-        "firstAttempt": "Great first attempt!",
-        "newRecord": "🎯 New Record!",
+        "firstAttempt": "Great first attempt !",
+        "newRecord": "🎯 New Record !",
         "complete": "Time Attack Complete",
-        "improved": "You improved your average time!",
-        "keepPracticing": "Keep practicing for better times!",
+        "improved": "You improved your average time !",
+        "keepPracticing": "Keep practicing for better times !",
         "totalTime": "Total Time",
         "cards": "Cards",
         "attempts": "Attempts"
       },
       "perfect": {
-        "success": "💎 Perfect Run!",
+        "success": "💎 Perfect Run !",
         "flawless": "FLAWLESS",
         "victory": "Victory",
-        "runsCompleted": "{{count}} perfect run completed!",
-        "runsCompleted_plural": "{{count}} perfect runs completed!",
+        "runsCompleted": "{{count}} perfect run completed !",
+        "runsCompleted_plural": "{{count}} perfect runs completed !",
         "failed": "💔 Perfect Run Failed",
         "perfectRuns": "Perfect Runs",
-        "tryAgain": "Keep trying! You'll get it next time.",
+        "tryAgain": "Keep trying ! You'll get it next time.",
         "successRate": "Success Rate",
         "totalAttempts": "Total Attempts"
       }
     },
     "almostThere": {
-      "title": "Almost There! 🚀",
+      "title": "Almost There !",
       "more": "{{count}} more"
     },
     "actions": {
@@ -334,22 +336,19 @@
   "cards": {
     "addCard": {
       "title": "Add a card",
-      "instructions": "Tap the card to flip between front and back",
-      "flipToFront": "Back to front",
-      "flipToBack": "See back",
-      "hint": "Tap anywhere on the card to flip it",
+      "button": "Add the card",
       "form": {
         "wordLabel": "Front",
-        "wordPlaceholder": "Hello",
+        "wordPlaceholder": "Question",
         "wordRequired": "Front side is required",
         "translationLabel": "Back",
-        "translationPlaceholder": "Bonjour",
+        "translationPlaceholder": "Asnwer",
         "translationRequired": "Back side is required",
-        "front": "Front",
-        "back": "Back"
+        "front": "Question",
+        "back": "Answer"
       },
       "buttons": {
-        "addAnother": "Add another",
+        "addAnother": "Add another card",
         "addAndFinish": "Add & finish",
         "helpText": "Add another to keep creating cards, or finish to return to the deck"
       },

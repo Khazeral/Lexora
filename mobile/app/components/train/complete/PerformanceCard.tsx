@@ -1,6 +1,5 @@
 import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
-import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type PerformanceCardProps = {
   successRate: number;
@@ -26,10 +25,7 @@ export default function PerformanceCard({ successRate }: PerformanceCardProps) {
   const colors = getColor();
 
   return (
-    <View
-      className="mx-6 mb-4 p-6 bg-card rounded-2xl border-2 border-border"
-      style={pillShadow.card}
-    >
+    <View className="mx-6 mb-4 p-6 bg-card rounded-2xl border-2 border-border">
       <Text className="text-foreground text-xl font-bold text-center mb-4 tracking-wider">
         {getMessage().toUpperCase()}
       </Text>
@@ -44,7 +40,7 @@ export default function PerformanceCard({ successRate }: PerformanceCardProps) {
             color: colors.text,
             textShadowColor: colors.text,
             textShadowOffset: { width: 0, height: 0 },
-            textShadowRadius: 10,
+            textShadowRadius: 4,
           }}
         >
           {successRate}%

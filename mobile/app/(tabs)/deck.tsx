@@ -78,17 +78,19 @@ export default function DecksScreen() {
         ItemSeparatorComponent={() => <View className="h-5" />}
       />
 
-      <TouchableOpacity
-        className="absolute right-6 bottom-32 flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
-        style={[pillShadow.default, { zIndex: 2 }]}
-        onPress={() => router.push("/deck/create")}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="add" size={24} color="#fff" />
-        <Text className="text-white font-bold tracking-wider text-base">
-          {t("decks.create").toUpperCase()}
-        </Text>
-      </TouchableOpacity>
+      {!showEmptyState && (
+        <TouchableOpacity
+          className="absolute right-6 bottom-32 flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
+          style={[pillShadow.default, { zIndex: 2 }]}
+          onPress={() => router.push("/deck/create")}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
+          <Text className="text-white font-bold tracking-wider text-base">
+            {t("decks.create").toUpperCase()}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

@@ -13,7 +13,7 @@ export default function TrainSettingsHeader({
   const { t } = useTranslation();
 
   return (
-    <View className="px-6 pt-16 pb-4">
+    <View className="px-6 pt-14 pb-4">
       <View className="flex-row items-start justify-between">
         <View className="flex-1 mr-4">
           <Text className="text-foreground text-2xl font-black tracking-[4px]">

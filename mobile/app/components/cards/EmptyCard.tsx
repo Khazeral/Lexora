@@ -46,7 +46,7 @@ export default function EmptyCard({ deckId }: EmptyCardsProps) {
   }, [floatAnim, pulseAnim]);
 
   return (
-    <View className="flex-1 items-center justify-center pt-12 px-8">
+    <View className="items-center pt-12 px-8">
       <Animated.View
         className="mb-8"
         style={{ transform: [{ translateY: floatAnim }, { rotate: "-4deg" }] }}

@@ -10,6 +10,7 @@ import { useState, useCallback } from "react";
 import HomeHeader from "../components/home/HomeHeader";
 import RecentDecksSection from "../components/home/RecentDecksSection";
 import Scanlines from "../components/Scanlines";
+import HomeEmpty from "../components/home/HomeEmpty";
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -53,7 +54,11 @@ export default function HomeScreen() {
       >
         <HomeHeader />
 
-        <RecentDecksSection decks={homeData?.recentDecks || []} />
+        {homeData?.recentDecks && homeData.recentDecks.length > 0 ? (
+          <RecentDecksSection decks={homeData.recentDecks} />
+        ) : (
+          <HomeEmpty />
+        )}
 
         <View className="h-32" />
       </ScrollView>

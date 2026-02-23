@@ -60,6 +60,17 @@
       "cards": "{{count}} cards",
       "noDecks": "No decks yet",
       "createFirst": "Create Your First Deck"
+    },
+    "empty": {
+      "welcome": "WELCOME {{name}}!",
+      "subtitle": "Start by creating your first deck to work.",
+      "step1Title": "Create a deck",
+      "step1Desc": "Organize your cards by theme",
+      "step2Title": "Add cards",
+      "step2Desc": "Question on one side, answer on the other",
+      "step3Title": "Train",
+      "step3Desc": "Several game modes are waiting for you",
+      "createDeck": "CREATE MY FIRST DECK"
     }
   },
   "train": {
@@ -67,9 +78,16 @@
     "subtitle": "Choose a deck to practice",
     "loading": "Loading decks...",
     "empty": {
-      "title": "No Decks Available",
-      "subtitle": "Create a deck first to start practicing",
-      "button": "Create Your First Deck"
+      "noDeck": {
+        "title": "No Decks Available",
+        "subtitle": "Create a deck first to start practicing",
+        "button": "Create Your First Deck"
+      },
+      "noCard": {
+        "title": "No cards yet",
+        "subtitle": "Your decks don't contain any cards. Add cards to start practicing.",
+        "button": "View my decks"
+      }
     },
     "deck": {
       "cards": "{{count}} card",

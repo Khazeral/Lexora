@@ -514,7 +514,7 @@ export default function AchievementsScreen() {
             letterSpacing: 2,
           }}
         >
-          {t("achievements.title")}
+          {t("achievements.title").toUpperCase()}
         </Text>
         <View style={{ width: 48 }} />
       </View>

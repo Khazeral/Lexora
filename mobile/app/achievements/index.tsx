@@ -50,6 +50,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
   );
   const isNew = achievement.unlocked && !achievement.seen;
   const isUnlocked = achievement.unlocked;
+  const isHidden = achievement.isSecret && !isUnlocked;
 
   return (
     <View
@@ -91,7 +92,11 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
               letterSpacing: 1,
             }}
           >
-            {isNew ? t("achievements.new", "NEW") : config.label}
+            {isNew
+              ? t("achievements.new", "NEW")
+              : isHidden
+                ? "???"
+                : config.label}
           </Text>
         </View>
       </View>
@@ -124,7 +129,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
             }}
           >
             <Ionicons
-              name={achievement.icon as any}
+              name={isHidden ? "help" : (achievement.icon as any)}
               size={28}
               color="#4a7a6a"
             />
@@ -143,7 +148,12 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         }}
         numberOfLines={2}
       >
-        {getAchievementName(achievement.code, achievement.name).toUpperCase()}
+        {isHidden
+          ? "???"
+          : getAchievementName(
+              achievement.code,
+              achievement.name,
+            ).toUpperCase()}
       </Text>
 
       <Text
@@ -156,7 +166,12 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
         }}
         numberOfLines={2}
       >
-        {getAchievementDescription(achievement.code, achievement.description)}
+        {isHidden
+          ? t("achievements.secret", "Trophée secret")
+          : getAchievementDescription(
+              achievement.code,
+              achievement.description,
+            )}
       </Text>
 
       {isUnlocked ? (
@@ -171,6 +186,20 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
           <Ionicons name="checkmark-circle" size={14} color="#44d9a0" />
           <Text style={{ color: "#44d9a0", fontSize: 11, fontWeight: "700" }}>
             {t("achievements.unlocked", "UNLOCKED")}
+          </Text>
+        </View>
+      ) : isHidden ? (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+          }}
+        >
+          <Ionicons name="lock-closed" size={14} color="#4a7a6a" />
+          <Text style={{ color: "#4a7a6a", fontSize: 11, fontWeight: "700" }}>
+            {t("achievements.hidden", "SECRET")}
           </Text>
         </View>
       ) : (

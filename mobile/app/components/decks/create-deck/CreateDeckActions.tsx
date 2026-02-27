@@ -1,6 +1,6 @@
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
-import Button from "../../Button";
+import { pillColors, pillShadow } from "@/app/components/ui/GlowStyles";
 
 type CreateDeckActionsProps = {
   onSubmit: () => void;
@@ -16,52 +16,37 @@ export default function CreateDeckActions({
   const { t } = useTranslation();
 
   return (
-    <View style={styles.actions}>
+    <View className="flex-row gap-3 p-6 bg-secondary rounded-t-2xl">
       <TouchableOpacity
-        style={styles.cancelButton}
+        className="flex-1 py-4 rounded-2xl bg-success items-center justify-center"
+        style={[pillShadow.default, { backgroundColor: pillColors.red }]}
         onPress={onCancel}
         disabled={isLoading}
+        activeOpacity={0.7}
       >
-        <Text style={styles.cancelButtonText}>
-          {t("decks.createDeck.buttons.cancel")}
+        <Text className="text-white text-base font-bold tracking-wider">
+          {t("decks.createDeck.buttons.cancel").toUpperCase()}
         </Text>
       </TouchableOpacity>
-
-      <View style={styles.submitButtonContainer}>
-        <Button
-          title={t("decks.createDeck.buttons.create")}
-          onPress={onSubmit}
-          loading={isLoading}
-          disabled={isLoading}
-        />
-      </View>
+      <TouchableOpacity
+        className="flex-2 py-4 px-8 rounded-2xl bg-success items-center justify-center"
+        style={[
+          pillShadow.default,
+          { flex: 2 },
+          { backgroundColor: pillColors.blue },
+        ]}
+        onPress={onSubmit}
+        disabled={isLoading}
+        activeOpacity={0.8}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#0b3d2e" />
+        ) : (
+          <Text className="text-success-foreground text-base font-bold tracking-wider text-white">
+            {t("decks.createDeck.buttons.create").toUpperCase()}
+          </Text>
+        )}
+      </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  actions: {
-    flexDirection: "row",
-    gap: 12,
-    padding: 16,
-    paddingBottom: 24,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    backgroundColor: "#f1f5f9",
-  },
-  cancelButtonText: {
-    color: "#64748b",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  submitButtonContainer: {
-    flex: 2,
-  },
-});

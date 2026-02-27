@@ -1,16 +1,12 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useAuth } from "@/services/auth_context";
 import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { getUnseenCount } from "@/services/achievements.api";
+import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
+import Scanlines from "../components/Scanlines";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -29,285 +25,129 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t("profile.title")}</Text>
+    <View className="flex-1 bg-background">
+      <Scanlines />
+      <View className="px-6 pt-16 pb-4">
+        <Text className="text-foreground text-3xl font-black tracking-[4px]">
+          {t("profile.title").toUpperCase()}
+        </Text>
+        <Text className="text-accent text-xs font-bold tracking-[3px] mt-1">
+          {t("profile.subtitle", "VOTRE PROFIL").toUpperCase()}
+        </Text>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.userCard}>
-          <View style={styles.avatarContainer}>
-            <Ionicons name="person-circle" size={80} color="#3b82f6" />
+      <ScrollView
+        className="flex-1"
+        contentContainerClassName="p-6 pb-4"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="bg-card rounded-2xl p-6 border-2 border-border items-center mb-6">
+          <View className="w-24 h-24 rounded-2xl bg-info items-center justify-center mb-4">
+            <Ionicons name="person" size={48} color="#fff" />
           </View>
-          <Text style={styles.username}>{user?.username}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
+
+          <Text className="text-foreground text-2xl font-bold tracking-wider mb-1">
+            {user?.username?.toUpperCase()}
+          </Text>
+          <Text className="text-muted-foreground text-sm">{user?.email}</Text>
         </View>
 
         <TouchableOpacity
-          style={styles.achievementsCard}
+          className="bg-card rounded-2xl p-4 border-2 border-accent mb-4 flex-row items-center justify-between"
+          style={pillShadow.card}
           onPress={() => router.push("/achievements")}
+          activeOpacity={0.7}
         >
-          <View style={styles.achievementsLeft}>
-            <View style={styles.achievementsIcon}>
-              <Ionicons name="trophy" size={28} color="#fbbf24" />
+          <View className="flex-row items-center gap-4">
+            <View className="w-14 h-14 rounded-xl bg-accent items-center justify-center">
+              <Ionicons name="trophy" size={28} color="#0b3d2e" />
             </View>
             <View>
-              <Text style={styles.achievementsTitle}>
-                {t("profile.achievements")}
+              <Text className="text-foreground text-lg font-bold tracking-wider">
+                {t("profile.achievements").toUpperCase()}
               </Text>
-              <Text style={styles.achievementsSubtitle}>
+              <Text className="text-muted-foreground text-sm">
                 {t("profile.achievementsSubtitle")}
               </Text>
             </View>
           </View>
-          <View style={styles.achievementsRight}>
+
+          <View className="flex-row items-center gap-2">
             {unseenCount > 0 && (
-              <View style={styles.unseenBadge}>
-                <Text style={styles.unseenBadgeText}>{unseenCount}</Text>
+              <View
+                className="min-w-[28px] h-7 rounded-full items-center justify-center px-2"
+                style={{ backgroundColor: pillColors.red }}
+              >
+                <Text className="text-white text-xs font-bold">
+                  {unseenCount}
+                </Text>
               </View>
             )}
-            <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
+            <Ionicons name="chevron-forward" size={24} color="#6e9e8a" />
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.languageCard} onPress={toggleLanguage}>
-          <View style={styles.languageLeft}>
-            <View style={styles.languageIcon}>
-              <Ionicons name="language" size={28} color="#3b82f6" />
+        <TouchableOpacity
+          className="bg-card rounded-2xl p-4 border-2 border-border mb-4 flex-row items-center justify-between"
+          onPress={toggleLanguage}
+          activeOpacity={0.7}
+        >
+          <View className="flex-row items-center gap-4">
+            <View className="w-14 h-14 rounded-xl bg-info items-center justify-center">
+              <Ionicons name="language" size={28} color="#fff" />
             </View>
             <View>
-              <Text style={styles.languageTitle}>{t("profile.language")}</Text>
-              <Text style={styles.languageSubtitle}>
+              <Text className="text-foreground text-lg font-bold tracking-wider">
+                {t("profile.language").toUpperCase()}
+              </Text>
+              <Text className="text-muted-foreground text-sm">
                 {i18n.language === "fr" ? "Français" : "English"}
               </Text>
             </View>
           </View>
-          <View style={styles.languageSwitch}>
+
+          <View className="flex-row bg-secondary rounded-xl p-1">
             <View
-              style={[
-                styles.languageOption,
-                i18n.language === "fr" && styles.languageOptionActive,
-              ]}
+              className={`px-4 py-2 rounded-lg ${i18n.language === "fr" ? "bg-info" : ""}`}
+              style={i18n.language === "fr" ? pillShadow.sm : undefined}
             >
               <Text
-                style={[
-                  styles.languageOptionText,
-                  i18n.language === "fr" && styles.languageOptionTextActive,
-                ]}
+                className={`text-sm font-bold ${i18n.language === "fr" ? "text-white" : "text-muted-foreground"}`}
               >
                 FR
               </Text>
             </View>
             <View
-              style={[
-                styles.languageOption,
-                i18n.language === "en" && styles.languageOptionActive,
-              ]}
+              className={`px-4 py-2 rounded-lg ${i18n.language === "en" ? "bg-info" : ""}`}
+              style={i18n.language === "en" ? pillShadow.sm : undefined}
             >
               <Text
-                style={[
-                  styles.languageOptionText,
-                  i18n.language === "en" && styles.languageOptionTextActive,
-                ]}
+                className={`text-sm font-bold ${i18n.language === "en" ? "text-white" : "text-muted-foreground"}`}
               >
                 EN
               </Text>
             </View>
           </View>
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Ionicons name="log-out-outline" size={20} color="#fff" />
-          <Text style={styles.logoutText}>{t("profile.logout")}</Text>
-        </TouchableOpacity>
       </ScrollView>
+
+      <View className="px-6 pb-28 pt-4">
+        <TouchableOpacity
+          className="rounded-2xl p-4 flex-row items-center justify-center gap-3"
+          style={[pillShadow.default, { backgroundColor: pillColors.red }]}
+          onPress={logout}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="log-out-outline" size={24} color="#fff" />
+          <Text className="text-white text-base font-bold tracking-wider">
+            {t("profile.logout").toUpperCase()}
+          </Text>
+        </TouchableOpacity>
+
+        <Text className="text-muted-foreground text-xs text-center mt-4 tracking-wider">
+          LEXORA v1.0.0
+        </Text>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  content: {
-    flex: 1,
-  },
-  userCard: {
-    backgroundColor: "#fff",
-    margin: 16,
-    padding: 24,
-    borderRadius: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  avatarContainer: {
-    marginBottom: 16,
-  },
-  username: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  email: {
-    fontSize: 16,
-    color: "#64748b",
-  },
-  achievementsCard: {
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    marginBottom: 12,
-    padding: 16,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#fbbf24",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "#fef3c7",
-  },
-  achievementsLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  achievementsIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#fef9c3",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  achievementsTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  achievementsSubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  achievementsRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  unseenBadge: {
-    backgroundColor: "#ef4444",
-    minWidth: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 8,
-  },
-  unseenBadgeText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  languageCard: {
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    marginBottom: 12,
-    padding: 16,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-  },
-  languageLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  languageIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#eff6ff",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  languageTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  languageSubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  languageSwitch: {
-    flexDirection: "row",
-    backgroundColor: "#f1f5f9",
-    borderRadius: 10,
-    padding: 4,
-  },
-  languageOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  languageOptionActive: {
-    backgroundColor: "#3b82f6",
-  },
-  languageOptionText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#64748b",
-  },
-  languageOptionTextActive: {
-    color: "#fff",
-  },
-  logoutButton: {
-    backgroundColor: "#ef4444",
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    shadowColor: "#ef4444",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  logoutText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 16,
-  },
-});

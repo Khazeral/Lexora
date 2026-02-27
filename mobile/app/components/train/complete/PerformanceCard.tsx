@@ -1,15 +1,11 @@
-import { View, Text, StyleSheet, Animated } from "react-native";
+import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 
 type PerformanceCardProps = {
   successRate: number;
-  fadeAnim: Animated.Value;
 };
 
-export default function PerformanceCard({
-  successRate,
-  fadeAnim,
-}: PerformanceCardProps) {
+export default function PerformanceCard({ successRate }: PerformanceCardProps) {
   const { t } = useTranslation();
 
   const getMessage = () => {
@@ -21,80 +17,45 @@ export default function PerformanceCard({
   };
 
   const getColor = () => {
-    if (successRate >= 75) return "#10b981";
-    if (successRate >= 50) return "#f59e0b";
-    return "#ef4444";
+    if (successRate >= 75) return { text: "#44d9a0", bg: "#1a3d2e" };
+    if (successRate >= 50) return { text: "#f5c542", bg: "#3d2e1a" };
+    return { text: "#e8453c", bg: "#3d1a1a" };
   };
 
+  const colors = getColor();
+
   return (
-    <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-      <Text style={styles.message}>{getMessage()}</Text>
-      <View style={styles.rateContainer}>
-        <Text style={styles.rateLabel}>
-          {t("trainComplete.performance.successRate")}
+    <View className="mx-6 mb-4 p-6 bg-card rounded-2xl border-2 border-border">
+      <Text className="text-foreground text-xl font-bold text-center mb-4 tracking-wider">
+        {getMessage().toUpperCase()}
+      </Text>
+
+      <View className="items-center mb-4">
+        <Text className="text-muted-foreground text-xs font-bold tracking-widest mb-2">
+          {t("trainComplete.performance.successRate").toUpperCase()}
         </Text>
-        <Text style={[styles.rateValue, { color: getColor() }]}>
+        <Text
+          className="text-5xl font-black"
+          style={{
+            color: colors.text,
+            textShadowColor: colors.text,
+            textShadowOffset: { width: 0, height: 0 },
+            textShadowRadius: 4,
+          }}
+        >
           {successRate}%
         </Text>
       </View>
-      <View style={styles.progressBarContainer}>
-        <View style={styles.progressBarTrack}>
-          <View
-            style={[
-              styles.progressBarFill,
-              { width: `${successRate}%`, backgroundColor: getColor() },
-            ]}
-          />
-        </View>
+
+      <View className="h-4 bg-badge-dark rounded-full overflow-hidden border border-border">
+        <View
+          className="h-full rounded-full"
+          style={{
+            width: `${successRate}%`,
+            backgroundColor: colors.text,
+          }}
+        />
       </View>
-    </Animated.View>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    margin: 16,
-    marginTop: 0,
-    padding: 24,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  message: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e293b",
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  rateContainer: {
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  rateLabel: {
-    fontSize: 14,
-    color: "#64748b",
-    marginBottom: 8,
-  },
-  rateValue: {
-    fontSize: 48,
-    fontWeight: "bold",
-  },
-  progressBarContainer: {
-    marginTop: 8,
-  },
-  progressBarTrack: {
-    height: 8,
-    backgroundColor: "#e2e8f0",
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  progressBarFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
-});

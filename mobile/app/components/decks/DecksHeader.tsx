@@ -1,27 +1,17 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 
 export default function DecksHeader() {
   const { t } = useTranslation();
 
   return (
-    <View style={styles.header}>
-      <Text style={styles.title}>{t("decks.title")}</Text>
+    <View className="px-6 pt-16 pb-4">
+      <Text className="text-foreground text-3xl font-black tracking-[4px]">
+        {t("decks.title").toUpperCase()}
+      </Text>
+      <Text className="text-accent text-xs font-bold tracking-[3px] mt-1">
+        {t("decks.description").toUpperCase()}
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-});

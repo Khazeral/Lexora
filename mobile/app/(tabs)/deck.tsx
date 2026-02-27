@@ -1,15 +1,23 @@
 import React, { useState } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { getDecks } from "@/services/decks.api";
-import DecksHeader from "../components/decks/DecksHeader";
-import DecksSearchBar from "../components/decks/DecksSearchBar";
-import EmptyDecks from "../components/decks/EmptyDeck";
-import DeckCard from "../components/decks/DeckCard";
-import CreateDeckButton from "../components/decks/create-deck/CreateDeckButton";
 import { Deck } from "@/types";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
+import DecksHeader from "@/app/components/decks/DecksHeader";
+import DecksSearchBar from "@/app/components/decks/DecksSearchBar";
+import EmptyDecks from "../components/decks/EmptyDeck";
+import DeckListItem from "../components/decks/DeckListItem";
+import Scanlines from "../components/Scanlines";
 
 export default function DecksScreen() {
   const { t } = useTranslation();
@@ -31,8 +39,17 @@ export default function DecksScreen() {
 
   const showEmptyState = !isLoading && filteredDecks.length === 0;
 
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator size="large" color="#e8453c" />
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View className="flex-1 bg-background">
+      <Scanlines />
       <DecksHeader />
 
       {decks.length > 0 && (
@@ -46,7 +63,7 @@ export default function DecksScreen() {
       <FlatList
         data={filteredDecks}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ padding: 24, paddingBottom: 120 }}
         onRefresh={refetch}
         refreshing={isFetching}
         showsVerticalScrollIndicator={false}
@@ -55,26 +72,25 @@ export default function DecksScreen() {
             <EmptyDecks hasSearchQuery={searchQuery.length > 0} />
           ) : null
         }
-        renderItem={({ item }) => <DeckCard deck={item} />}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        renderItem={({ item, index }) => (
+          <DeckListItem deck={item} index={index} />
+        )}
+        ItemSeparatorComponent={() => <View className="h-5" />}
       />
 
-      <CreateDeckButton />
-    </SafeAreaView>
+      {!showEmptyState && (
+        <TouchableOpacity
+          className="absolute right-6 bottom-32 flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
+          style={[pillShadow.default, { zIndex: 2 }]}
+          onPress={() => router.push("/deck/create")}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
+          <Text className="text-white font-bold tracking-wider text-base">
+            {t("decks.create").toUpperCase()}
+          </Text>
+        </TouchableOpacity>
+      )}
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  list: {
-    padding: 16,
-    paddingBottom: 100,
-    flexGrow: 1,
-  },
-  separator: {
-    height: 12,
-  },
-});

@@ -1,16 +1,18 @@
-import { StyleSheet, ScrollView, RefreshControl } from "react-native";
-import { useAuth } from "@/services/auth_context";
+import {
+  View,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { getHomeData } from "@/services/decks.api";
 import { useState, useCallback } from "react";
-import HomeHeader from "../components/Header";
-import QuickStats from "../components/home/QuickStats";
-import DailyGoal from "../components/home/DailyGoal";
+import HomeHeader from "../components/home/HomeHeader";
 import RecentDecksSection from "../components/home/RecentDecksSection";
-import QuickActions from "../components/home/QuickActions";
+import Scanlines from "../components/Scanlines";
+import HomeEmpty from "../components/home/HomeEmpty";
 
 export default function HomeScreen() {
-  const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
 
   const {
@@ -28,37 +30,38 @@ export default function HomeScreen() {
     setRefreshing(false);
   }, [refetch]);
 
+  if (isLoading) {
+    return (
+      <View className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator size="large" color="#5b8af5" />
+      </View>
+    );
+  }
+
   return (
-    <ScrollView
-      style={styles.container}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <HomeHeader username={user?.username || ""} />
-      <QuickStats
-        totalDecks={homeData?.totalDecks || 0}
-        totalCards={homeData?.totalCards || 0}
-        streak={user?.currentStreak || 0}
-        isLoading={isLoading}
-      />
-      <DailyGoal
-        completedToday={homeData?.completedToday || 0}
-        dailyGoal={10}
-      />
-      <QuickActions />
-      <RecentDecksSection
-        decks={homeData?.recentDecks || []}
-        isLoading={isLoading}
-      />
-    </ScrollView>
+    <View className="flex-1 bg-background">
+      <Scanlines />
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#5b8af5"
+          />
+        }
+      >
+        <HomeHeader />
+
+        {homeData?.recentDecks && homeData.recentDecks.length > 0 ? (
+          <RecentDecksSection decks={homeData.recentDecks} />
+        ) : (
+          <HomeEmpty />
+        )}
+
+        <View className="h-32" />
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-});

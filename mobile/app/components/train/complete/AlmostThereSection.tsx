@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -16,151 +16,101 @@ type CardUpgrade = {
   percentToNext: number;
 };
 
-type AlmostThereSectionProps = {
-  cards: CardUpgrade[];
+const getLevelColors = (color: string) => {
+  const colorMap: Record<string, { bg: string; text: string }> = {
+    "#cd7f32": { bg: "#2a1a0a", text: "#cd7f32" },
+    "#d1d5db": { bg: "#27272a", text: "#a1a1aa" },
+    "#f59e0b": { bg: "#3d2e1a", text: "#fbbf24" },
+    "#94a3b8": { bg: "#1e293b", text: "#94a3b8" },
+    "#dc2626": { bg: "#3d1a1a", text: "#dc2626" },
+  };
+  return colorMap[color] || { bg: "#2a1a0a", text: "#cd7f32" };
 };
 
-export default function AlmostThereSection({ cards }: AlmostThereSectionProps) {
+export default function AlmostThereSection({
+  cards,
+}: {
+  cards: CardUpgrade[];
+}) {
   const { t } = useTranslation();
 
   if (cards.length === 0) return null;
 
   return (
-    <View style={styles.section}>
-      <View style={styles.header}>
-        <Ionicons name="trending-up" size={24} color="#3b82f6" />
-        <Text style={styles.title}>{t("trainComplete.almostThere.title")}</Text>
+    <View className="mx-6 mt-4 p-4 bg-card rounded-2xl border-2 border-border">
+      <View className="flex-row items-center gap-3 mb-4">
+        <View className="w-10 h-10 rounded-xl bg-info items-center justify-center">
+          <Ionicons name="trending-up" size={20} color="#fff" />
+        </View>
+        <Text className="text-foreground text-base font-bold tracking-wider">
+          {t("trainComplete.almostThere.title").toUpperCase()}
+        </Text>
       </View>
 
-      {cards.map((card) => (
-        <TouchableOpacity
-          key={card.id}
-          style={styles.card}
-          onPress={() => router.push(`/card/${card.id}`)}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.cardInfo}>
-              <Text style={styles.word} numberOfLines={1}>
-                {card.word}
-              </Text>
-              <Text style={styles.translation} numberOfLines={1}>
-                {card.translation}
-              </Text>
-            </View>
-            <View style={styles.remaining}>
-              <Ionicons
-                name={card.nextLevel.icon as any}
-                size={16}
-                color={card.nextLevel.color}
-              />
-              <Text style={styles.remainingText}>
-                {t("trainComplete.almostThere.more", { count: card.remaining })}
-              </Text>
-            </View>
-          </View>
+      {cards.map((card, index) => {
+        const levelColors = getLevelColors(card.nextLevel.color);
 
-          <View style={styles.progressContainer}>
-            <View style={styles.progressTrack}>
+        return (
+          <TouchableOpacity
+            key={card.id}
+            className={`p-4 bg-secondary rounded-xl ${index < cards.length - 1 ? "mb-3" : ""}`}
+            onPress={() => router.push(`/card/${card.id}`)}
+            activeOpacity={0.7}
+          >
+            <View className="flex-row justify-between items-center mb-3">
+              <View className="flex-1 mr-3">
+                <Text
+                  className="text-foreground text-sm font-bold"
+                  numberOfLines={1}
+                >
+                  {card.word}
+                </Text>
+                <Text
+                  className="text-muted-foreground text-xs mt-0.5"
+                  numberOfLines={1}
+                >
+                  {card.translation}
+                </Text>
+              </View>
+
               <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${card.percentToNext}%`,
-                    backgroundColor: card.nextLevel.color,
-                  },
-                ]}
-              />
+                className="flex-row items-center gap-2 px-3 py-1.5 rounded-lg"
+                style={{ backgroundColor: levelColors.bg }}
+              >
+                <Ionicons
+                  name={card.nextLevel.icon as any}
+                  size={14}
+                  color={levelColors.text}
+                />
+                <Text
+                  className="text-xs font-bold"
+                  style={{ color: levelColors.text }}
+                >
+                  {card.remaining} left
+                </Text>
+              </View>
             </View>
-            <Text style={styles.progressText}>→ {card.nextLevel.name}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
+
+            <View className="flex-row items-center gap-3">
+              <View className="flex-1 h-2 bg-badge-dark rounded-full overflow-hidden border border-border">
+                <View
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${card.percentToNext}%`,
+                    backgroundColor: levelColors.text,
+                  }}
+                />
+              </View>
+              <Text
+                className="text-xs font-bold"
+                style={{ color: levelColors.text }}
+              >
+                → {card.nextLevel.name}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    margin: 16,
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  card: {
-    padding: 16,
-    backgroundColor: "#f8fafc",
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  cardInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  word: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  translation: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  remaining: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#fff",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  remainingText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#64748b",
-  },
-  progressContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  progressTrack: {
-    flex: 1,
-    height: 6,
-    backgroundColor: "#e2e8f0",
-    borderRadius: 3,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#64748b",
-  },
-});

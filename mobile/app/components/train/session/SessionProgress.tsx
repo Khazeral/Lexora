@@ -1,7 +1,16 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { GameMode } from "@/constants/gameMods";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
+
+const MODE_COLORS: Record<string, { icon: string; bg: string }> = {
+  classic: { icon: "#5b8af5", bg: "#1a3a5c" },
+  speedrun: { icon: "#e8453c", bg: "#3d1a1a" },
+  streak: { icon: "#06b6d4", bg: "#0d3a3a" },
+  timeattack: { icon: "#a855f7", bg: "#2e1a3d" },
+  perfect: { icon: "#f5c542", bg: "#3d2e1a" },
+};
 
 type SessionProgressProps = {
   currentIndex: number;
@@ -24,42 +33,57 @@ export default function SessionProgress({
 }: SessionProgressProps) {
   const { t } = useTranslation();
   const progress = ((currentIndex + 1) / totalCards) * 100;
+  const colors = MODE_COLORS[gameMode] || MODE_COLORS.classic;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.progressText}>
-          {t("trainSession.progress.of", {
-            current: currentIndex + 1,
-            total: totalCards,
-          })}
+    <View className="px-6 py-4 bg-secondary border-b-2 border-border">
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="text-foreground text-base font-bold">
+          {currentIndex + 1}
+          <Text className="text-muted-foreground font-normal">
+            {" "}
+            / {totalCards}
+          </Text>
         </Text>
 
         {gameMode === "speedrun" && (
-          <View style={styles.modeIndicator}>
-            <Ionicons name="flash" size={16} color="#f59e0b" />
-            <Text style={[styles.modeIndicatorText, { color: "#f59e0b" }]}>
+          <View
+            className="flex-row items-center gap-2 px-4 py-2 rounded-xl border-2"
+            style={[
+              { backgroundColor: colors.bg, borderColor: colors.icon },
+              pillShadow.sm,
+            ]}
+          >
+            <Ionicons name="flash" size={18} color={colors.icon} />
+            <Text
+              style={{ color: colors.icon }}
+              className="text-base font-bold"
+            >
               {Math.floor((elapsedTime + timePenalty) / 60)}:
               {((elapsedTime + timePenalty) % 60).toString().padStart(2, "0")}
             </Text>
             {timePenalty > 0 && (
-              <Text style={styles.penaltyText}>
-                {t("trainSession.modes.speedrun.penalty", {
-                  seconds: timePenalty,
-                })}
+              <Text className="text-destructive text-xs font-bold ml-1">
+                +{timePenalty}s
               </Text>
             )}
           </View>
         )}
 
         {gameMode === "streak" && (
-          <View style={styles.modeIndicator}>
+          <View
+            className="flex-row items-center gap-1 px-4 py-2 rounded-xl border-2"
+            style={[
+              { backgroundColor: colors.bg, borderColor: colors.icon },
+              pillShadow.sm,
+            ]}
+          >
             {Array.from({ length: 3 }).map((_, i) => (
               <Ionicons
                 key={i}
                 name={i < lives ? "heart" : "heart-outline"}
-                size={20}
-                color={i < lives ? "#ef4444" : "#cbd5e1"}
+                size={22}
+                color={i < lives ? "#e8453c" : "#4a7a6a"}
               />
             ))}
           </View>
@@ -67,21 +91,23 @@ export default function SessionProgress({
 
         {gameMode === "timeattack" && (
           <View
+            className={`flex-row items-center gap-2 px-4 py-2 rounded-xl border-2`}
             style={[
-              styles.modeIndicator,
-              cardTimeLeft <= 3 && styles.modeIndicatorUrgent,
+              {
+                backgroundColor: cardTimeLeft <= 3 ? "#3d1a1a" : colors.bg,
+                borderColor: cardTimeLeft <= 3 ? "#e8453c" : colors.icon,
+              },
+              pillShadow.sm,
             ]}
           >
             <Ionicons
               name="timer"
-              size={16}
-              color={cardTimeLeft <= 3 ? "#ef4444" : "#8b5cf6"}
+              size={18}
+              color={cardTimeLeft <= 3 ? "#e8453c" : colors.icon}
             />
             <Text
-              style={[
-                styles.modeIndicatorText,
-                { color: cardTimeLeft <= 3 ? "#ef4444" : "#8b5cf6" },
-              ]}
+              className="text-base font-bold"
+              style={{ color: cardTimeLeft <= 3 ? "#e8453c" : colors.icon }}
             >
               {cardTimeLeft}s
             </Text>
@@ -89,72 +115,42 @@ export default function SessionProgress({
         )}
 
         {gameMode === "perfect" && (
-          <View style={styles.modeIndicator}>
-            <Ionicons name="diamond" size={16} color="#ec4899" />
-            <Text style={[styles.modeIndicatorText, { color: "#ec4899" }]}>
-              {t("trainSession.modes.perfect")}
+          <View
+            className="flex-row items-center gap-2 px-4 py-2 rounded-xl border-2"
+            style={[
+              { backgroundColor: colors.bg, borderColor: colors.icon },
+              pillShadow.sm,
+            ]}
+          >
+            <Ionicons name="diamond" size={18} color={colors.icon} />
+            <Text style={{ color: colors.icon }} className="text-sm font-bold">
+              {t("trainSession.modes.perfect").toUpperCase()}
+            </Text>
+          </View>
+        )}
+
+        {gameMode === "classic" && (
+          <View
+            className="flex-row items-center gap-2 px-4 py-2 rounded-xl border-2"
+            style={[{ backgroundColor: colors.bg, borderColor: colors.icon }]}
+          >
+            <Ionicons name="albums" size={18} color={colors.icon} />
+            <Text style={{ color: colors.icon }} className="text-sm font-bold">
+              CLASSIC
             </Text>
           </View>
         )}
       </View>
 
-      <View style={styles.progressBar}>
-        <View style={[styles.progressFill, { width: `${progress}%` }]} />
+      <View className="h-3 bg-badge-dark rounded-full overflow-hidden border border-border">
+        <View
+          className="h-full rounded-full"
+          style={{
+            width: `${progress}%`,
+            backgroundColor: colors.icon,
+          }}
+        />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  progressText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#64748b",
-  },
-  modeIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#f8fafc",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-  },
-  modeIndicatorUrgent: {
-    backgroundColor: "#fee2e2",
-    borderColor: "#ef4444",
-  },
-  modeIndicatorText: {
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  penaltyText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#ef4444",
-    marginLeft: 4,
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: "#e2e8f0",
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#3b82f6",
-    borderRadius: 4,
-  },
-});

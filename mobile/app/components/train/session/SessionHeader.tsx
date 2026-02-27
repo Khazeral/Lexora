@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type SessionHeaderProps = {
   deckName: string;
@@ -16,68 +17,35 @@ export default function SessionHeader({
   const { t } = useTranslation();
 
   return (
-    <View style={styles.header}>
-      <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-        <Ionicons name="close" size={24} color="#1e293b" />
-      </TouchableOpacity>
-      <View style={styles.headerCenter}>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {deckName}
-        </Text>
-        {isReverse && (
-          <View style={styles.reverseBadge}>
-            <Ionicons name="swap-horizontal" size={12} color="#10b981" />
-            <Text style={styles.reverseBadgeText}>
-              {t("trainSession.header.reverse")}
-            </Text>
-          </View>
-        )}
+    <SafeAreaView edges={["top"]}>
+      <View className="flex-row items-center justify-between px-6 py-4 border-b-2 border-border">
+        <TouchableOpacity
+          onPress={onClose}
+          className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
+          activeOpacity={0.7}
+        >
+          <Ionicons name="close" size={24} color="#e8edf5" />
+        </TouchableOpacity>
+
+        <View className="flex-1 items-center gap-1 mx-4">
+          <Text
+            className="text-foreground text-base font-bold tracking-wider"
+            numberOfLines={1}
+          >
+            {deckName.toUpperCase()}
+          </Text>
+          {isReverse && (
+            <View className="flex-row items-center gap-1 bg-success/20 px-3 py-1 rounded-full">
+              <Ionicons name="swap-horizontal" size={12} color="#44d9a0" />
+              <Text className="text-success text-[10px] font-bold">
+                {t("trainSession.header.reverse").toUpperCase()}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <View className="w-12" />
       </View>
-      <View style={styles.placeholder} />
-    </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  closeButton: {
-    padding: 8,
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  reverseBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#d1fae5",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-  },
-  reverseBadgeText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#10b981",
-  },
-  placeholder: {
-    width: 40,
-  },
-});

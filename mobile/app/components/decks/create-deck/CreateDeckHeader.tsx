@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type CreateDeckHeaderProps = {
   onBack: () => void;
@@ -10,40 +11,22 @@ export default function CreateDeckHeader({ onBack }: CreateDeckHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <View style={styles.header}>
+    <View className="flex-row items-center justify-between px-6 pt-8 pb-4">
       <TouchableOpacity
         onPress={onBack}
-        style={styles.backButton}
+        className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
+        style={pillShadow.sm}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        activeOpacity={0.7}
       >
-        <Ionicons name="close" size={28} color="#1e293b" />
+        <Ionicons name="close" size={24} color="#e8edf5" />
       </TouchableOpacity>
-      <Text style={styles.title}>{t("decks.createDeck.title")}</Text>
-      <View style={styles.placeholder} />
+
+      <Text className="text-foreground text-lg font-bold tracking-wider">
+        {t("decks.createDeck.title").toUpperCase()}
+      </Text>
+
+      <View className="w-12" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  backButton: {
-    padding: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1e293b",
-  },
-  placeholder: {
-    width: 36,
-  },
-});

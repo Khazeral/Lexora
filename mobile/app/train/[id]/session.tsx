@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { View, StyleSheet, Animated } from "react-native";
+import { View } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { getDeck } from "@/services/decks.api";
 import { answerCard, UnlockedAchievement } from "@/services/progress.api";
 import { getDeckRecords, updateDeckRecords } from "@/services/deck_records.api";
@@ -15,16 +14,12 @@ import { useTranslation } from "react-i18next";
 import LoadingScreen from "@/app/components/LoadingScreen";
 import SessionHeader from "@/app/components/train/session/SessionHeader";
 import SessionProgress from "@/app/components/train/session/SessionProgress";
-import SwipeableCard from "@/app/components/train/session/SwipeableCard";
-import {
-  CardFrontContent,
-  CardBackContent,
-} from "@/app/components/train/session/CardContent";
 import useSessionTimer from "@/hooks/useSessionTimer";
 import useCardTimer from "@/hooks/useCardTimer";
 import useSessionStats from "@/hooks/useSessionStats";
 import useGameModeState from "@/hooks/useGameModeState";
-import { getSubtextColor, getTextColor } from "@/constants/cardColors";
+import FlashCard from "@/app/components/train/session/FlashCard";
+import Scanlines from "@/app/components/Scanlines";
 
 export default function TrainingSessionScreen() {
   const {
@@ -41,7 +36,6 @@ export default function TrainingSessionScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cards, setCards] = useState<Card[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [flipAnim, setFlipAnim] = useState(() => new Animated.Value(0));
 
   const [pendingAchievements, setPendingAchievements] = useState<
     UnlockedAchievement[]
@@ -91,11 +85,11 @@ export default function TrainingSessionScreen() {
     },
   });
 
-  const handleSwipeLeftRef = useRef<() => void>(() => {});
+  const handleIncorrectRef = useRef<() => void>(() => {});
 
   const { cardTimeLeft, stopCardTimer, getTotalTimeUsed, resetTotalTime } =
     useCardTimer(gameMode as string, isFlipped, currentIndex, () =>
-      handleSwipeLeftRef.current(),
+      handleIncorrectRef.current(),
     );
 
   useEffect(() => {
@@ -191,14 +185,12 @@ export default function TrainingSessionScreen() {
     queryClient.invalidateQueries({ queryKey: ["deck", id] });
     queryClient.invalidateQueries({ queryKey: ["deckRecords", id] });
 
-    // Combiner tous les achievements
     const allAchievements = [...pendingAchievements, ...recordsAchievements];
     const uniqueAchievements = allAchievements.filter(
       (achievement, index, self) =>
         index === self.findIndex((a) => a.id === achievement.id),
     );
 
-    // Afficher le toast si des achievements ont été débloqués
     if (uniqueAchievements.length > 0) {
       showAchievementToast(uniqueAchievements.length);
     }
@@ -255,10 +247,9 @@ export default function TrainingSessionScreen() {
     });
 
     setIsFlipped(false);
-    setFlipAnim(new Animated.Value(0));
   }, [finishSession]);
 
-  const handleSwipeLeft = useCallback(async () => {
+  const handleIncorrect = useCallback(async () => {
     const currentCard = cardsRef.current[currentIndex];
     if (!currentCard) return;
 
@@ -304,10 +295,10 @@ export default function TrainingSessionScreen() {
   ]);
 
   useEffect(() => {
-    handleSwipeLeftRef.current = handleSwipeLeft;
-  }, [handleSwipeLeft]);
+    handleIncorrectRef.current = handleIncorrect;
+  }, [handleIncorrect]);
 
-  const handleSwipeRight = useCallback(async () => {
+  const handleCorrect = useCallback(async () => {
     const currentCard = cardsRef.current[currentIndex];
     if (!currentCard) return;
 
@@ -325,13 +316,8 @@ export default function TrainingSessionScreen() {
   }, [currentIndex, answerMutation, recordCorrect, goToNextCard]);
 
   const flipCard = useCallback(() => {
-    Animated.timing(flipAnim, {
-      toValue: isFlipped ? 0 : 180,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
     setIsFlipped((prev) => !prev);
-  }, [flipAnim, isFlipped]);
+  }, []);
 
   if (isLoading) {
     return <LoadingScreen loading />;
@@ -347,9 +333,6 @@ export default function TrainingSessionScreen() {
     : currentCard.progress;
   const cardStatus = cardProgress?.status || "bronze";
 
-  const textColor = getTextColor(cardStatus);
-  const subtextColor = getSubtextColor(cardStatus);
-
   const frontText =
     isReverse === "true" ? currentCard.translation : currentCard.word;
   const backText =
@@ -364,9 +347,10 @@ export default function TrainingSessionScreen() {
       : t("trainSession.card.labels.translation");
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View className="flex-1 bg-background">
+      <Scanlines />
       <SessionHeader
-        deckName={deck.name}
+        deckName={deck?.name || ""}
         isReverse={isReverse === "true"}
         onClose={() => router.back()}
       />
@@ -381,45 +365,21 @@ export default function TrainingSessionScreen() {
         cardTimeLeft={cardTimeLeft}
       />
 
-      <View style={styles.cardArea}>
-        <View style={styles.cardContainer}>
-          <SwipeableCard
-            key={`${currentCard.id}-${currentIndex}`}
-            cardKey={`${currentCard.id}-${currentIndex}`}
-            status={cardStatus}
-            isFlipped={isFlipped}
-            onFlip={flipCard}
-            onSwipeLeft={handleSwipeLeft}
-            onSwipeRight={handleSwipeRight}
-            flipAnim={flipAnim}
-            frontContent={
-              <CardFrontContent
-                label={frontLabel}
-                text={frontText}
-                textColor={textColor}
-                subtextColor={subtextColor}
-              />
-            }
-            backContent={<CardBackContent label={backLabel} text={backText} />}
-          />
-        </View>
+      <View className="flex-1 justify-center items-center px-6 pb-8">
+        <FlashCard
+          key={`${currentCard.id}-${currentIndex}`}
+          cardKey={`${currentCard.id}-${currentIndex}`}
+          status={cardStatus}
+          isFlipped={isFlipped}
+          frontText={frontText}
+          frontLabel={frontLabel}
+          backText={backText}
+          backLabel={backLabel}
+          onFlip={flipCard}
+          onCorrect={handleCorrect}
+          onIncorrect={handleIncorrect}
+        />
       </View>
-    </GestureHandlerRootView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  cardArea: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  cardContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

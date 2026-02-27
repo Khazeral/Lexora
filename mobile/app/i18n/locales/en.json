@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "home": "Home",
+    "decks": "Decks",
+    "train": "Train",
+    "profile": "Profile"
+  },
   "auth": {
     "login": {
       "title": "Flashcard Pro",
@@ -37,32 +43,34 @@
       }
     }
   },
-  "achievements": {
-    "toast": {
-      "singular": "You unlocked 1 trophy!",
-      "plural": "You unlocked {{count}} trophies!"
-    }
-  },
   "profile": {
     "title": "Profile",
+    "description": "Your profile",
     "achievements": "Achievements",
     "achievementsSubtitle": "View all your trophies",
     "language": "Language",
     "logout": "Sign Out"
   },
   "home": {
-    "greeting": "Hello,",
-    "wave": "👋",
-    "stats": {
-      "totalDecks": "Total Decks",
-      "totalCards": "Total Cards"
-    },
+    "description": "Memorize with flashcards",
     "recentDecks": {
+      "categories": "Categories",
       "title": "Recent Decks",
       "seeAll": "See All",
       "cards": "{{count}} cards",
       "noDecks": "No decks yet",
       "createFirst": "Create Your First Deck"
+    },
+    "empty": {
+      "welcome": "WELCOME {{name}}!",
+      "subtitle": "Start by creating your first deck to work.",
+      "step1Title": "Create a deck",
+      "step1Desc": "Organize your cards by theme",
+      "step2Title": "Add cards",
+      "step2Desc": "Question on one side, answer on the other",
+      "step3Title": "Train",
+      "step3Desc": "Several game modes are waiting for you",
+      "createDeck": "CREATE MY FIRST DECK"
     }
   },
   "train": {
@@ -70,9 +78,16 @@
     "subtitle": "Choose a deck to practice",
     "loading": "Loading decks...",
     "empty": {
-      "title": "No Decks Available",
-      "subtitle": "Create a deck first to start practicing",
-      "button": "Create Your First Deck"
+      "noDeck": {
+        "title": "No Decks Available",
+        "subtitle": "Create a deck first to start practicing",
+        "button": "Create Your First Deck"
+      },
+      "noCard": {
+        "title": "No cards yet",
+        "subtitle": "Your decks don't contain any cards. Add cards to start practicing.",
+        "button": "View my decks"
+      }
     },
     "deck": {
       "cards": "{{count}} card",
@@ -178,16 +193,16 @@
   },
   "trainComplete": {
     "headers": {
-      "perfect": "Perfect Run! 💎",
-      "newRecord": "New Record! 🎉",
-      "complete": "Session Complete! 🎉"
+      "perfect": "Perfect Run !",
+      "newRecord": "New Record !",
+      "complete": "Session Complete !"
     },
     "performance": {
-      "outstanding": "🏆 Outstanding!",
-      "greatJob": "🌟 Great job!",
-      "goodEffort": "👍 Good effort!",
-      "keepPracticing": "💪 Keep practicing!",
-      "roomForImprovement": "📚 Room for improvement!",
+      "outstanding": "🏆 Outstanding !",
+      "greatJob": "🌟 Great job !",
+      "goodEffort": "👍 Good effort !",
+      "keepPracticing": "💪 Keep practicing !",
+      "roomForImprovement": "📚 Room for improvement !",
       "successRate": "Success Rate"
     },
     "stats": {
@@ -199,9 +214,9 @@
     "modes": {
       "classic": {
         "complete": "Session Complete",
-        "perfect": "Perfect Session!",
+        "perfect": "Perfect Session !",
         "cardsCompleted": "Cards completed",
-        "firstSession": "First session on this deck!",
+        "firstSession": "First session on this deck !",
         "sessionCount": "Session #{{count}}",
         "successRate": "Success rate",
         "bestStreak": "Best streak",
@@ -209,68 +224,69 @@
       },
       "speedrun": {
         "firstRun": "⚡ First Speed Run!",
-        "firstRunSubtitle": "This is your first speed run on this deck!",
-        "newRecord": "🎉 New Record!",
+        "firstRunSubtitle": "This is your first speed run on this deck !",
+        "newRecord": "🎉 New Record !",
         "complete": "Speed Run Complete",
         "yourTime": "Your Time",
         "previousBest": "Previous Best",
-        "beatRecord": "You beat your record by {{seconds}} seconds!",
+        "beatRecord": "You beat your record by {{seconds}} seconds !",
         "slower": "{{seconds}} seconds slower than your best",
         "penalties": "Penalties",
         "netTime": "Net Time",
         "attempts": "Attempts"
       },
       "streak": {
-        "firstRun": "🔥 First Streak Run!",
+        "firstRun": "🔥 First Streak Run !",
         "bestStreak": "Best Streak",
         "yourStreak": "Your Streak",
-        "newRecord": "🔥 New Streak Record!",
+        "newRecord": "🔥 New Streak Record !",
         "complete": "Streak Master",
         "livesLeft": "Lives Left",
-        "livesRemaining": "You kept {{count}} life remaining!",
-        "livesRemaining_plural": "You kept {{count}} lives remaining!",
-        "beatRecord": "You beat your record by {{count}}!",
+        "livesRemaining": "You kept {{count}} life remaining !",
+        "livesRemaining_plural": "You kept {{count}} lives remaining !",
+        "beatRecord": "You beat your record by {{count}} !",
         "awayFromRecord": "{{count}} away from your record",
         "record": "Record",
         "cards": "Cards"
       },
       "timeattack": {
-        "firstRun": "🎯 First Time Attack!",
+        "firstRun": "🎯 First Time Attack !",
         "avgPerCard": "Avg per Card",
-        "firstAttempt": "Great first attempt!",
-        "newRecord": "🎯 New Record!",
+        "firstAttempt": "Great first attempt !",
+        "newRecord": "🎯 New Record !",
         "complete": "Time Attack Complete",
-        "improved": "You improved your average time!",
-        "keepPracticing": "Keep practicing for better times!",
+        "improved": "You improved your average time !",
+        "keepPracticing": "Keep practicing for better times !",
         "totalTime": "Total Time",
         "cards": "Cards",
         "attempts": "Attempts"
       },
       "perfect": {
-        "success": "💎 Perfect Run!",
+        "success": "💎 Perfect Run !",
         "flawless": "FLAWLESS",
         "victory": "Victory",
-        "runsCompleted": "{{count}} perfect run completed!",
-        "runsCompleted_plural": "{{count}} perfect runs completed!",
+        "runsCompleted": "{{count}} perfect run completed !",
+        "runsCompleted_plural": "{{count}} perfect runs completed !",
         "failed": "💔 Perfect Run Failed",
         "perfectRuns": "Perfect Runs",
-        "tryAgain": "Keep trying! You'll get it next time.",
+        "tryAgain": "Keep trying ! You'll get it next time.",
         "successRate": "Success Rate",
         "totalAttempts": "Total Attempts"
       }
     },
     "almostThere": {
-      "title": "Almost There! 🚀",
+      "title": "Almost There !",
       "more": "{{count}} more"
     },
     "actions": {
       "viewDeck": "View Deck",
       "trainAgain": "Train Again",
-      "backToHome": "Back to Home"
+      "quit": "Leave"
     }
   },
   "decks": {
     "title": "My Decks",
+    "description": "Manage your decks",
     "empty": {
       "title": "No Decks Yet",
       "subtitle": "Create your first deck to start learning",
@@ -286,6 +302,7 @@
     "search": "Search decks...",
     "createDeck": {
       "title": "Create Deck",
+      "description": "Create a new deck to organize your flashcards",
       "form": {
         "nameLabel": "Deck Name",
         "namePlaceholder": "e.g., Spanish Vocabulary",
@@ -333,22 +350,19 @@
   "cards": {
     "addCard": {
       "title": "Add a card",
-      "instructions": "Tap the card to flip between front and back",
-      "flipToFront": "Back to front",
-      "flipToBack": "See back",
-      "hint": "Tap anywhere on the card to flip it",
+      "button": "Add the card",
       "form": {
         "wordLabel": "Front",
-        "wordPlaceholder": "Hello",
+        "wordPlaceholder": "Question",
         "wordRequired": "Front side is required",
         "translationLabel": "Back",
-        "translationPlaceholder": "Bonjour",
+        "translationPlaceholder": "Asnwer",
         "translationRequired": "Back side is required",
-        "front": "Front",
-        "back": "Back"
+        "front": "Question",
+        "back": "Answer"
       },
       "buttons": {
-        "addAnother": "Add another",
+        "addAnother": "Add another card",
         "addAndFinish": "Add & finish",
         "helpText": "Add another to keep creating cards, or finish to return to the deck"
       },
@@ -363,6 +377,182 @@
         "tip2": "Use examples if needed",
         "tip3": "Add context when helpful"
       }
+    }
+  },
+  "achievements": {
+    "title": "Achievements",
+    "completed_one": "Achievement unlocked",
+    "completed_other": "Achievements unlocked",
+    "toast": {
+      "singular": "You unlocked 1 trophy!",
+      "plural": "You unlocked {{count}} trophies!"
+    },
+    "filters": {
+      "all": "ALL",
+      "cards": "CARDS",
+      "train": "TRAIN",
+      "streak": "STREAK",
+      "collect": "COLLECT"
+    },
+    "first_card": {
+      "name": "First Card",
+      "description": "Create your first card"
+    },
+    "card_collector_10": {
+      "name": "Beginner Collector",
+      "description": "Create 10 cards"
+    },
+    "card_collector_50": {
+      "name": "Skilled Collector",
+      "description": "Create 50 cards"
+    },
+    "card_collector_100": {
+      "name": "Expert Collector",
+      "description": "Create 100 cards"
+    },
+    "card_collector_500": {
+      "name": "Librarian",
+      "description": "Create 500 cards"
+    },
+    "first_deck": {
+      "name": "First Deck",
+      "description": "Create your first deck"
+    },
+    "deck_creator_5": {
+      "name": "Organizer",
+      "description": "Create 5 decks"
+    },
+    "deck_creator_10": {
+      "name": "Archivist",
+      "description": "Create 10 decks"
+    },
+    "first_silver": {
+      "name": "First Star",
+      "description": "Earn your first Silver card"
+    },
+    "silver_collector_10": {
+      "name": "Silver Hoarder",
+      "description": "Earn 10 Silver cards"
+    },
+    "first_gold": {
+      "name": "Golden Touch",
+      "description": "Earn your first Gold card"
+    },
+    "gold_collector_10": {
+      "name": "Gold Digger",
+      "description": "Earn 10 Gold cards"
+    },
+    "first_platinum": {
+      "name": "Perfect Platinum",
+      "description": "Earn your first Platinum card"
+    },
+    "platinum_collector_5": {
+      "name": "Platinum Club",
+      "description": "Earn 5 Platinum cards"
+    },
+    "first_ruby": {
+      "name": "Shining Ruby",
+      "description": "Earn your first Ruby card"
+    },
+    "ruby_collector_5": {
+      "name": "Ruby Hunter",
+      "description": "Earn 5 Ruby cards"
+    },
+    "ruby_collector_25": {
+      "name": "Ruby Master",
+      "description": "Earn 25 Ruby cards"
+    },
+    "first_training": {
+      "name": "First Step",
+      "description": "Complete your first training session"
+    },
+    "training_10": {
+      "name": "Regular",
+      "description": "Complete 10 training sessions"
+    },
+    "training_50": {
+      "name": "Mental Athlete",
+      "description": "Complete 50 training sessions"
+    },
+    "training_100": {
+      "name": "Learning Machine",
+      "description": "Complete 100 training sessions"
+    },
+    "training_500": {
+      "name": "Living Legend",
+      "description": "Complete 500 training sessions"
+    },
+    "speedrun_10": {
+      "name": "Sprinter",
+      "description": "Complete 10 Speed Run sessions"
+    },
+    "speedrun_50": {
+      "name": "Lightning",
+      "description": "Complete 50 Speed Run sessions"
+    },
+    "perfect_5": {
+      "name": "Flawless",
+      "description": "Complete 5 perfect sessions in Perfect mode"
+    },
+    "perfect_25": {
+      "name": "Perfectionist",
+      "description": "Complete 25 perfect sessions in Perfect mode"
+    },
+    "streak_mode_10": {
+      "name": "Survivor",
+      "description": "Complete 10 Streak mode sessions"
+    },
+    "timeattack_10": {
+      "name": "Against the Clock",
+      "description": "Complete 10 Time Attack sessions"
+    },
+    "streak_10": {
+      "name": "On Fire",
+      "description": "Reach a streak of 10 correct answers"
+    },
+    "streak_25": {
+      "name": "Blazing",
+      "description": "Reach a streak of 25 correct answers"
+    },
+    "streak_50": {
+      "name": "Unstoppable",
+      "description": "Reach a streak of 50 correct answers"
+    },
+    "streak_100": {
+      "name": "Infallible",
+      "description": "Reach a streak of 100 correct answers"
+    },
+    "correct_100": {
+      "name": "Good Start",
+      "description": "Answer 100 cards correctly"
+    },
+    "correct_500": {
+      "name": "Scholar",
+      "description": "Answer 500 cards correctly"
+    },
+    "correct_1000": {
+      "name": "Sage",
+      "description": "Answer 1000 cards correctly"
+    },
+    "correct_5000": {
+      "name": "Genius",
+      "description": "Answer 5000 cards correctly"
+    },
+    "night_owl": {
+      "name": "Night Owl",
+      "description": "Study between midnight and 5 AM"
+    },
+    "early_bird": {
+      "name": "Early Bird",
+      "description": "Study between 5 AM and 7 AM"
+    },
+    "marathon": {
+      "name": "Marathon Runner",
+      "description": "Train with 10 different decks in a single day"
+    },
+    "comeback": {
+      "name": "The Comeback",
+      "description": "Return after 7 days of absence"
     }
   }
 }

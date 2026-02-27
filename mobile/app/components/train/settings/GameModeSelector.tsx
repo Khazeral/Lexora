@@ -1,8 +1,20 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { GAME_MODES, GameMode } from "@/constants/gameMods";
 import ClassicModeOptions from "./ClassicModeOptions";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
+
+const MODE_COLORS: Record<
+  string,
+  { bg: string; icon: string; border: string }
+> = {
+  classic: { bg: "#1a3a5c", icon: "#5b8af5", border: "#5b8af5" },
+  speedrun: { bg: "#3d1a1a", icon: "#e8453c", border: "#e8453c" },
+  streak: { bg: "#0d3a3a", icon: "#06b6d4", border: "#06b6d4" },
+  timeattack: { bg: "#2e1a3d", icon: "#a855f7", border: "#a855f7" },
+  perfect: { bg: "#3d2e1a", icon: "#f5c542", border: "#f5c542" },
+};
 
 type GameModeSelectorProps = {
   selectedMode: GameMode;
@@ -24,153 +36,95 @@ export default function GameModeSelector({
   const { t } = useTranslation();
 
   return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>
-        {t("train.trainSettings.gameMode.title")}
+    <View className="px-6 mb-4">
+      <Text className="text-foreground text-lg font-bold tracking-wider mb-1">
+        {t("train.trainSettings.gameMode.title").toUpperCase()}
       </Text>
-      <Text style={styles.sectionSubtitle}>
+      <Text className="text-muted-foreground text-sm mb-4">
         {t("train.trainSettings.gameMode.subtitle")}
       </Text>
 
-      {GAME_MODES.map((mode) => (
-        <View key={mode.id}>
-          <TouchableOpacity
-            style={[
-              styles.modeCard,
-              selectedMode === mode.id && styles.modeCardActive,
-              mode.id === "classic" &&
-                selectedMode === "classic" &&
-                styles.modeCardClassicActive,
-              {
-                borderColor:
-                  selectedMode === mode.id ? mode.color : "transparent",
-              },
-            ]}
-            onPress={() => onSelectMode(mode.id)}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.modeIcon, { backgroundColor: mode.bgColor }]}>
-              <Ionicons name={mode.icon as any} size={28} color={mode.color} />
-            </View>
+      {GAME_MODES.map((mode) => {
+        const isSelected = selectedMode === mode.id;
+        const colors = MODE_COLORS[mode.id] || {
+          bg: "#1a3a5c",
+          icon: "#5b8af5",
+          border: "#5b8af5",
+        };
+        const isClassicSelected = mode.id === "classic" && isSelected;
 
-            <View style={styles.modeContent}>
-              <View style={styles.modeTitleRow}>
-                <Text style={styles.modeTitle}>{t(mode.title)}</Text>
-                <View
-                  style={[
-                    styles.difficultyBadge,
-                    { backgroundColor: mode.bgColor },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.difficultyText,
-                      { color: mode.difficultyColor },
-                    ]}
-                  >
-                    {t(mode.difficulty)}
-                  </Text>
-                </View>
+        return (
+          <View key={mode.id}>
+            <TouchableOpacity
+              className={`flex-row items-center p-4 bg-card border-2 ${
+                isClassicSelected
+                  ? "rounded-t-2xl rounded-b-none mb-0"
+                  : "rounded-2xl mb-4"
+              }`}
+              style={[
+                { borderColor: isSelected ? colors.border : "#2a7a60" },
+                pillShadow.sm,
+              ]}
+              onPress={() => onSelectMode(mode.id)}
+              activeOpacity={0.7}
+            >
+              <View
+                className="w-14 h-14 rounded-xl items-center justify-center mr-4"
+                style={{ backgroundColor: colors.bg }}
+              >
+                <Ionicons
+                  name={mode.icon as any}
+                  size={28}
+                  color={colors.icon}
+                />
               </View>
-              <Text style={styles.modeDescription}>{t(mode.description)}</Text>
-            </View>
 
-            {selectedMode === mode.id && (
-              <Ionicons name="checkmark-circle" size={24} color={mode.color} />
+              <View className="flex-1">
+                <View className="flex-row items-center justify-between mb-1">
+                  <Text className="text-foreground text-base font-bold tracking-wide flex-1">
+                    {t(mode.title).toUpperCase()}
+                  </Text>
+
+                  <View
+                    className="px-3 py-1 rounded-lg ml-2"
+                    style={{ backgroundColor: colors.bg }}
+                  >
+                    <Text
+                      className="text-[10px] font-bold tracking-wider"
+                      style={{ color: colors.icon }}
+                    >
+                      {t(mode.difficulty).toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text className="text-muted-foreground text-xs leading-4">
+                  {t(mode.description)}
+                </Text>
+              </View>
+
+              {isSelected && (
+                <View className="ml-3">
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={24}
+                    color={colors.icon}
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {isClassicSelected && (
+              <ClassicModeOptions
+                shuffleCards={shuffleCards}
+                reverseMode={reverseMode}
+                onShuffleChange={onShuffleChange || (() => {})}
+                onReverseChange={onReverseChange || (() => {})}
+              />
             )}
-          </TouchableOpacity>
-
-          {mode.id === "classic" && selectedMode === "classic" && (
-            <ClassicModeOptions
-              shuffleCards={shuffleCards}
-              reverseMode={reverseMode}
-              onShuffleChange={onShuffleChange || (() => {})}
-              onReverseChange={onReverseChange || (() => {})}
-            />
-          )}
-        </View>
-      ))}
+          </View>
+        );
+      })}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: {
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    marginBottom: 16,
-  },
-  modeCard: {
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 14,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  modeCardActive: {
-    shadowOpacity: 0.15,
-    elevation: 6,
-  },
-  modeCardClassicActive: {
-    marginBottom: 0,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  modeIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 14,
-  },
-  modeContent: {
-    flex: 1,
-  },
-  modeTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
-  modeTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#1e293b",
-    flex: 1,
-  },
-  difficultyBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    marginLeft: 8,
-  },
-  difficultyText: {
-    fontSize: 10,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  modeDescription: {
-    fontSize: 13,
-    color: "#64748b",
-    lineHeight: 18,
-  },
-});

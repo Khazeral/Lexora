@@ -14,7 +14,6 @@ export default class CardProgressService {
     let progress = await this.findByUserAndCard(userId, cardId)
     const user = await User.findOrFail(userId)
 
-    // Mettre à jour la streak globale
     let newGlobalStreak = user.currentStreak
     if (success) {
       newGlobalStreak = user.currentStreak + 1

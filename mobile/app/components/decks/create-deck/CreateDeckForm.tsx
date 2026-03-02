@@ -18,10 +18,7 @@ export default function CreateDeckForm({
   return (
     <View className="gap-6">
       <View className="items-center py-6">
-        <View
-          className="w-20 h-20 rounded-2xl bg-info items-center justify-center mb-4"
-          style={pillShadow.sm}
-        >
+        <View className="w-20 h-20 rounded-2xl bg-info items-center justify-center mb-4">
           <Ionicons name="albums" size={40} color="#fff" />
         </View>
         <Text className="text-muted-foreground text-sm text-center px-6">

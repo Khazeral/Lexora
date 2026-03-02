@@ -1,7 +1,8 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../../ui/AnimatedTouchable";
 type DeckDetailHeaderProps = {
   name: string;
   cardCount: number;
@@ -22,7 +23,7 @@ export default function DeckDetailHeader({
 
   return (
     <View className="flex-row items-center justify-between px-6 py-4 ">
-      <TouchableOpacity
+      <AnimatedTouchable
         onPress={onBack}
         className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
         style={pillShadow.sm}
@@ -30,7 +31,7 @@ export default function DeckDetailHeader({
         activeOpacity={0.7}
       >
         <Ionicons name="arrow-back" size={22} color="#e8edf5" />
-      </TouchableOpacity>
+      </AnimatedTouchable>
 
       <View className="flex-1 items-center px-4">
         <Text

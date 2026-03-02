@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { deckColors, pillShadow } from "../ui/GlowStyles";
+import AnimatedTouchable from "../ui/AnimatedTouchable";
 
 type Deck = {
   id: number;
@@ -45,7 +46,7 @@ function DeckCard({ deck, index }: DeckCardProps) {
   const colorConfig = deckColors[index % deckColors.length];
 
   return (
-    <TouchableOpacity
+    <AnimatedTouchable
       className="flex-row items-center p-4 rounded-2xl bg-card border-2 border-border mb-5"
       style={pillShadow.card}
       onPress={() => router.push(`/deck/${deck.id}`)}
@@ -68,7 +69,7 @@ function DeckCard({ deck, index }: DeckCardProps) {
             : t("decks.card.cards_plural", { count: deck.cardCount })}
         </Text>
       </View>
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
 }
 

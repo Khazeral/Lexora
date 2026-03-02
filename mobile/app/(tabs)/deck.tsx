@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -17,11 +17,16 @@ import DecksHeader from "@/app/components/decks/DecksHeader";
 import DecksSearchBar from "@/app/components/decks/DecksSearchBar";
 import EmptyDecks from "../components/decks/EmptyDeck";
 import DeckListItem from "../components/decks/DeckListItem";
+import DeckActionSheet from "../components/decks/DeckActionSheet";
 import Scanlines from "../components/Scanlines";
+import AnimatedTouchable from "../components/ui/AnimatedTouchable";
 
 export default function DecksScreen() {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
+  const [sheetVisible, setSheetVisible] = useState(false);
 
   const {
     data: decks = [],
@@ -39,6 +44,16 @@ export default function DecksScreen() {
 
   const showEmptyState = !isLoading && filteredDecks.length === 0;
 
+  const handleMenuPress = (deck: Deck) => {
+    setSelectedDeck(deck);
+    setSheetVisible(true);
+  };
+
+  const handleSheetClose = () => {
+    setSheetVisible(false);
+    setSelectedDeck(null);
+  };
+
   if (isLoading) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
@@ -50,7 +65,11 @@ export default function DecksScreen() {
   return (
     <View className="flex-1 bg-background">
       <Scanlines />
-      <DecksHeader />
+      <DecksHeader
+        isEditing={isEditing}
+        onToggleEdit={() => setIsEditing((prev) => !prev)}
+        showEditButton={decks.length > 0}
+      />
 
       {decks.length > 0 && (
         <DecksSearchBar
@@ -73,13 +92,18 @@ export default function DecksScreen() {
           ) : null
         }
         renderItem={({ item, index }) => (
-          <DeckListItem deck={item} index={index} />
+          <DeckListItem
+            deck={item}
+            index={index}
+            isEditing={isEditing}
+            onMenuPress={handleMenuPress}
+          />
         )}
         ItemSeparatorComponent={() => <View className="h-5" />}
       />
 
       {!showEmptyState && (
-        <TouchableOpacity
+        <AnimatedTouchable
           className="absolute right-6 bottom-32 flex-row items-center gap-2 px-6 py-4 rounded-2xl bg-info"
           style={[pillShadow.default, { zIndex: 2 }]}
           onPress={() => router.push("/deck/create")}
@@ -89,8 +113,14 @@ export default function DecksScreen() {
           <Text className="text-white font-bold tracking-wider text-base">
             {t("decks.create").toUpperCase()}
           </Text>
-        </TouchableOpacity>
+        </AnimatedTouchable>
       )}
+
+      <DeckActionSheet
+        deck={selectedDeck}
+        visible={sheetVisible}
+        onClose={handleSheetClose}
+      />
     </View>
   );
 }

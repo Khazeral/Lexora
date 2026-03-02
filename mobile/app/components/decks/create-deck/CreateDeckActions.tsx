@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
 import { pillColors, pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../../ui/AnimatedTouchable";
 
 type CreateDeckActionsProps = {
   onSubmit: () => void;
@@ -22,13 +23,12 @@ export default function CreateDeckActions({
         style={[pillShadow.default, { backgroundColor: pillColors.red }]}
         onPress={onCancel}
         disabled={isLoading}
-        activeOpacity={0.7}
       >
         <Text className="text-white text-base font-bold tracking-wider">
           {t("decks.createDeck.buttons.cancel").toUpperCase()}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      <AnimatedTouchable
         className="flex-2 py-4 px-8 rounded-2xl bg-success items-center justify-center"
         style={[
           pillShadow.default,
@@ -46,7 +46,7 @@ export default function CreateDeckActions({
             {t("decks.createDeck.buttons.create").toUpperCase()}
           </Text>
         )}
-      </TouchableOpacity>
+      </AnimatedTouchable>
     </View>
   );
 }

@@ -100,7 +100,7 @@
       "needsReview": "Needs review"
     },
     "trainSettings": {
-      "title": "Training Settings",
+      "title": "Training",
       "cards": "{{count}} card",
       "cards_plural": "{{count}} cards",
       "gameMode": {
@@ -325,6 +325,7 @@
     "deckDetail": {
       "cards": "{{count}} card",
       "cards_plural": "{{count}} cards",
+      "search": "Search card...",
       "empty": {
         "title": "No Cards Yet",
         "subtitle": "Add your first card to start learning",
@@ -363,6 +364,7 @@
       },
       "buttons": {
         "addAnother": "Add another card",
+        "addAndContinue": "Add and continue",
         "addAndFinish": "Add & finish",
         "helpText": "Add another to keep creating cards, or finish to return to the deck"
       },

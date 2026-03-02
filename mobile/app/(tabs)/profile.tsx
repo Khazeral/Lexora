@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { getUnseenCount } from "@/services/achievements.api";
 import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
 import Scanlines from "../components/Scanlines";
+import AnimatedTouchable from "../components/ui/AnimatedTouchable";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -52,7 +53,7 @@ export default function ProfileScreen() {
           <Text className="text-muted-foreground text-sm">{user?.email}</Text>
         </View>
 
-        <TouchableOpacity
+        <AnimatedTouchable
           className="bg-card rounded-2xl p-4 border-2 border-accent mb-4 flex-row items-center justify-between"
           style={pillShadow.card}
           onPress={() => router.push("/achievements")}
@@ -85,7 +86,7 @@ export default function ProfileScreen() {
             )}
             <Ionicons name="chevron-forward" size={24} color="#6e9e8a" />
           </View>
-        </TouchableOpacity>
+        </AnimatedTouchable>
 
         <TouchableOpacity
           className="bg-card rounded-2xl p-4 border-2 border-border mb-4 flex-row items-center justify-between"
@@ -132,7 +133,7 @@ export default function ProfileScreen() {
       </ScrollView>
 
       <View className="px-6 pb-28 pt-4">
-        <TouchableOpacity
+        <AnimatedTouchable
           className="rounded-2xl p-4 flex-row items-center justify-center gap-3"
           style={[pillShadow.default, { backgroundColor: pillColors.red }]}
           onPress={logout}
@@ -142,7 +143,7 @@ export default function ProfileScreen() {
           <Text className="text-white text-base font-bold tracking-wider">
             {t("profile.logout").toUpperCase()}
           </Text>
-        </TouchableOpacity>
+        </AnimatedTouchable>
 
         <Text className="text-muted-foreground text-xs text-center mt-4 tracking-wider">
           LEXORA v1.0.0

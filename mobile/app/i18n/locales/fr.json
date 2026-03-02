@@ -100,7 +100,7 @@
       "needsReview": "À réviser"
     },
     "trainSettings": {
-      "title": "Réglages d'entraînement",
+      "title": "Entrainement",
       "cards": "{{count}} carte",
       "cards_plural": "{{count}} cartes",
       "gameMode": {
@@ -324,6 +324,7 @@
     "deckDetail": {
       "cards": "{{count}} carte",
       "cards_plural": "{{count}} cartes",
+      "search": "Rechercher une carte...",
       "empty": {
         "title": "Aucune carte",
         "subtitle": "Ajoutez votre première carte pour commencer",
@@ -362,6 +363,7 @@
       },
       "buttons": {
         "addAnother": "Ajouter une autre",
+        "addAndContinue": "Ajouter et continuer",
         "addAndFinish": "Ajouter et terminer",
         "helpText": "Ajoutez une autre carte ou terminez pour revenir au deck"
       },

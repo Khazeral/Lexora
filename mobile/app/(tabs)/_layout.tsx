@@ -56,20 +56,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="train"
-        options={{
-          title: t("tabs.train"),
-          tabBarButton: (props) => (
-            <TabButton
-              {...props}
-              icon="barbell"
-              label={t("tabs.train")}
-              isFocused={pathname === "/train"}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="profile"
         options={{
           title: t("tabs.profile"),
@@ -81,6 +67,13 @@ export default function TabLayout() {
               isFocused={pathname === "/profile"}
             />
           ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="train"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
@@ -124,7 +117,7 @@ function TabButton({
             width: 76,
             height: 70,
             borderRadius: 16,
-            backgroundColor: "#e74c3c",
+            backgroundColor: "#5b8af5",
             alignItems: "center",
             justifyContent: "center",
             gap: 4,

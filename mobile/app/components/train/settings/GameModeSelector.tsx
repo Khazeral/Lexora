@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { GAME_MODES, GameMode } from "@/constants/gameMods";
 import ClassicModeOptions from "./ClassicModeOptions";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../../ui/AnimatedTouchable";
 
 const MODE_COLORS: Record<
   string,
@@ -55,7 +56,7 @@ export default function GameModeSelector({
 
         return (
           <View key={mode.id}>
-            <TouchableOpacity
+            <AnimatedTouchable
               className={`flex-row items-center p-4 bg-card ${
                 isClassicSelected
                   ? "rounded-t-2xl rounded-b-none mb-0"
@@ -105,7 +106,7 @@ export default function GameModeSelector({
                   {t(mode.description)}
                 </Text>
               </View>
-            </TouchableOpacity>
+            </AnimatedTouchable>
 
             {isClassicSelected && (
               <ClassicModeOptions

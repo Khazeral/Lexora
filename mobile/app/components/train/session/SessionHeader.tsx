@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { pillShadow } from "../../ui/GlowStyles";
 
 type SessionHeaderProps = {
   deckName: string;
@@ -23,6 +24,7 @@ export default function SessionHeader({
           onPress={onClose}
           className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
           activeOpacity={0.7}
+          style={[pillShadow.sm]}
         >
           <Ionicons name="close" size={24} color="#e8edf5" />
         </TouchableOpacity>

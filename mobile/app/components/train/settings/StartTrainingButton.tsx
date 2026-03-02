@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
 import { GameMode } from "@/constants/gameMods";
+import AnimatedTouchable from "../../ui/AnimatedTouchable";
 
 const MODE_BUTTON_COLORS: Record<string, string> = {
   classic: "#5b8af5",
@@ -36,7 +37,7 @@ export function StartTrainingButton({
 
   return (
     <View className="p-6 bg-secondary border-t-2 border-border">
-      <TouchableOpacity
+      <AnimatedTouchable
         className={`flex-row items-center justify-center gap-3 py-5 rounded-2xl ${
           disabled ? "opacity-50" : ""
         }`}
@@ -49,7 +50,7 @@ export function StartTrainingButton({
           {t("train.trainSettings.start", { mode: modeTitle }).toUpperCase()}
         </Text>
         <Ionicons name="arrow-forward" size={22} color="#fff" />
-      </TouchableOpacity>
+      </AnimatedTouchable>
     </View>
   );
 }

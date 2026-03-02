@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../../ui/AnimatedTouchable";
 
 type TrainSettingsHeaderProps = {
   onBack: () => void;
@@ -15,7 +16,7 @@ export default function TrainSettingsHeader({
   return (
     <View className="px-6 pt-14 pb-4">
       <View className="flex-row items-center">
-        <TouchableOpacity
+        <AnimatedTouchable
           onPress={onBack}
           className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
           style={pillShadow.sm}
@@ -23,7 +24,7 @@ export default function TrainSettingsHeader({
           activeOpacity={0.7}
         >
           <Ionicons name="close" size={24} color="#e8edf5" />
-        </TouchableOpacity>
+        </AnimatedTouchable>
 
         <Text className="flex-1 text-foreground text-lg font-black tracking-[3px] text-center mr-12">
           {t("train.trainSettings.title").toUpperCase()}

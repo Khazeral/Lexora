@@ -134,50 +134,49 @@ export default function TrainingCompleteScreen() {
     const getNextLevel = (maxStreak: number) => {
       if (maxStreak >= 70)
         return {
+          level: "max",
+          name: "Ruby",
+          icon: "diamond",
+          color: "#dc2626",
+          required: 70,
+        };
+      if (maxStreak >= 50)
+        return {
           level: "ruby",
           name: "Ruby",
           icon: "diamond",
           color: "#dc2626",
-          required: 100,
+          required: 70,
         };
-      if (maxStreak >= 50)
+      if (maxStreak >= 30)
         return {
           level: "platinum",
           name: "Platinum",
           icon: "medal",
           color: "#94a3b8",
-          required: 70,
+          required: 50,
         };
-      if (maxStreak >= 30)
+      if (maxStreak >= 10)
         return {
           level: "gold",
           name: "Gold",
           icon: "trophy",
           color: "#f59e0b",
-          required: 50,
-        };
-      if (maxStreak >= 10)
-        return {
-          level: "silver",
-          name: "Silver",
-          icon: "ribbon",
-          color: "#d1d5db",
           required: 30,
         };
       return {
-        level: "bronze",
-        name: "Bronze",
-        icon: "help-circle",
-        color: "#cd7f32",
+        level: "silver",
+        name: "Silver",
+        icon: "ribbon",
+        color: "#d1d5db",
         required: 10,
       };
     };
 
-    const cardsWithProgress = deck.cards.filter((card) => card.progress) || [];
-
-    const cardsWithUpgradeInfo = cardsWithProgress
+    const cardsWithUpgradeInfo = deck.cards
       .map((card) => {
-        const maxStreak = card.progress?.maxStreak || 0;
+        const progress = card.progress;
+        const maxStreak = progress?.maxStreak || 0;
         const nextLevel = getNextLevel(maxStreak);
 
         if (nextLevel.level === "max") return null;
@@ -187,7 +186,9 @@ export default function TrainingCompleteScreen() {
           ((nextLevel.required - remaining) / nextLevel.required) * 100;
 
         return {
-          ...card,
+          id: card.id,
+          word: card.word,
+          translation: card.translation,
           remaining,
           nextLevel,
           percentToNext,
@@ -195,18 +196,10 @@ export default function TrainingCompleteScreen() {
       })
       .filter((card) => card !== null && card.remaining > 0);
 
-    if (totalCards >= 3) {
-      return cardsWithUpgradeInfo
-        .sort((a, b) => a.remaining - b.remaining)
-        .slice(0, 3);
-    }
-
     return cardsWithUpgradeInfo
-      .filter((card) => card.remaining <= 3)
       .sort((a, b) => a.remaining - b.remaining)
       .slice(0, 3);
-  }, [deck, totalCards]);
-
+  }, [deck]);
   const headerConfig = useMemo(() => {
     const modeColor = MODE_COLORS[currentGameMode] || MODE_COLORS.classic;
 

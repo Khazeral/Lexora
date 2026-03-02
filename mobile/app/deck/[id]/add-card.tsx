@@ -1,23 +1,18 @@
 import React, { useState, useRef } from "react";
-import {
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { createCard, CreateCardResponse } from "@/services/cards.api";
+import { createCard } from "@/services/cards.api";
 import AddCardHeader from "@/app/components/cards/add-card/AddCardHeader";
 import InteractiveCard, {
   InteractiveCardRef,
 } from "@/app/components/cards/add-card/InteractiveCard";
 import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
 import Scanlines from "@/app/components/Scanlines";
+import Toast from "@/app/components/ui/Toast";
 
 type AddCardFormData = {
   word: string;
@@ -28,10 +23,12 @@ export default function AddCardScreen() {
   const { id } = useLocalSearchParams();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [unlockedAchievements, setUnlockedAchievements] = useState<
-    CreateCardResponse["unlockedAchievements"]
-  >([]);
   const [shouldGoBack, setShouldGoBack] = useState(false);
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+    type: "success" as "success" | "error" | "info",
+  });
 
   const cardRef = useRef<InteractiveCardRef>(null);
 
@@ -47,6 +44,13 @@ export default function AddCardScreen() {
     },
   });
 
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "success",
+  ) => {
+    setToast({ visible: true, message, type });
+  };
+
   const createCardMutation = useMutation({
     mutationFn: createCard,
     onSuccess: (response) => {
@@ -58,27 +62,26 @@ export default function AddCardScreen() {
         response.unlockedAchievements &&
         response.unlockedAchievements.length > 0
       ) {
-        setUnlockedAchievements(response.unlockedAchievements);
       } else {
         if (shouldGoBack) {
-          Alert.alert("✅ " + t("cards.addCard.success"));
-          router.back();
+          showToast(t("cards.addCard.success"));
+          setTimeout(() => router.back(), 1200);
         } else {
           reset();
           cardRef.current?.resetFlip();
-          Alert.alert("✅ " + t("cards.addCard.success"));
+          showToast(t("cards.addCard.success"));
         }
       }
     },
     onError: (error) => {
       console.error("Error:", error);
-      Alert.alert("Error", t("cards.addCard.errors.createFailed"));
+      showToast(t("cards.addCard.errors.createFailed"), "error");
     },
   });
 
   const onSubmit = (data: AddCardFormData) => {
     if (!data.word || !data.translation) {
-      Alert.alert("Error", t("cards.addCard.errors.fillRequired"));
+      showToast(t("cards.addCard.errors.fillRequired"), "error");
       return;
     }
 
@@ -92,7 +95,7 @@ export default function AddCardScreen() {
 
   const onAddAnother = (data: AddCardFormData) => {
     if (!data.word || !data.translation) {
-      Alert.alert("Error", t("cards.addCard.errors.fillRequired"));
+      showToast(t("cards.addCard.errors.fillRequired"), "error");
       return;
     }
 
@@ -107,6 +110,12 @@ export default function AddCardScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
       <Scanlines />
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -114,7 +123,7 @@ export default function AddCardScreen() {
         <AddCardHeader onBack={() => router.back()} />
 
         <ScrollView
-          className="flex-1 "
+          className="flex-1"
           contentContainerClassName="p-6 pb-10"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}

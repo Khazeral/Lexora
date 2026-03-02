@@ -3,11 +3,9 @@ import {
   View,
   Text,
   ActivityIndicator,
-  TouchableOpacity,
   ScrollView,
   Dimensions,
   TextInput,
-  Alert,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCard, updateCard, deleteCard } from "@/services/cards.api";
@@ -27,6 +25,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Scanlines from "../components/Scanlines";
 import AnimatedTouchable from "../components/ui/AnimatedTouchable";
+import ConfirmModal from "../components/ConfirmModal";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 48;
@@ -321,6 +320,8 @@ export default function CardDetailScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editWord, setEditWord] = useState("");
   const [editTranslation, setEditTranslation] = useState("");
@@ -382,21 +383,7 @@ export default function CardDetailScreen() {
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      t("cards.detail.deleteTitle", "Supprimer la carte"),
-      t(
-        "cards.detail.deleteMessage",
-        "Êtes-vous sûr ? Cette action est irréversible.",
-      ),
-      [
-        { text: t("common.cancel", "Annuler"), style: "cancel" },
-        {
-          text: t("common.delete", "Supprimer"),
-          style: "destructive",
-          onPress: () => deleteMutation.mutate(Number(id)),
-        },
-      ],
-    );
+    setShowDeleteModal(true);
   };
 
   if (isLoading) {
@@ -558,6 +545,22 @@ export default function CardDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <ConfirmModal
+        visible={showDeleteModal}
+        title={t("cards.detail.deleteTitle", "Supprimer la carte")}
+        message={t(
+          "cards.detail.deleteMessage",
+          "Êtes-vous sûr ? Cette action est irréversible.",
+        )}
+        confirmText={t("common.delete", "Supprimer")}
+        cancelText={t("common.cancel", "Annuler")}
+        type="danger"
+        onConfirm={() => {
+          setShowDeleteModal(false);
+          deleteMutation.mutate(Number(id));
+        }}
+        onCancel={() => setShowDeleteModal(false)}
+      />
       <Scanlines />
 
       <View className="flex-row items-center justify-between px-6 py-4">

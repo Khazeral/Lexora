@@ -20,6 +20,8 @@ import {
 } from "@/utils/achievementsUtils";
 import { pillShadow, pillColors } from "@/app/components/ui/GlowStyles";
 import Scanlines from "../components/Scanlines";
+import AnimatedTouchable from "../components/ui/AnimatedTouchable";
+import Animated from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
 const GRID_PADDING = 24;
@@ -405,7 +407,7 @@ function CategoriesFilter({
       {categories.map((category) => {
         const isActive = selected === category.key;
         return (
-          <TouchableOpacity
+          <AnimatedTouchable
             key={category.key}
             onPress={() => onSelect(category.key)}
             style={[
@@ -439,7 +441,7 @@ function CategoriesFilter({
             >
               {category.label}
             </Text>
-          </TouchableOpacity>
+          </AnimatedTouchable>
         );
       })}
     </ScrollView>
@@ -516,7 +518,7 @@ export default function AchievementsScreen() {
           paddingVertical: 16,
         }}
       >
-        <TouchableOpacity
+        <AnimatedTouchable
           onPress={() => router.back()}
           style={[
             {
@@ -534,7 +536,7 @@ export default function AchievementsScreen() {
           activeOpacity={0.7}
         >
           <Ionicons name="arrow-back" size={22} color="#e8edf5" />
-        </TouchableOpacity>
+        </AnimatedTouchable>
         <Text
           style={{
             color: "#e8edf5",

@@ -67,7 +67,23 @@ export default function FlashCard({
 }: FlashCardProps) {
   const flipAnim = useRef(new Animated.Value(0)).current;
   const buttonsAnim = useRef(new Animated.Value(0)).current;
+  const missScale = useRef(new Animated.Value(1)).current;
+  const hitScale = useRef(new Animated.Value(1)).current;
   const colors = STATUS_COLORS[status] || STATUS_COLORS.bronze;
+
+  const pressIn = (scale: Animated.Value) => {
+    Animated.spring(scale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const pressOut = (scale: Animated.Value) => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
   useEffect(() => {
     flipAnim.setValue(0);
@@ -233,35 +249,43 @@ export default function FlashCard({
         }}
         pointerEvents={isFlipped ? "auto" : "none"}
       >
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-3 py-5 rounded-2xl border-2"
-          style={[
-            { backgroundColor: "#3d1a1a", borderColor: "#e8453c" },
-            pillShadow.default,
-          ]}
-          onPress={onIncorrect}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="close" size={24} color="#e8453c" />
-          <Text className="text-destructive text-lg font-black tracking-wider">
-            MISS
-          </Text>
-        </TouchableOpacity>
+        <Animated.View style={{ flex: 1, transform: [{ scale: missScale }] }}>
+          <TouchableOpacity
+            className="flex-row items-center justify-center gap-3 py-5 rounded-2xl border-2"
+            style={[
+              { backgroundColor: "#3d1a1a", borderColor: "#e8453c" },
+              pillShadow.default,
+            ]}
+            onPress={onIncorrect}
+            onPressIn={() => pressIn(missScale)}
+            onPressOut={() => pressOut(missScale)}
+            activeOpacity={1}
+          >
+            <Ionicons name="close" size={24} color="#e8453c" />
+            <Text className="text-destructive text-lg font-black tracking-wider">
+              MISS
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
 
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-3 py-5 rounded-2xl border-2"
-          style={[
-            { backgroundColor: "#1a3d2e", borderColor: "#44d9a0" },
-            pillShadow.default,
-          ]}
-          onPress={onCorrect}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="checkmark" size={24} color="#44d9a0" />
-          <Text className="text-success text-lg font-black tracking-wider">
-            HIT !
-          </Text>
-        </TouchableOpacity>
+        <Animated.View style={{ flex: 1, transform: [{ scale: hitScale }] }}>
+          <TouchableOpacity
+            className="flex-row items-center justify-center gap-3 py-5 rounded-2xl border-2"
+            style={[
+              { backgroundColor: "#1a3d2e", borderColor: "#44d9a0" },
+              pillShadow.default,
+            ]}
+            onPress={onCorrect}
+            onPressIn={() => pressIn(hitScale)}
+            onPressOut={() => pressOut(hitScale)}
+            activeOpacity={1}
+          >
+            <Ionicons name="checkmark" size={24} color="#44d9a0" />
+            <Text className="text-success text-lg font-black tracking-wider">
+              HIT !
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </Animated.View>
     </View>
   );

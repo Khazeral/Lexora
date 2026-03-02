@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { CARD_LEVELS, getCardLevel } from "@/constants/cardLevels";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../ui/AnimatedTouchable";
 
 type Card = {
   id: number;
@@ -34,7 +35,7 @@ export default function CardItem({ card, onPress }: CardItemProps) {
     LEVEL_COLORS[level as keyof typeof LEVEL_COLORS] || LEVEL_COLORS.new;
 
   return (
-    <TouchableOpacity
+    <AnimatedTouchable
       className="flex-row items-center p-4 rounded-2xl bg-card border-2 border-border"
       style={pillShadow.card}
       onPress={onPress}
@@ -60,6 +61,6 @@ export default function CardItem({ card, onPress }: CardItemProps) {
       </View>
 
       <Ionicons name="chevron-forward" size={20} color="#6e9e8a" />
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
 }

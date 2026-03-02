@@ -68,11 +68,13 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
     const cardStyle = {
       width: CARD_WIDTH,
       height: CARD_HEIGHT,
-      borderRadius: 24,
+      borderRadius: 20,
       padding: 20,
       borderWidth: 3,
       position: "absolute" as const,
     };
+
+    const inputMaxHeight = CARD_HEIGHT - 100;
 
     return (
       <View className="gap-5">
@@ -121,7 +123,13 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
               </Text>
             </Pressable>
 
-            <View className="flex-1 mt-14">
+            <View
+              style={{
+                flex: 1,
+                marginTop: 56,
+                justifyContent: "center",
+              }}
+            >
               <Controller
                 control={control}
                 name="word"
@@ -130,16 +138,16 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
                   <TextInput
                     style={[
                       {
-                        flex: 1,
                         fontSize: 28,
                         fontWeight: "bold",
                         color: "#1a1a1a",
-                        textAlign: "left",
-                        textAlignVertical: "top",
+                        textAlign: "center",
+                        textAlignVertical: "center",
                         borderRadius: 16,
                         borderWidth: 2,
                         borderStyle: "dashed",
                         padding: 20,
+                        maxHeight: inputMaxHeight,
                       },
                       errors.word
                         ? {
@@ -158,7 +166,7 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
                     onBlur={onBlur}
                     autoCapitalize="none"
                     multiline
-                    maxLength={100}
+                    scrollEnabled
                   />
                 )}
               />
@@ -223,7 +231,13 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
               </Text>
             </Pressable>
 
-            <View className="flex-1 mt-14">
+            <View
+              style={{
+                flex: 1,
+                marginTop: 56,
+                justifyContent: "center",
+              }}
+            >
               <Controller
                 control={control}
                 name="translation"
@@ -234,16 +248,16 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
                   <TextInput
                     style={[
                       {
-                        flex: 1,
                         fontSize: 28,
                         fontWeight: "bold",
                         color: "#1a1a1a",
-                        textAlign: "left",
-                        textAlignVertical: "top",
+                        textAlign: "center",
+                        textAlignVertical: "center",
                         borderRadius: 16,
                         borderWidth: 2,
                         borderStyle: "dashed",
                         padding: 20,
+                        maxHeight: inputMaxHeight,
                       },
                       errors.translation
                         ? {
@@ -262,7 +276,7 @@ const InteractiveCard = forwardRef<InteractiveCardRef, InteractiveCardProps>(
                     onBlur={onBlur}
                     autoCapitalize="none"
                     multiline
-                    maxLength={100}
+                    scrollEnabled
                   />
                 )}
               />

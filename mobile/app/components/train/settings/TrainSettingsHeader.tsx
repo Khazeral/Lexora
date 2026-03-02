@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../../ui/AnimatedTouchable";
 
 type TrainSettingsHeaderProps = {
   onBack: () => void;
@@ -14,25 +15,20 @@ export default function TrainSettingsHeader({
 
   return (
     <View className="px-6 pt-14 pb-4">
-      <View className="flex-row items-start justify-between">
-        <View className="flex-1 mr-4">
-          <Text className="text-foreground text-2xl font-black tracking-[4px]">
-            {t("train.trainSettings.title").toUpperCase()}
-          </Text>
-          <Text className="text-accent text-xs font-bold tracking-[3px] mt-1">
-            {t("train.trainSettings.subtitle", "PARAMÈTRES").toUpperCase()}
-          </Text>
-        </View>
-
-        <TouchableOpacity
+      <View className="flex-row items-center">
+        <AnimatedTouchable
           onPress={onBack}
-          className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center mt-1"
+          className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
           style={pillShadow.sm}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
         >
           <Ionicons name="close" size={24} color="#e8edf5" />
-        </TouchableOpacity>
+        </AnimatedTouchable>
+
+        <Text className="flex-1 text-foreground text-lg font-black tracking-[3px] text-center mr-12">
+          {t("train.trainSettings.title").toUpperCase()}
+        </Text>
       </View>
     </View>
   );

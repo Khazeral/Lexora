@@ -1,7 +1,13 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useRef } from "react";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { pillColors, pillShadow } from "@/app/components/ui/GlowStyles";
-import AnimatedTouchable from "../../ui/AnimatedTouchable";
 
 type CreateDeckActionsProps = {
   onSubmit: () => void;
@@ -15,38 +21,60 @@ export default function CreateDeckActions({
   isLoading,
 }: CreateDeckActionsProps) {
   const { t } = useTranslation();
+  const cancelScale = useRef(new Animated.Value(1)).current;
+  const submitScale = useRef(new Animated.Value(1)).current;
+
+  const pressIn = (scale: Animated.Value) => {
+    Animated.spring(scale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const pressOut = (scale: Animated.Value) => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
 
   return (
     <View className="flex-row gap-3 p-6 bg-secondary rounded-t-2xl">
-      <TouchableOpacity
-        className="flex-1 py-4 rounded-2xl bg-success items-center justify-center"
-        style={[pillShadow.default, { backgroundColor: pillColors.red }]}
-        onPress={onCancel}
-        disabled={isLoading}
-      >
-        <Text className="text-white text-base font-bold tracking-wider">
-          {t("decks.createDeck.buttons.cancel").toUpperCase()}
-        </Text>
-      </TouchableOpacity>
-      <AnimatedTouchable
-        className="flex-2 py-4 px-8 rounded-2xl bg-success items-center justify-center"
-        style={[
-          pillShadow.default,
-          { flex: 2 },
-          { backgroundColor: pillColors.blue },
-        ]}
-        onPress={onSubmit}
-        disabled={isLoading}
-        activeOpacity={0.8}
-      >
-        {isLoading ? (
-          <ActivityIndicator size="small" color="#0b3d2e" />
-        ) : (
-          <Text className="text-success-foreground text-base font-bold tracking-wider text-white">
-            {t("decks.createDeck.buttons.create").toUpperCase()}
+      <Animated.View style={{ transform: [{ scale: cancelScale }] }}>
+        <TouchableOpacity
+          className="py-4 px-6 rounded-2xl items-center justify-center"
+          style={[pillShadow.default, { backgroundColor: pillColors.red }]}
+          onPress={onCancel}
+          onPressIn={() => pressIn(cancelScale)}
+          onPressOut={() => pressOut(cancelScale)}
+          disabled={isLoading}
+          activeOpacity={1}
+        >
+          <Text className="text-white text-base font-bold tracking-wider">
+            {t("decks.createDeck.buttons.cancel").toUpperCase()}
           </Text>
-        )}
-      </AnimatedTouchable>
+        </TouchableOpacity>
+      </Animated.View>
+
+      <Animated.View style={{ flex: 1, transform: [{ scale: submitScale }] }}>
+        <TouchableOpacity
+          className="py-4 px-8 rounded-2xl items-center justify-center"
+          style={[pillShadow.default, { backgroundColor: pillColors.blue }]}
+          onPress={onSubmit}
+          onPressIn={() => pressIn(submitScale)}
+          onPressOut={() => pressOut(submitScale)}
+          disabled={isLoading}
+          activeOpacity={1}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text className="text-white text-base font-bold tracking-wider">
+              {t("decks.createDeck.buttons.create").toUpperCase()}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 }

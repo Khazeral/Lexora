@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Animated,
@@ -16,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import Toast from "@/app/components/ui/Toast";
 
 type LoginFormData = {
   email: string;
@@ -26,6 +26,11 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const { t } = useTranslation();
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+    type: "error" as "success" | "error" | "info",
+  });
 
   const {
     control,
@@ -45,10 +50,14 @@ export default function LoginScreen() {
       await login(data.email, data.password);
       router.replace("/(tabs)");
     } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Invalid credentials",
-      );
+      setToast({
+        visible: true,
+        message:
+          error instanceof Error
+            ? error.message
+            : t("auth.login.errors.generic", "Identifiants invalides"),
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -59,6 +68,12 @@ export default function LoginScreen() {
       className="flex-1 bg-background"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
       <View className="flex-1 justify-center px-6">
         <AuthHeader />
 

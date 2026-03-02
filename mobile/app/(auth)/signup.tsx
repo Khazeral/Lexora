@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Animated,
@@ -17,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/services/auth_context";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import Toast from "@/app/components/ui/Toast";
 
 type SignupFormData = {
   username: string;
@@ -29,6 +29,11 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const { t } = useTranslation();
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+    type: "error" as "success" | "error" | "info",
+  });
 
   const {
     control,
@@ -53,10 +58,14 @@ export default function SignupScreen() {
       await signup(data.username, data.email, data.password);
       router.replace("/(tabs)");
     } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Unable to create account",
-      );
+      setToast({
+        visible: true,
+        message:
+          error instanceof Error
+            ? error.message
+            : t("auth.signup.errors.generic", "Unable to create account"),
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -67,6 +76,12 @@ export default function SignupScreen() {
       className="flex-1 bg-background"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
       <ScrollView
         contentContainerClassName="flex-grow justify-center px-6 py-12"
         showsVerticalScrollIndicator={false}

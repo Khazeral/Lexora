@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 import { useQuery } from "@tanstack/react-query";
 import { getDeck } from "@/services/decks.api";
 import { getDeckRecords } from "@/services/deck_records.api";
@@ -19,6 +20,9 @@ import ModeStatsCard from "@/app/components/train/complete/ModeStatsCard";
 import CompleteActions from "@/app/components/train/complete/CompleteActions";
 import Scanlines from "@/app/components/Scanlines";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
+import { getLevelColors } from "@/utils/getLevelColors";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const MODE_COLORS: Record<string, string> = {
   classic: "#5b8af5",
@@ -27,6 +31,265 @@ const MODE_COLORS: Record<string, string> = {
   timeattack: "#a855f7",
   perfect: "#f5c542",
 };
+
+function AnimatedPerformanceCard({
+  successRate,
+  totalCorrect,
+  totalIncorrect,
+  bestStreak,
+  t,
+}: {
+  successRate: number;
+  totalCorrect: number;
+  totalIncorrect: number;
+  bestStreak: number;
+  t: any;
+}) {
+  const animProgress = useRef(new Animated.Value(0)).current;
+  const [displayPercent, setDisplayPercent] = useState(0);
+
+  const getColor = () => {
+    if (successRate >= 75) return { text: "#44d9a0", bg: "#1a3d2e" };
+    if (successRate >= 50) return { text: "#f5c542", bg: "#3d2e1a" };
+    return { text: "#e8453c", bg: "#3d1a1a" };
+  };
+
+  const perfColor = getColor();
+
+  const size = 90;
+  const strokeWidth = 6;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  useEffect(() => {
+    Animated.timing(animProgress, {
+      toValue: successRate,
+      duration: 1200,
+      delay: 400,
+      useNativeDriver: false,
+    }).start();
+
+    const listenerId = animProgress.addListener(({ value }) => {
+      setDisplayPercent(Math.round(value));
+    });
+
+    return () => animProgress.removeListener(listenerId);
+  }, [successRate]);
+
+  const strokeDashoffset = animProgress.interpolate({
+    inputRange: [0, 100],
+    outputRange: [circumference, 0],
+  });
+
+  return (
+    <View
+      className="mx-6 mb-4 p-5 bg-card rounded-2xl border-2 border-border"
+      style={pillShadow.sm}
+    >
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ alignItems: "center", marginRight: 20 }}>
+          <View
+            style={{
+              width: size,
+              height: size,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Svg
+              width={size}
+              height={size}
+              style={{
+                position: "absolute",
+                transform: [{ rotate: "-90deg" }],
+              }}
+            >
+              <Circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                stroke={perfColor.bg}
+                strokeWidth={strokeWidth}
+                fill="none"
+              />
+              <AnimatedCircle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                stroke={perfColor.text}
+                strokeWidth={strokeWidth}
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+              />
+            </Svg>
+            <Text
+              style={{
+                color: perfColor.text,
+                fontSize: 26,
+                fontWeight: "900",
+              }}
+            >
+              {displayPercent}%
+            </Text>
+          </View>
+          <Text
+            style={{
+              color: "#6e9e8a",
+              fontSize: 9,
+              fontWeight: "700",
+              letterSpacing: 2,
+              marginTop: 6,
+            }}
+          >
+            {t(
+              "trainComplete.performance.successRate",
+              "RÉUSSITE",
+            ).toUpperCase()}
+          </Text>
+        </View>
+
+        <View style={{ flex: 1, gap: 10 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              backgroundColor: "#0c3429",
+              borderRadius: 12,
+              paddingVertical: 10,
+              paddingHorizontal: 14,
+            }}
+          >
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: "#1a3d2e",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="checkmark-circle" size={18} color="#44d9a0" />
+            </View>
+            <Text
+              style={{
+                color: "#44d9a0",
+                fontSize: 18,
+                fontWeight: "900",
+                flex: 1,
+              }}
+            >
+              {totalCorrect}
+            </Text>
+            <Text
+              style={{
+                color: "#6e9e8a",
+                fontSize: 9,
+                fontWeight: "700",
+                letterSpacing: 1,
+              }}
+            >
+              {t("trainComplete.stats.correct", "CORRECT").toUpperCase()}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              backgroundColor: "#0c3429",
+              borderRadius: 12,
+              paddingVertical: 10,
+              paddingHorizontal: 14,
+            }}
+          >
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: "#3d1a1a",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="close-circle" size={18} color="#e8453c" />
+            </View>
+            <Text
+              style={{
+                color: "#e8453c",
+                fontSize: 18,
+                fontWeight: "900",
+                flex: 1,
+              }}
+            >
+              {totalIncorrect}
+            </Text>
+            <Text
+              style={{
+                color: "#6e9e8a",
+                fontSize: 9,
+                fontWeight: "700",
+                letterSpacing: 1,
+              }}
+            >
+              {t("trainComplete.stats.incorrect", "INCORRECT").toUpperCase()}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              backgroundColor: "#0c3429",
+              borderRadius: 12,
+              paddingVertical: 10,
+              paddingHorizontal: 14,
+            }}
+          >
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: "#3d2e1a",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="flash" size={18} color="#f5c542" />
+            </View>
+            <Text
+              style={{
+                color: "#f5c542",
+                fontSize: 18,
+                fontWeight: "900",
+                flex: 1,
+              }}
+            >
+              {bestStreak}
+            </Text>
+            <Text
+              style={{
+                color: "#6e9e8a",
+                fontSize: 9,
+                fontWeight: "700",
+                letterSpacing: 1,
+              }}
+            >
+              {t("trainComplete.stats.bestStreak", "SÉRIE").toUpperCase()}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 export default function TrainingCompleteScreen() {
   const {
@@ -248,336 +511,116 @@ export default function TrainingCompleteScreen() {
     });
   };
 
-  const getPerformanceColor = () => {
-    if (successRate >= 75) return { text: "#44d9a0", bg: "#1a3d2e" };
-    if (successRate >= 50) return { text: "#f5c542", bg: "#3d2e1a" };
-    return { text: "#e8453c", bg: "#3d1a1a" };
-  };
-
-  const perfColor = getPerformanceColor();
-
   return (
     <View className="flex-1 bg-background">
       <Scanlines />
 
       {phase === 1 ? (
         <Animated.View style={{ flex: 1, opacity: phase1Opacity }}>
-          {/* ─── New Header ─── */}
           <SafeAreaView edges={["top"]}>
             <View
               style={{
+                flexDirection: "row",
                 alignItems: "center",
-                paddingTop: 24,
-                paddingBottom: 16,
                 paddingHorizontal: 24,
+                paddingTop: 16,
+                paddingBottom: 20,
+                gap: 14,
               }}
             >
-              {/* Icon with glow ring */}
-              <View style={{ marginBottom: 16 }}>
-                <View
-                  style={[
-                    {
-                      width: 100,
-                      height: 100,
-                      borderRadius: 28,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: headerConfig.color,
-                    },
-                    pillShadow.default,
-                    modeStats?.isRecord && !isRealError
-                      ? {
-                          shadowColor: headerConfig.color,
-                          shadowOpacity: 0.6,
-                          shadowRadius: 24,
-                        }
-                      : {},
-                  ]}
-                >
-                  <Ionicons
-                    name={headerConfig.icon as any}
-                    size={48}
-                    color="#fff"
-                  />
-                </View>
-
-                {/* Decorative ring */}
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -6,
-                    left: -6,
-                    right: -6,
-                    bottom: -6,
-                    borderRadius: 34,
-                    borderWidth: 2,
-                    borderColor: headerConfig.color,
-                    opacity: 0.3,
-                  }}
+              <View
+                style={[
+                  {
+                    width: 56,
+                    height: 56,
+                    borderRadius: 18,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: headerConfig.color,
+                  },
+                  pillShadow.sm,
+                ]}
+              >
+                <Ionicons
+                  name={headerConfig.icon as any}
+                  size={28}
+                  color="#fff"
                 />
               </View>
 
-              {/* Record badge */}
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text
+                  style={{
+                    color: "#e8edf5",
+                    fontSize: 17,
+                    fontWeight: "900",
+                    letterSpacing: 2,
+                  }}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.7}
+                >
+                  {headerConfig.title.toUpperCase()}
+                </Text>
+                {deck?.name && (
+                  <Text
+                    style={{
+                      color: "#6e9e8a",
+                      fontSize: 13,
+                      fontWeight: "600",
+                      marginTop: 2,
+                    }}
+                    numberOfLines={1}
+                  >
+                    {deck.name}
+                  </Text>
+                )}
+              </View>
+
               {modeStats?.isRecord && !isRealError && (
                 <View
                   style={[
                     {
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 6,
-                      paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      borderRadius: 999,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      borderRadius: 10,
                       backgroundColor: "#f5c542",
-                      marginBottom: 12,
                     },
                     pillShadow.sm,
                   ]}
                 >
-                  <Ionicons name="trophy" size={14} color="#0b3d2e" />
                   <Text
                     style={{
                       color: "#0b3d2e",
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: "900",
-                      letterSpacing: 2,
+                      letterSpacing: 1.5,
                     }}
                   >
-                    NEW RECORD
+                    RECORD
                   </Text>
                 </View>
               )}
-
-              {/* Title + deck name */}
-              <Text
-                style={{
-                  color: "#e8edf5",
-                  fontSize: 13,
-                  fontWeight: "600",
-                  letterSpacing: 2,
-                  opacity: 0.6,
-                }}
-              >
-                {deck?.name?.toUpperCase()}
-              </Text>
             </View>
           </SafeAreaView>
 
           <ScrollView
             className="flex-1"
             showsVerticalScrollIndicator={false}
-            contentContainerClassName="pb-4"
+            contentContainerStyle={{ paddingBottom: 16 }}
           >
             {modeStats && !isRealError && (
               <ModeStatsCard modeStats={modeStats} />
             )}
 
-            {/* ─── Combined Performance + Stats Card ─── */}
             {(currentGameMode !== "perfect" || !wasPerfect) && (
-              <View
-                className="mx-6 mb-4 p-5 bg-card rounded-2xl border-2 border-border"
-                style={pillShadow.sm}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  {/* Left: Success rate circle */}
-                  <View style={{ alignItems: "center", marginRight: 20 }}>
-                    <View
-                      style={{
-                        width: 90,
-                        height: 90,
-                        borderRadius: 45,
-                        borderWidth: 4,
-                        borderColor: perfColor.text,
-                        backgroundColor: perfColor.bg,
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: perfColor.text,
-                          fontSize: 28,
-                          fontWeight: "900",
-                        }}
-                      >
-                        {successRate}%
-                      </Text>
-                    </View>
-                    <Text
-                      style={{
-                        color: "#6e9e8a",
-                        fontSize: 9,
-                        fontWeight: "700",
-                        letterSpacing: 2,
-                        marginTop: 6,
-                      }}
-                    >
-                      {t(
-                        "trainComplete.performance.successRate",
-                        "RÉUSSITE",
-                      ).toUpperCase()}
-                    </Text>
-                  </View>
-
-                  {/* Right: Stats column */}
-                  <View style={{ flex: 1, gap: 10 }}>
-                    {/* Correct */}
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 10,
-                        backgroundColor: "#0c3429",
-                        borderRadius: 12,
-                        paddingVertical: 10,
-                        paddingHorizontal: 14,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 10,
-                          backgroundColor: "#1a3d2e",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={18}
-                          color="#44d9a0"
-                        />
-                      </View>
-                      <Text
-                        style={{
-                          color: "#44d9a0",
-                          fontSize: 18,
-                          fontWeight: "900",
-                          flex: 1,
-                        }}
-                      >
-                        {totalCorrect}
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#6e9e8a",
-                          fontSize: 9,
-                          fontWeight: "700",
-                          letterSpacing: 1,
-                        }}
-                      >
-                        {t(
-                          "trainComplete.stats.correct",
-                          "CORRECT",
-                        ).toUpperCase()}
-                      </Text>
-                    </View>
-
-                    {/* Incorrect */}
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 10,
-                        backgroundColor: "#0c3429",
-                        borderRadius: 12,
-                        paddingVertical: 10,
-                        paddingHorizontal: 14,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 10,
-                          backgroundColor: "#3d1a1a",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Ionicons
-                          name="close-circle"
-                          size={18}
-                          color="#e8453c"
-                        />
-                      </View>
-                      <Text
-                        style={{
-                          color: "#e8453c",
-                          fontSize: 18,
-                          fontWeight: "900",
-                          flex: 1,
-                        }}
-                      >
-                        {totalIncorrect}
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#6e9e8a",
-                          fontSize: 9,
-                          fontWeight: "700",
-                          letterSpacing: 1,
-                        }}
-                      >
-                        {t(
-                          "trainComplete.stats.incorrect",
-                          "INCORRECT",
-                        ).toUpperCase()}
-                      </Text>
-                    </View>
-
-                    {/* Best streak */}
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 10,
-                        backgroundColor: "#0c3429",
-                        borderRadius: 12,
-                        paddingVertical: 10,
-                        paddingHorizontal: 14,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 10,
-                          backgroundColor: "#3d2e1a",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Ionicons name="flash" size={18} color="#f5c542" />
-                      </View>
-                      <Text
-                        style={{
-                          color: "#f5c542",
-                          fontSize: 18,
-                          fontWeight: "900",
-                          flex: 1,
-                        }}
-                      >
-                        {bestStreak}
-                      </Text>
-                      <Text
-                        style={{
-                          color: "#6e9e8a",
-                          fontSize: 9,
-                          fontWeight: "700",
-                          letterSpacing: 1,
-                        }}
-                      >
-                        {t(
-                          "trainComplete.stats.bestStreak",
-                          "SÉRIE",
-                        ).toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
+              <AnimatedPerformanceCard
+                successRate={successRate}
+                totalCorrect={totalCorrect}
+                totalIncorrect={totalIncorrect}
+                bestStreak={bestStreak}
+                t={t}
+              />
             )}
           </ScrollView>
 
@@ -613,8 +656,6 @@ export default function TrainingCompleteScreen() {
     </View>
   );
 }
-
-// ─── Phase 2: Progression + Actions ──────────────────────────────────
 
 type Phase2Props = {
   almostUpgradeCards: any[];
@@ -713,256 +754,265 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
     });
   }, []);
 
-  const getLevelColors = (color: string) => {
-    const colorMap: Record<string, { bg: string; text: string }> = {
-      "#cd7f32": { bg: "#2a1a0a", text: "#cd7f32" },
-      "#d1d5db": { bg: "#27272a", text: "#a1a1aa" },
-      "#f59e0b": { bg: "#3d2e1a", text: "#fbbf24" },
-      "#94a3b8": { bg: "#1e293b", text: "#94a3b8" },
-      "#dc2626": { bg: "#3d1a1a", text: "#dc2626" },
-    };
-    return colorMap[color] || { bg: "#2a1a0a", text: "#cd7f32" };
-  };
-
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerClassName="pt-16 pb-4"
-      >
-        <Animated.View
-          style={{
-            opacity: titleOpacity,
-            transform: [{ translateY: titleTranslateY }],
-            alignItems: "center",
-            marginBottom: 32,
-            paddingHorizontal: 24,
-          }}
+      <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 16 }}
         >
-          <View
-            className="w-20 h-20 rounded-2xl items-center justify-center mb-4"
-            style={[{ backgroundColor: "#5b8af5" }, pillShadow.default]}
-          >
-            <Ionicons name="trending-up" size={40} color="#fff" />
-          </View>
-          <Text
+          <Animated.View
             style={{
-              color: "#e8edf5",
-              fontSize: 22,
-              fontWeight: "900",
-              letterSpacing: 3,
-              textAlign: "center",
+              opacity: titleOpacity,
+              transform: [{ translateY: titleTranslateY }],
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 24,
+              paddingTop: 16,
+              paddingBottom: 24,
+              gap: 14,
             }}
           >
-            {t("trainComplete.phase2.title", "PROGRESSION").toUpperCase()}
-          </Text>
-          {deckName && (
-            <Text
-              style={{
-                color: "#6e9e8a",
-                fontSize: 13,
-                fontWeight: "600",
-                marginTop: 6,
-              }}
+            <View
+              style={[
+                {
+                  width: 56,
+                  height: 56,
+                  borderRadius: 18,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#5b8af5",
+                },
+                pillShadow.sm,
+              ]}
             >
-              {deckName}
-            </Text>
-          )}
-        </Animated.View>
-
-        {almostUpgradeCards.length > 0 ? (
-          <View style={{ paddingHorizontal: 24, gap: 16 }}>
-            {almostUpgradeCards.map((card, index) => {
-              const levelColors = getLevelColors(card.nextLevel.color);
-              const anim = cardAnims[index];
-
-              return (
-                <Animated.View
-                  key={card.id}
-                  style={[
-                    {
-                      opacity: anim.opacity,
-                      transform: [{ translateX: anim.translateX }],
-                      backgroundColor: "#134c39",
-                      borderRadius: 20,
-                      borderWidth: 2,
-                      borderColor: "#2a7a60",
-                      padding: 20,
-                    },
-                    pillShadow.sm,
-                  ]}
+              <Ionicons name="trending-up" size={28} color="#fff" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  color: "#e8edf5",
+                  fontSize: 17,
+                  fontWeight: "900",
+                  letterSpacing: 2,
+                }}
+              >
+                {t("trainComplete.phase2.title", "PROGRESSION").toUpperCase()}
+              </Text>
+              {deckName && (
+                <Text
+                  style={{
+                    color: "#6e9e8a",
+                    fontSize: 13,
+                    fontWeight: "600",
+                    marginTop: 2,
+                  }}
+                  numberOfLines={1}
                 >
-                  <Animated.View
-                    style={{
-                      position: "absolute",
-                      right: 20,
-                      top: -14,
-                      opacity: anim.plusOneOpacity,
-                      transform: [
-                        { scale: anim.plusOneScale },
-                        { translateY: anim.plusOneTranslateY },
-                      ],
-                      zIndex: 10,
-                    }}
-                  >
-                    <View
-                      style={[
-                        {
-                          backgroundColor: "#44d9a0",
-                          paddingHorizontal: 12,
-                          paddingVertical: 5,
-                          borderRadius: 12,
-                          borderWidth: 2,
-                          borderColor: "#6ee8b7",
-                        },
-                        pillShadow.sm,
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          color: "#0b3d2e",
-                          fontSize: 15,
-                          fontWeight: "900",
-                          letterSpacing: 1,
-                        }}
-                      >
-                        +1
-                      </Text>
-                    </View>
-                  </Animated.View>
+                  {deckName}
+                </Text>
+              )}
+            </View>
+          </Animated.View>
 
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 14,
-                    }}
+          {almostUpgradeCards.length > 0 ? (
+            <View style={{ paddingHorizontal: 24, gap: 16 }}>
+              {almostUpgradeCards.map((card, index) => {
+                const levelColors = getLevelColors(card.nextLevel.color);
+                const anim = cardAnims[index];
+
+                return (
+                  <Animated.View
+                    key={card.id}
+                    style={[
+                      {
+                        opacity: anim.opacity,
+                        transform: [{ translateX: anim.translateX }],
+                        backgroundColor: "#134c39",
+                        borderRadius: 20,
+                        borderWidth: 2,
+                        borderColor: "#2a7a60",
+                        padding: 20,
+                      },
+                      pillShadow.sm,
+                    ]}
                   >
-                    <View style={{ flex: 1, marginRight: 12 }}>
-                      <Text
+                    <Animated.View
+                      style={{
+                        position: "absolute",
+                        right: 20,
+                        top: -14,
+                        opacity: anim.plusOneOpacity,
+                        transform: [
+                          { scale: anim.plusOneScale },
+                          { translateY: anim.plusOneTranslateY },
+                        ],
+                        zIndex: 10,
+                      }}
+                    >
+                      <View
+                        style={[
+                          {
+                            backgroundColor: "#44d9a0",
+                            paddingHorizontal: 12,
+                            paddingVertical: 5,
+                            borderRadius: 12,
+                            borderWidth: 2,
+                            borderColor: "#6ee8b7",
+                          },
+                          pillShadow.sm,
+                        ]}
+                      >
+                        <Text
+                          style={{
+                            color: "#0b3d2e",
+                            fontSize: 15,
+                            fontWeight: "900",
+                            letterSpacing: 1,
+                          }}
+                        >
+                          +1
+                        </Text>
+                      </View>
+                    </Animated.View>
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 14,
+                      }}
+                    >
+                      <View style={{ flex: 1, marginRight: 12 }}>
+                        <Text
+                          style={{
+                            color: "#e8edf5",
+                            fontSize: 16,
+                            fontWeight: "700",
+                          }}
+                          numberOfLines={1}
+                        >
+                          {card.word}
+                        </Text>
+                        <Text
+                          style={{
+                            color: "#6e9e8a",
+                            fontSize: 13,
+                            marginTop: 2,
+                          }}
+                          numberOfLines={1}
+                        >
+                          {card.translation}
+                        </Text>
+                      </View>
+
+                      <View
                         style={{
-                          color: "#e8edf5",
-                          fontSize: 16,
-                          fontWeight: "700",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 6,
+                          paddingHorizontal: 12,
+                          paddingVertical: 6,
+                          borderRadius: 10,
+                          backgroundColor: levelColors.bg,
                         }}
-                        numberOfLines={1}
                       >
-                        {card.word}
-                      </Text>
-                      <Text
-                        style={{ color: "#6e9e8a", fontSize: 13, marginTop: 2 }}
-                        numberOfLines={1}
-                      >
-                        {card.translation}
-                      </Text>
+                        <Ionicons
+                          name={card.nextLevel.icon as any}
+                          size={14}
+                          color={levelColors.text}
+                        />
+                        <Text
+                          style={{
+                            color: levelColors.text,
+                            fontSize: 12,
+                            fontWeight: "700",
+                          }}
+                        >
+                          {card.remaining}{" "}
+                          {t("trainComplete.phase2.left", "restants")}
+                        </Text>
+                      </View>
                     </View>
 
                     <View
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        gap: 6,
-                        paddingHorizontal: 12,
-                        paddingVertical: 6,
-                        borderRadius: 10,
-                        backgroundColor: levelColors.bg,
+                        gap: 12,
                       }}
                     >
-                      <Ionicons
-                        name={card.nextLevel.icon as any}
-                        size={14}
-                        color={levelColors.text}
-                      />
+                      <View
+                        style={{
+                          flex: 1,
+                          height: 10,
+                          backgroundColor: "#0a1f18",
+                          borderRadius: 999,
+                          overflow: "hidden",
+                          borderWidth: 1,
+                          borderColor: "#2a7a60",
+                        }}
+                      >
+                        <Animated.View
+                          style={{
+                            height: "100%",
+                            borderRadius: 999,
+                            backgroundColor: levelColors.text,
+                            width: anim.barWidth.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: ["0%", `${card.percentToNext}%`],
+                            }),
+                          }}
+                        />
+                      </View>
                       <Text
                         style={{
                           color: levelColors.text,
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: "700",
+                          minWidth: 50,
                         }}
                       >
-                        {card.remaining}{" "}
-                        {t("trainComplete.phase2.left", "restants")}
+                        → {card.nextLevel.name}
                       </Text>
                     </View>
-                  </View>
-
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 12,
-                    }}
-                  >
-                    <View
-                      style={{
-                        flex: 1,
-                        height: 10,
-                        backgroundColor: "#0a1f18",
-                        borderRadius: 999,
-                        overflow: "hidden",
-                        borderWidth: 1,
-                        borderColor: "#2a7a60",
-                      }}
-                    >
-                      <Animated.View
-                        style={{
-                          height: "100%",
-                          borderRadius: 999,
-                          backgroundColor: levelColors.text,
-                          width: anim.barWidth.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: ["0%", `${card.percentToNext}%`],
-                          }),
-                        }}
-                      />
-                    </View>
-                    <Text
-                      style={{
-                        color: levelColors.text,
-                        fontSize: 11,
-                        fontWeight: "700",
-                        minWidth: 50,
-                      }}
-                    >
-                      → {card.nextLevel.name}
-                    </Text>
-                  </View>
-                </Animated.View>
-              );
-            })}
-          </View>
-        ) : (
-          <View
-            style={{
-              marginHorizontal: 24,
-              padding: 24,
-              backgroundColor: "#134c39",
-              borderRadius: 20,
-              borderWidth: 2,
-              borderColor: "#2a7a60",
-              alignItems: "center",
-            }}
-          >
-            <Ionicons name="sparkles" size={32} color="#f5c542" />
-            <Text
+                  </Animated.View>
+                );
+              })}
+            </View>
+          ) : (
+            <View
               style={{
-                color: "#e8edf5",
-                fontSize: 15,
-                fontWeight: "700",
-                textAlign: "center",
-                marginTop: 12,
+                marginHorizontal: 24,
+                padding: 24,
+                backgroundColor: "#134c39",
+                borderRadius: 20,
+                borderWidth: 2,
+                borderColor: "#2a7a60",
+                alignItems: "center",
               }}
             >
-              {t(
-                "trainComplete.phase2.allMaxed",
-                "Toutes vos cartes sont au niveau maximum !",
-              )}
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+              <Ionicons name="sparkles" size={32} color="#f5c542" />
+              <Text
+                style={{
+                  color: "#e8edf5",
+                  fontSize: 15,
+                  fontWeight: "700",
+                  textAlign: "center",
+                  marginTop: 12,
+                }}
+              >
+                {t(
+                  "trainComplete.phase2.allMaxed",
+                  "Toutes vos cartes sont au niveau maximum !",
+                )}
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
 
       <CompleteActions deckId={deckId} />
     </View>

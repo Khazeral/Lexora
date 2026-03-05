@@ -7,6 +7,7 @@ import { getDeck } from "@/services/decks.api";
 import { GAME_MODES, GameMode } from "@/constants/gameMods";
 import LoadingScreen from "@/app/components/LoadingScreen";
 import TrainSettingsHeader from "@/app/components/train/settings/TrainSettingsHeader";
+import CardOptions from "@/app/components/train/settings/CardOptions";
 import GameModeSelector from "@/app/components/train/settings/GameModeSelector";
 import { StartTrainingButton } from "@/app/components/train/settings/StartTrainingButton";
 import Scanlines from "@/app/components/Scanlines";
@@ -61,14 +62,14 @@ export default function TrainingSettingsScreen() {
         contentContainerClassName="pb-8"
         showsVerticalScrollIndicator={false}
       >
-        <GameModeSelector
-          selectedMode={gameMode}
-          onSelectMode={setGameMode}
+        <CardOptions
           shuffleCards={shuffleCards}
           reverseMode={reverseMode}
           onShuffleChange={setShuffleCards}
           onReverseChange={setReverseMode}
         />
+
+        <GameModeSelector selectedMode={gameMode} onSelectMode={setGameMode} />
       </ScrollView>
 
       <StartTrainingButton

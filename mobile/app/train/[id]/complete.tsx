@@ -13,11 +13,9 @@ import { getDeckRecords } from "@/services/deck_records.api";
 import { useAuth } from "@/services/auth_context";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 import useModeStats from "@/hooks/useModeStats";
-import CompleteHeader from "@/app/components/train/complete/CompleteHeader";
 import ModeStatsCard from "@/app/components/train/complete/ModeStatsCard";
-import PerformanceCard from "@/app/components/train/complete/PerformanceCard";
-import StatsGrid from "@/app/components/train/complete/StatsGrid";
 import CompleteActions from "@/app/components/train/complete/CompleteActions";
 import Scanlines from "@/app/components/Scanlines";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
@@ -250,19 +248,120 @@ export default function TrainingCompleteScreen() {
     });
   };
 
+  const getPerformanceColor = () => {
+    if (successRate >= 75) return { text: "#44d9a0", bg: "#1a3d2e" };
+    if (successRate >= 50) return { text: "#f5c542", bg: "#3d2e1a" };
+    return { text: "#e8453c", bg: "#3d1a1a" };
+  };
+
+  const perfColor = getPerformanceColor();
+
   return (
     <View className="flex-1 bg-background">
       <Scanlines />
 
       {phase === 1 ? (
         <Animated.View style={{ flex: 1, opacity: phase1Opacity }}>
-          <CompleteHeader
-            icon={headerConfig.icon}
-            color={headerConfig.color}
-            title={headerConfig.title}
-            deckName={deck?.name}
-            isRecord={modeStats?.isRecord && !isRealError}
-          />
+          {/* ─── New Header ─── */}
+          <SafeAreaView edges={["top"]}>
+            <View
+              style={{
+                alignItems: "center",
+                paddingTop: 24,
+                paddingBottom: 16,
+                paddingHorizontal: 24,
+              }}
+            >
+              {/* Icon with glow ring */}
+              <View style={{ marginBottom: 16 }}>
+                <View
+                  style={[
+                    {
+                      width: 100,
+                      height: 100,
+                      borderRadius: 28,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: headerConfig.color,
+                    },
+                    pillShadow.default,
+                    modeStats?.isRecord && !isRealError
+                      ? {
+                          shadowColor: headerConfig.color,
+                          shadowOpacity: 0.6,
+                          shadowRadius: 24,
+                        }
+                      : {},
+                  ]}
+                >
+                  <Ionicons
+                    name={headerConfig.icon as any}
+                    size={48}
+                    color="#fff"
+                  />
+                </View>
+
+                {/* Decorative ring */}
+                <View
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    left: -6,
+                    right: -6,
+                    bottom: -6,
+                    borderRadius: 34,
+                    borderWidth: 2,
+                    borderColor: headerConfig.color,
+                    opacity: 0.3,
+                  }}
+                />
+              </View>
+
+              {/* Record badge */}
+              {modeStats?.isRecord && !isRealError && (
+                <View
+                  style={[
+                    {
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 6,
+                      paddingHorizontal: 16,
+                      paddingVertical: 8,
+                      borderRadius: 999,
+                      backgroundColor: "#f5c542",
+                      marginBottom: 12,
+                    },
+                    pillShadow.sm,
+                  ]}
+                >
+                  <Ionicons name="trophy" size={14} color="#0b3d2e" />
+                  <Text
+                    style={{
+                      color: "#0b3d2e",
+                      fontSize: 12,
+                      fontWeight: "900",
+                      letterSpacing: 2,
+                    }}
+                  >
+                    NEW RECORD
+                  </Text>
+                </View>
+              )}
+
+              {/* Title + deck name */}
+              <Text
+                style={{
+                  color: "#e8edf5",
+                  fontSize: 13,
+                  fontWeight: "600",
+                  letterSpacing: 2,
+                  opacity: 0.6,
+                }}
+              >
+                {deck?.name?.toUpperCase()}
+              </Text>
+            </View>
+          </SafeAreaView>
 
           <ScrollView
             className="flex-1"
@@ -273,15 +372,213 @@ export default function TrainingCompleteScreen() {
               <ModeStatsCard modeStats={modeStats} />
             )}
 
+            {/* ─── Combined Performance + Stats Card ─── */}
             {(currentGameMode !== "perfect" || !wasPerfect) && (
-              <PerformanceCard successRate={successRate} />
-            )}
+              <View
+                className="mx-6 mb-4 p-5 bg-card rounded-2xl border-2 border-border"
+                style={pillShadow.sm}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  {/* Left: Success rate circle */}
+                  <View style={{ alignItems: "center", marginRight: 20 }}>
+                    <View
+                      style={{
+                        width: 90,
+                        height: 90,
+                        borderRadius: 45,
+                        borderWidth: 4,
+                        borderColor: perfColor.text,
+                        backgroundColor: perfColor.bg,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: perfColor.text,
+                          fontSize: 28,
+                          fontWeight: "900",
+                        }}
+                      >
+                        {successRate}%
+                      </Text>
+                    </View>
+                    <Text
+                      style={{
+                        color: "#6e9e8a",
+                        fontSize: 9,
+                        fontWeight: "700",
+                        letterSpacing: 2,
+                        marginTop: 6,
+                      }}
+                    >
+                      {t(
+                        "trainComplete.performance.successRate",
+                        "RÉUSSITE",
+                      ).toUpperCase()}
+                    </Text>
+                  </View>
 
-            <StatsGrid
-              correct={totalCorrect}
-              incorrect={totalIncorrect}
-              bestStreak={bestStreak}
-            />
+                  {/* Right: Stats column */}
+                  <View style={{ flex: 1, gap: 10 }}>
+                    {/* Correct */}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 10,
+                        backgroundColor: "#0c3429",
+                        borderRadius: 12,
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 10,
+                          backgroundColor: "#1a3d2e",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={18}
+                          color="#44d9a0"
+                        />
+                      </View>
+                      <Text
+                        style={{
+                          color: "#44d9a0",
+                          fontSize: 18,
+                          fontWeight: "900",
+                          flex: 1,
+                        }}
+                      >
+                        {totalCorrect}
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#6e9e8a",
+                          fontSize: 9,
+                          fontWeight: "700",
+                          letterSpacing: 1,
+                        }}
+                      >
+                        {t(
+                          "trainComplete.stats.correct",
+                          "CORRECT",
+                        ).toUpperCase()}
+                      </Text>
+                    </View>
+
+                    {/* Incorrect */}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 10,
+                        backgroundColor: "#0c3429",
+                        borderRadius: 12,
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 10,
+                          backgroundColor: "#3d1a1a",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Ionicons
+                          name="close-circle"
+                          size={18}
+                          color="#e8453c"
+                        />
+                      </View>
+                      <Text
+                        style={{
+                          color: "#e8453c",
+                          fontSize: 18,
+                          fontWeight: "900",
+                          flex: 1,
+                        }}
+                      >
+                        {totalIncorrect}
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#6e9e8a",
+                          fontSize: 9,
+                          fontWeight: "700",
+                          letterSpacing: 1,
+                        }}
+                      >
+                        {t(
+                          "trainComplete.stats.incorrect",
+                          "INCORRECT",
+                        ).toUpperCase()}
+                      </Text>
+                    </View>
+
+                    {/* Best streak */}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 10,
+                        backgroundColor: "#0c3429",
+                        borderRadius: 12,
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 10,
+                          backgroundColor: "#3d2e1a",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Ionicons name="flash" size={18} color="#f5c542" />
+                      </View>
+                      <Text
+                        style={{
+                          color: "#f5c542",
+                          fontSize: 18,
+                          fontWeight: "900",
+                          flex: 1,
+                        }}
+                      >
+                        {bestStreak}
+                      </Text>
+                      <Text
+                        style={{
+                          color: "#6e9e8a",
+                          fontSize: 9,
+                          fontWeight: "700",
+                          letterSpacing: 1,
+                        }}
+                      >
+                        {t(
+                          "trainComplete.stats.bestStreak",
+                          "SÉRIE",
+                        ).toUpperCase()}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
           </ScrollView>
 
           <View className="p-6 bg-secondary border-t-2 border-border">
@@ -343,7 +640,6 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
   const titleTranslateY = useRef(new Animated.Value(-20)).current;
 
   useEffect(() => {
-    // Title entrance
     Animated.parallel([
       Animated.timing(titleOpacity, {
         toValue: 1,
@@ -358,11 +654,9 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
       }),
     ]).start();
 
-    // Stagger cards
     cardAnims.forEach((anim, index) => {
       setTimeout(
         () => {
-          // Card slide in
           Animated.parallel([
             Animated.timing(anim.opacity, {
               toValue: 1,
@@ -377,14 +671,12 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
             }),
           ]).start();
 
-          // Progress bar fill
           setTimeout(() => {
             Animated.timing(anim.barWidth, {
               toValue: 1,
               duration: 800,
               useNativeDriver: false,
             }).start(() => {
-              // +1 pop after bar fills
               Animated.parallel([
                 Animated.spring(anim.plusOneScale, {
                   toValue: 1,
@@ -398,7 +690,6 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
                   useNativeDriver: true,
                 }),
               ]).start(() => {
-                // Float up and fade out
                 setTimeout(() => {
                   Animated.parallel([
                     Animated.timing(anim.plusOneTranslateY, {
@@ -440,7 +731,6 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pt-16 pb-4"
       >
-        {/* Title */}
         <Animated.View
           style={{
             opacity: titleOpacity,
@@ -481,7 +771,6 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
           )}
         </Animated.View>
 
-        {/* Animated cards */}
         {almostUpgradeCards.length > 0 ? (
           <View style={{ paddingHorizontal: 24, gap: 16 }}>
             {almostUpgradeCards.map((card, index) => {
@@ -504,7 +793,6 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
                     pillShadow.sm,
                   ]}
                 >
-                  {/* +1 floating badge */}
                   <Animated.View
                     style={{
                       position: "absolute",
@@ -544,7 +832,6 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
                     </View>
                   </Animated.View>
 
-                  {/* Card info */}
                   <View
                     style={{
                       flexDirection: "row",
@@ -565,11 +852,7 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
                         {card.word}
                       </Text>
                       <Text
-                        style={{
-                          color: "#6e9e8a",
-                          fontSize: 13,
-                          marginTop: 2,
-                        }}
+                        style={{ color: "#6e9e8a", fontSize: 13, marginTop: 2 }}
                         numberOfLines={1}
                       >
                         {card.translation}
@@ -605,7 +888,6 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
                     </View>
                   </View>
 
-                  {/* Animated progress bar */}
                   <View
                     style={{
                       flexDirection: "row",

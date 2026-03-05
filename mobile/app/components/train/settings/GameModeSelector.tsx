@@ -2,7 +2,6 @@ import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { GAME_MODES, GameMode } from "@/constants/gameMods";
-import ClassicModeOptions from "./ClassicModeOptions";
 import { pillShadow } from "@/app/components/ui/GlowStyles";
 import AnimatedTouchable from "../../ui/AnimatedTouchable";
 
@@ -20,19 +19,11 @@ const MODE_COLORS: Record<
 type GameModeSelectorProps = {
   selectedMode: GameMode;
   onSelectMode: (mode: GameMode) => void;
-  shuffleCards?: boolean;
-  reverseMode?: boolean;
-  onShuffleChange?: (value: boolean) => void;
-  onReverseChange?: (value: boolean) => void;
 };
 
 export default function GameModeSelector({
   selectedMode,
   onSelectMode,
-  shuffleCards = false,
-  reverseMode = false,
-  onShuffleChange,
-  onReverseChange,
 }: GameModeSelectorProps) {
   const { t } = useTranslation();
 
@@ -52,71 +43,52 @@ export default function GameModeSelector({
           icon: "#5b8af5",
           border: "#5b8af5",
         };
-        const isClassicSelected = mode.id === "classic" && isSelected;
 
         return (
-          <View key={mode.id}>
-            <AnimatedTouchable
-              className={`flex-row items-center p-4 bg-card ${
-                isClassicSelected
-                  ? "rounded-t-2xl rounded-b-none mb-0"
-                  : "rounded-2xl mb-4"
-              }`}
-              style={[
-                {
-                  borderColor: isSelected ? colors.border : "#2a7a60",
-                  borderWidth: isSelected ? 3 : 2,
-                },
-                pillShadow.sm,
-              ]}
-              onPress={() => onSelectMode(mode.id)}
-              activeOpacity={0.7}
+          <AnimatedTouchable
+            key={mode.id}
+            className="flex-row items-center p-4 bg-card rounded-2xl mb-4"
+            style={[
+              {
+                borderColor: isSelected ? colors.border : "#2a7a60",
+                borderWidth: isSelected ? 3 : 2,
+              },
+              pillShadow.sm,
+            ]}
+            onPress={() => onSelectMode(mode.id)}
+            activeOpacity={0.7}
+          >
+            <View
+              className="w-14 h-14 rounded-xl items-center justify-center mr-4"
+              style={{ backgroundColor: colors.bg }}
             >
-              <View
-                className="w-14 h-14 rounded-xl items-center justify-center mr-4"
-                style={{ backgroundColor: colors.bg }}
-              >
-                <Ionicons
-                  name={mode.icon as any}
-                  size={28}
-                  color={colors.icon}
-                />
-              </View>
+              <Ionicons name={mode.icon as any} size={28} color={colors.icon} />
+            </View>
 
-              <View className="flex-1">
-                <View className="flex-row items-center justify-between mb-1">
-                  <Text className="text-foreground text-base font-bold tracking-wide flex-1">
-                    {t(mode.title).toUpperCase()}
-                  </Text>
-
-                  <View
-                    className="px-3 py-1 rounded-lg ml-2"
-                    style={{ backgroundColor: colors.bg }}
-                  >
-                    <Text
-                      className="text-[10px] font-bold tracking-wider"
-                      style={{ color: colors.icon }}
-                    >
-                      {t(mode.difficulty).toUpperCase()}
-                    </Text>
-                  </View>
-                </View>
-
-                <Text className="text-muted-foreground text-xs leading-4">
-                  {t(mode.description)}
+            <View className="flex-1">
+              <View className="flex-row items-center justify-between mb-1">
+                <Text className="text-foreground text-base font-bold tracking-wide flex-1">
+                  {t(mode.title).toUpperCase()}
                 </Text>
-              </View>
-            </AnimatedTouchable>
 
-            {isClassicSelected && (
-              <ClassicModeOptions
-                shuffleCards={shuffleCards}
-                reverseMode={reverseMode}
-                onShuffleChange={onShuffleChange || (() => {})}
-                onReverseChange={onReverseChange || (() => {})}
-              />
-            )}
-          </View>
+                <View
+                  className="px-3 py-1 rounded-lg ml-2"
+                  style={{ backgroundColor: colors.bg }}
+                >
+                  <Text
+                    className="text-[10px] font-bold tracking-wider"
+                    style={{ color: colors.icon }}
+                  >
+                    {t(mode.difficulty).toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+
+              <Text className="text-muted-foreground text-xs leading-4">
+                {t(mode.description)}
+              </Text>
+            </View>
+          </AnimatedTouchable>
         );
       })}
     </View>

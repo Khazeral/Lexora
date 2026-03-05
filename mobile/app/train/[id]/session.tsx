@@ -145,7 +145,7 @@ export default function TrainingSessionScreen() {
       if (gameMode === "speedrun") {
         recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "speedrun",
-          speedRunTime: elapsedTime,
+          speedRunTime: elapsedTime + timePenalty,
           timePenalty: timePenalty,
           sessionBestStreak: bestStreakRef.current,
         });

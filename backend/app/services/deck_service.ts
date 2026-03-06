@@ -84,10 +84,31 @@ export default class DecksService {
       cardCount: deck.cards.length,
     }))
 
+    let lastPlayedDeck = null
+    try {
+      const { default: DeckRecord } = await import('#models/deck_record')
+      const lastRecord = await DeckRecord.query()
+        .where('user_id', userId)
+        .orderBy('updated_at', 'desc')
+        .first()
+
+      if (lastRecord) {
+        const deck = decks.find((d) => d.id === lastRecord.deckId)
+        if (deck && deck.cards.length > 0) {
+          lastPlayedDeck = {
+            id: deck.id,
+            name: deck.name,
+            cardCount: deck.cards.length,
+          }
+        }
+      }
+    } catch (error) {}
+
     return {
       totalDecks: decks.length,
       totalCards,
       recentDecks,
+      lastPlayedDeck,
     }
   }
 }

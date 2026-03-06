@@ -34,7 +34,7 @@ export default function DeckActionSheet({
   const queryClient = useQueryClient();
   const [mode, setMode] = useState<SheetMode>("actions");
   const [newName, setNewName] = useState("");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
 
   const renameMutation = useMutation({
     mutationFn: ({ id, name }: { id: number; name: string }) =>
@@ -51,14 +51,12 @@ export default function DeckActionSheet({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["decks"] });
       queryClient.invalidateQueries({ queryKey: ["home"] });
-      handleClose();
+      onClose();
     },
   });
-
   const handleClose = () => {
     setMode("actions");
     setNewName("");
-    setShowDeleteModal(false);
     onClose();
   };
 
@@ -71,12 +69,26 @@ export default function DeckActionSheet({
 
   const handleRenameSubmit = () => {
     if (deck && newName.trim().length > 0) {
-      renameMutation.mutate({ id: deck.id, name: newName.trim() });
+      renameMutation.mutate({ id: Number(deck.id), name: newName.trim() });
     }
   };
 
   const handleDeletePress = () => {
-    setShowDeleteModal(true);
+    handleClose();
+    setTimeout(() => {
+      setPendingDelete(true);
+    }, 300);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deck) {
+      setPendingDelete(false);
+      deleteMutation.mutate(Number(deck.id));
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setPendingDelete(false);
   };
 
   if (!deck) return null;
@@ -169,8 +181,8 @@ export default function DeckActionSheet({
                   >
                     {deck.cardCount}{" "}
                     {deck.cardCount > 1
-                      ? t("decks.card.cards_plural_short", "cartes")
-                      : t("decks.card.cards_short", "carte")}
+                      ? t("decks.card.cards_plural_short")
+                      : t("decks.card.cards_short")}
                   </Text>
                 </View>
               </View>
@@ -212,7 +224,7 @@ export default function DeckActionSheet({
                         flex: 1,
                       }}
                     >
-                      {t("decks.actions.rename", "Renommer")}
+                      {t("decks.actions.rename")}
                     </Text>
                   </AnimatedTouchable>
 
@@ -251,7 +263,7 @@ export default function DeckActionSheet({
                         flex: 1,
                       }}
                     >
-                      {t("decks.actions.delete", "Supprimer")}
+                      {t("decks.actions.delete")}
                     </Text>
                   </AnimatedTouchable>
                 </View>
@@ -269,10 +281,7 @@ export default function DeckActionSheet({
                     <TextInput
                       value={newName}
                       onChangeText={setNewName}
-                      placeholder={t(
-                        "decks.actions.renamePlaceholder",
-                        "Nom du deck",
-                      )}
+                      placeholder={t("decks.actions.renamePlaceholder")}
                       placeholderTextColor="#4a7a6a"
                       autoFocus
                       maxLength={50}
@@ -325,7 +334,7 @@ export default function DeckActionSheet({
                         letterSpacing: 1,
                       }}
                     >
-                      {t("decks.actions.renameConfirm", "RENOMMER")}
+                      {t("decks.actions.renameConfirm")}
                     </Text>
                   </AnimatedTouchable>
                 </View>
@@ -336,20 +345,14 @@ export default function DeckActionSheet({
       </Modal>
 
       <ConfirmModal
-        visible={showDeleteModal}
-        title={t("decks.actions.deleteTitle", "Supprimer le deck")}
-        message={t("decks.actions.deleteMessage", {
-          name: deck.name,
-          defaultValue: `Êtes-vous sûr de vouloir supprimer "${deck.name}" ? Cette action est irréversible.`,
-        })}
-        confirmText={t("common.delete", "Supprimer")}
-        cancelText={t("common.cancel", "Annuler")}
+        visible={pendingDelete}
+        title={t("decks.actions.deleteTitle")}
+        message={t("decks.actions.deleteMessage", { name: deck.name })}
+        confirmText={t("common.delete")}
+        cancelText={t("common.cancel")}
         type="danger"
-        onConfirm={() => {
-          setShowDeleteModal(false);
-          deleteMutation.mutate(deck.id);
-        }}
-        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
       />
     </>
   );

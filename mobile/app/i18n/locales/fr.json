@@ -62,6 +62,13 @@
   },
   "home": {
     "description": "Mémorisez avec les cartes",
+    "continueTraining": {
+      "title": "Reprendre"
+    },
+    "achievements": {
+      "title": "Trophées",
+      "seeAll": "Voir tout"
+    },
     "recentDecks": {
       "categories": "Catégories",
       "title": "Decks récents",

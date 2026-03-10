@@ -63,8 +63,6 @@ export default function HomeScreen() {
     )
     .slice(0, 3);
 
-  const totalUnlocked = achievements.filter((a) => a.unlocked).length;
-
   if (isLoading) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
@@ -93,19 +91,10 @@ export default function HomeScreen() {
 
         {hasDecks ? (
           <>
-            {/* ─── Continue Training ─── */}
             {homeData?.lastPlayedDeck && (
               <View style={{ paddingHorizontal: 24, marginBottom: 20 }}>
-                <Text
-                  style={{
-                    color: "#90c0ac",
-                    fontSize: 11,
-                    fontWeight: "700",
-                    letterSpacing: 3,
-                    marginBottom: 10,
-                  }}
-                >
-                  {t("home.continueTraining.title", "REPRENDRE").toUpperCase()}
+                <Text className="text-sm text-white font-semibold tracking-[3px] mb-4">
+                  {t("home.continueTraining.title").toUpperCase()}
                 </Text>
                 <AnimatedTouchable
                   onPress={() =>
@@ -155,7 +144,7 @@ export default function HomeScreen() {
                       {homeData.lastPlayedDeck.name}
                     </Text>
                     <Text
-                      style={{ color: "#6e9e8a", fontSize: 12, marginTop: 2 }}
+                      style={{ color: "#90c0ac", fontSize: 12, marginTop: 2 }}
                     >
                       {homeData.lastPlayedDeck.cardCount}{" "}
                       {homeData.lastPlayedDeck.cardCount > 1
@@ -168,10 +157,8 @@ export default function HomeScreen() {
               </View>
             )}
 
-            {/* ─── Recent Decks ─── */}
             <RecentDecksSection decks={homeData!.recentDecks} />
 
-            {/* ─── Recent Achievements ─── */}
             {recentUnlocked.length > 0 && (
               <View style={{ paddingHorizontal: 24, marginTop: 20 }}>
                 <View
@@ -182,15 +169,8 @@ export default function HomeScreen() {
                     marginBottom: 10,
                   }}
                 >
-                  <Text
-                    style={{
-                      color: "#90c0ac",
-                      fontSize: 11,
-                      fontWeight: "700",
-                      letterSpacing: 3,
-                    }}
-                  >
-                    {t("home.achievements.title", "TROPHÉES").toUpperCase()}
+                  <Text className="text-sm text-white font-semibold tracking-[3px]">
+                    {t("home.achievements.title").toUpperCase()}
                   </Text>
                   <TouchableOpacity
                     onPress={() => router.push("/achievements")}
@@ -198,14 +178,12 @@ export default function HomeScreen() {
                   >
                     <Text
                       style={{
-                        color: "#5b8af5",
+                        color: "#f5c542",
                         fontSize: 12,
                         fontWeight: "700",
                       }}
                     >
-                      {totalUnlocked}/{achievements.length}
-                      {"  "}
-                      {t("home.achievements.seeAll", "Voir tout")} →
+                      {t("home.achievements.seeAll")} →
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -272,8 +250,8 @@ export default function HomeScreen() {
                             </Text>
                             <Text
                               style={{
-                                color: "#6e9e8a",
-                                fontSize: 11,
+                                color: "#90c0ac",
+                                fontSize: 12,
                                 marginTop: 1,
                               }}
                               numberOfLines={1}

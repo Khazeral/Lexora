@@ -36,13 +36,11 @@ function AnimatedPerformanceCard({
   successRate,
   totalCorrect,
   totalIncorrect,
-  bestStreak,
   t,
 }: {
   successRate: number;
   totalCorrect: number;
   totalIncorrect: number;
-  bestStreak: number;
   t: any;
 }) {
   const animProgress = useRef(new Animated.Value(0)).current;
@@ -240,51 +238,6 @@ function AnimatedPerformanceCard({
               {t("trainComplete.stats.incorrect", "INCORRECT").toUpperCase()}
             </Text>
           </View>
-
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 10,
-              backgroundColor: "#0c3429",
-              borderRadius: 12,
-              paddingVertical: 10,
-              paddingHorizontal: 14,
-            }}
-          >
-            <View
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 10,
-                backgroundColor: "#3d2e1a",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Ionicons name="flash" size={18} color="#f5c542" />
-            </View>
-            <Text
-              style={{
-                color: "#f5c542",
-                fontSize: 18,
-                fontWeight: "900",
-                flex: 1,
-              }}
-            >
-              {bestStreak}
-            </Text>
-            <Text
-              style={{
-                color: "#6e9e8a",
-                fontSize: 9,
-                fontWeight: "700",
-                letterSpacing: 1,
-              }}
-            >
-              {t("trainComplete.stats.bestStreak", "SÉRIE").toUpperCase()}
-            </Text>
-          </View>
         </View>
       </View>
     </View>
@@ -307,6 +260,7 @@ export default function TrainingCompleteScreen() {
     previousBestAvgTime,
     previousPerfectRuns,
     avgTimePerCard,
+    correctCardIds,
   } = useLocalSearchParams();
 
   const { t } = useTranslation();
@@ -323,6 +277,14 @@ export default function TrainingCompleteScreen() {
     refetchOnMount: "always",
     staleTime: 0,
   });
+
+  const parsedCorrectCardIds: number[] = useMemo(() => {
+    try {
+      return correctCardIds ? JSON.parse(correctCardIds as string) : [];
+    } catch {
+      return [];
+    }
+  }, [correctCardIds]);
 
   const {
     data: deckRecords,
@@ -650,6 +612,7 @@ export default function TrainingCompleteScreen() {
             almostUpgradeCards={almostUpgradeCards}
             deckId={id}
             deckName={deck?.name}
+            correctCardIds={parsedCorrectCardIds}
           />
         </Animated.View>
       )}
@@ -661,9 +624,15 @@ type Phase2Props = {
   almostUpgradeCards: any[];
   deckId: string | string[];
   deckName?: string;
+  correctCardIds: number[];
 };
 
-function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
+function Phase2Screen({
+  almostUpgradeCards,
+  deckId,
+  deckName,
+  correctCardIds,
+}: Phase2Props) {
   const { t } = useTranslation();
 
   const cardAnims = useRef(
@@ -696,8 +665,12 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
     ]).start();
 
     cardAnims.forEach((anim, index) => {
+      const card = almostUpgradeCards[index];
+      const wasCorrect = correctCardIds.includes(card.id);
+
       setTimeout(
         () => {
+          // Card slide in (toujours)
           Animated.parallel([
             Animated.timing(anim.opacity, {
               toValue: 1,
@@ -712,40 +685,44 @@ function Phase2Screen({ almostUpgradeCards, deckId, deckName }: Phase2Props) {
             }),
           ]).start();
 
+          // Progress bar (toujours)
           setTimeout(() => {
             Animated.timing(anim.barWidth, {
               toValue: 1,
               duration: 800,
               useNativeDriver: false,
             }).start(() => {
-              Animated.parallel([
-                Animated.spring(anim.plusOneScale, {
-                  toValue: 1,
-                  stiffness: 400,
-                  damping: 12,
-                  useNativeDriver: true,
-                }),
-                Animated.timing(anim.plusOneOpacity, {
-                  toValue: 1,
-                  duration: 200,
-                  useNativeDriver: true,
-                }),
-              ]).start(() => {
-                setTimeout(() => {
-                  Animated.parallel([
-                    Animated.timing(anim.plusOneTranslateY, {
-                      toValue: -20,
-                      duration: 600,
-                      useNativeDriver: true,
-                    }),
-                    Animated.timing(anim.plusOneOpacity, {
-                      toValue: 0,
-                      duration: 600,
-                      useNativeDriver: true,
-                    }),
-                  ]).start();
-                }, 800);
-              });
+              // +1 SEULEMENT si la carte a été réussie
+              if (wasCorrect) {
+                Animated.parallel([
+                  Animated.spring(anim.plusOneScale, {
+                    toValue: 1,
+                    stiffness: 400,
+                    damping: 12,
+                    useNativeDriver: true,
+                  }),
+                  Animated.timing(anim.plusOneOpacity, {
+                    toValue: 1,
+                    duration: 200,
+                    useNativeDriver: true,
+                  }),
+                ]).start(() => {
+                  setTimeout(() => {
+                    Animated.parallel([
+                      Animated.timing(anim.plusOneTranslateY, {
+                        toValue: -20,
+                        duration: 600,
+                        useNativeDriver: true,
+                      }),
+                      Animated.timing(anim.plusOneOpacity, {
+                        toValue: 0,
+                        duration: 600,
+                        useNativeDriver: true,
+                      }),
+                    ]).start();
+                  }, 800);
+                });
+              }
             });
           }, 200);
         },

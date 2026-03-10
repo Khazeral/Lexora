@@ -36,6 +36,7 @@ export default function TrainingSessionScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cards, setCards] = useState<Card[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
+  const correctCardIdsRef = useRef<number[]>([]);
 
   const [pendingAchievements, setPendingAchievements] = useState<
     UnlockedAchievement[]
@@ -52,8 +53,14 @@ export default function TrainingSessionScreen() {
     resetStats,
   } = useSessionStats();
 
-  const { elapsedTime, timePenalty, addPenalty, stopTimer, getTotalTime } =
-    useSessionTimer(gameMode as string, true);
+  const {
+    elapsedTime,
+    timePenalty,
+    timePenaltyRef,
+    addPenalty,
+    stopTimer,
+    getTotalTime,
+  } = useSessionTimer(gameMode as string, true);
 
   const {
     lives,
@@ -99,6 +106,7 @@ export default function TrainingSessionScreen() {
     setCurrentIndex(0);
     setIsFlipped(false);
     setPendingAchievements([]);
+    correctCardIdsRef.current = [];
   }, [id, resetGameState, resetStats, resetTotalTime]);
 
   useEffect(() => {
@@ -122,7 +130,6 @@ export default function TrainingSessionScreen() {
     stopTimer();
     stopCardTimer();
 
-    const finalTime = gameMode === "speedrun" ? getTotalTime() : 0;
     const finalLives = livesRef.current;
     const currentCards = cardsRef.current;
 
@@ -145,8 +152,8 @@ export default function TrainingSessionScreen() {
       if (gameMode === "speedrun") {
         recordsResponse = await updateDeckRecords(Number(id), {
           gameMode: "speedrun",
-          speedRunTime: elapsedTime + timePenalty,
-          timePenalty: timePenalty,
+          speedRunTime: elapsedTime + timePenaltyRef.current,
+          timePenalty: timePenaltyRef.current,
           sessionBestStreak: bestStreakRef.current,
         });
       } else if (gameMode === "streak") {
@@ -201,8 +208,11 @@ export default function TrainingSessionScreen() {
       sessionIncorrect: sessionIncorrectRef.current.toString(),
       sessionBestStreak: bestStreakRef.current.toString(),
       gameMode: gameMode as string,
-      finalTime: finalTime.toString(),
-      timePenalty: timePenalty.toString(),
+      finalTime: (gameMode === "speedrun"
+        ? elapsedTime + timePenaltyRef.current
+        : 0
+      ).toString(),
+      timePenalty: timePenaltyRef.current.toString(),
       livesLeft: finalLives.toString(),
       isPerfect: isPerfectRun.toString(),
       avgTimePerCard: avgTimePerCard.toString(),
@@ -213,26 +223,26 @@ export default function TrainingSessionScreen() {
         previousRecords?.bestAvgTimePerCard?.toString() || "null",
       previousPerfectRuns:
         previousRecords?.perfectRunsCompleted?.toString() || "null",
+      correctCardIds: JSON.stringify(correctCardIdsRef.current),
     };
 
     navigateToComplete(navigationParams);
   }, [
-    gameMode,
-    id,
-    livesRef,
-    isPerfectRun,
-    elapsedTime,
-    timePenalty,
-    bestStreakRef,
-    sessionCorrectRef,
-    sessionIncorrectRef,
     stopTimer,
     stopCardTimer,
-    getTotalTime,
+    gameMode,
+    livesRef,
     getTotalTimeUsed,
     queryClient,
+    id,
     pendingAchievements,
+    sessionCorrectRef,
+    sessionIncorrectRef,
+    bestStreakRef,
+    isPerfectRun,
     navigateToComplete,
+    elapsedTime,
+    timePenaltyRef,
     showAchievementToast,
   ]);
 
@@ -308,6 +318,7 @@ export default function TrainingSessionScreen() {
         success: true,
       });
       recordCorrect();
+      correctCardIdsRef.current.push(currentCard.id);
     } catch (error) {
       console.error("Error saving answer:", error);
     }

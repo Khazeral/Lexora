@@ -70,6 +70,13 @@
       "noDecks": "No decks yet",
       "createFirst": "Create Your First Deck"
     },
+    "achievements": {
+      "title": "Trophes",
+      "seeAll": "See all"
+    },
+    "continueTraining": {
+      "title": "Continue"
+    },
     "empty": {
       "welcome": "WELCOME {{name}}!",
       "subtitle": "Start by creating your first deck to work.",

@@ -1,11 +1,5 @@
-import React from "react";
-import {
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert,
-} from "react-native";
+import React, { useState } from "react";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -16,6 +10,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CreateDeckActions from "../components/decks/create-deck/CreateDeckActions";
 import CreateDeckForm from "../components/decks/create-deck/CreateDeckForm";
 import CreateDeckHeader from "../components/decks/create-deck/CreateDeckHeader";
+import Scanlines from "../components/Scanlines";
+import Toast from "../components/ui/Toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 type CreateDeckFormData = {
   name: string;
@@ -26,11 +23,17 @@ export default function CreateDeckScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showAchievementToast } = useToast();
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+    type: "error" as "success" | "error" | "info",
+  });
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<CreateDeckFormData>({
     defaultValues: {
       name: "",
@@ -54,7 +57,11 @@ export default function CreateDeckScreen() {
       router.back();
     },
     onError: (error) => {
-      Alert.alert("Error", t("decks.createDeck.errors.createFailed"));
+      setToast({
+        visible: true,
+        message: t("decks.createDeck.errors.createFailed"),
+        type: "error",
+      });
       console.error(error);
     },
   });
@@ -67,20 +74,47 @@ export default function CreateDeckScreen() {
   };
 
   const handleCancel = () => {
-    router.back();
+    if (isDirty) {
+      setShowCancelModal(true);
+    } else {
+      router.back();
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <Scanlines />
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
+      <ConfirmModal
+        visible={showCancelModal}
+        title={t("decks.createDeck.cancelTitle", "Abandonner")}
+        message={t(
+          "decks.createDeck.cancelMessage",
+          "Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?",
+        )}
+        confirmText={t("common.quit", "Quitter")}
+        cancelText={t("common.stay", "Rester")}
+        type="warning"
+        onConfirm={() => {
+          setShowCancelModal(false);
+          router.back();
+        }}
+        onCancel={() => setShowCancelModal(false)}
+      />
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <CreateDeckHeader onBack={handleCancel} />
 
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          className="flex-1"
+          contentContainerClassName="p-6 pb-10"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -96,20 +130,3 @@ export default function CreateDeckScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 40,
-  },
-});

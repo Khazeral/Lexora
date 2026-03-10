@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "home": "Accueil",
+    "decks": "Decks",
+    "train": "Révisions",
+    "profile": "Profil"
+  },
   "auth": {
     "login": {
       "title": "Flashcard Pro",
@@ -12,7 +18,8 @@
         "emailRequired": "L'email est requis",
         "emailInvalid": "Adresse email invalide",
         "passwordRequired": "Le mot de passe est requis",
-        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères"
+        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
+        "generic": "Identifiants invalides"
       }
     },
     "signup": {
@@ -33,29 +40,53 @@
         "passwordRequired": "Le mot de passe est requis",
         "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
         "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
-        "passwordsNotMatch": "Les mots de passe ne correspondent pas"
+        "passwordsNotMatch": "Les mots de passe ne correspondent pas",
+        "generic": "Impossible de créer le compte"
       }
     }
   },
-  "achievements": {
-    "toast": {
-      "singular": "Vous avez débloqué 1 trophée !",
-      "plural": "Vous avez débloqué {{count}} trophées !"
-    }
+  "common": {
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "quit": "Quitter",
+    "stay": "Rester"
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "VOTRE PROFIL",
+    "description": "Votre profil",
+    "achievements": "Trophées",
+    "achievementsSubtitle": "Voir tous vos trophées",
+    "language": "Langue",
+    "logout": "Se déconnecter"
   },
   "home": {
-    "greeting": "Bonjour,",
-    "wave": "👋",
-    "stats": {
-      "totalDecks": "Decks totaux",
-      "totalCards": "Cartes totales"
+    "description": "Mémorisez avec les cartes",
+    "continueTraining": {
+      "title": "Reprendre"
+    },
+    "achievements": {
+      "title": "Trophées",
+      "seeAll": "Voir tout"
     },
     "recentDecks": {
+      "categories": "Catégories",
       "title": "Decks récents",
       "seeAll": "Voir tout",
       "cards": "{{count}} cartes",
       "noDecks": "Aucun deck pour le moment",
       "createFirst": "Créer votre premier deck"
+    },
+    "empty": {
+      "welcome": "BIENVENUE {{name}} !",
+      "subtitle": "Commencez par créer votre premier deck pour réviser.",
+      "step1Title": "Créer un deck",
+      "step1Desc": "Organisez vos cartes par thème",
+      "step2Title": "Ajouter des cartes",
+      "step2Desc": "Question d'un côté, réponse de l'autre",
+      "step3Title": "S'entraîner",
+      "step3Desc": "Plusieurs modes de jeu vous attendent",
+      "createDeck": "CRÉER MON PREMIER DECK"
     }
   },
   "train": {
@@ -63,9 +94,16 @@
     "subtitle": "Choisissez un deck à pratiquer",
     "loading": "Chargement des decks...",
     "empty": {
-      "title": "Aucun deck disponible",
-      "subtitle": "Créez d'abord un deck pour commencer à pratiquer",
-      "button": "Créer votre premier deck"
+      "noDeck": {
+        "title": "Aucun deck disponible",
+        "subtitle": "Créez d'abord un deck pour commencer à pratiquer",
+        "button": "Créer votre premier deck"
+      },
+      "noCard": {
+        "title": "Aucune carte",
+        "subtitle": "Vos decks ne contiennent aucune carte. Ajoutez des cartes pour commencer à pratiquer.",
+        "button": "Voir mes decks"
+      }
     },
     "deck": {
       "cards": "{{count}} carte",
@@ -78,7 +116,7 @@
       "needsReview": "À réviser"
     },
     "trainSettings": {
-      "title": "Réglages d'entraînement",
+      "title": "Entrainement",
       "cards": "{{count}} carte",
       "cards_plural": "{{count}} cartes",
       "gameMode": {
@@ -86,6 +124,8 @@
         "subtitle": "Choisissez votre défi"
       },
       "options": {
+        "title": "Options",
+        "subtitle": "Personnalisez votre session",
         "shuffle": {
           "title": "Mélanger les cartes",
           "description": "Ordre aléatoire"
@@ -170,17 +210,18 @@
     "loading": "Chargement de la session..."
   },
   "trainComplete": {
+    "continue": "Continuer",
     "headers": {
-      "perfect": "Course Parfaite! 💎",
-      "newRecord": "Nouveau Record! 🎉",
-      "complete": "Session Terminée! 🎉"
+      "perfect": "Course Parfaite !",
+      "newRecord": "Nouveau Record !",
+      "complete": "Session Terminée !"
     },
     "performance": {
-      "outstanding": "🏆 Exceptionnel!",
-      "greatJob": "🌟 Excellent travail!",
-      "goodEffort": "👍 Bon effort!",
-      "keepPracticing": "💪 Continuez à pratiquer!",
-      "roomForImprovement": "📚 Place à l'amélioration!",
+      "outstanding": "🏆 Exceptionnel !",
+      "greatJob": "🌟 Excellent travail !",
+      "goodEffort": "👍 Bon effort !",
+      "keepPracticing": "💪 Continuez à pratiquer !",
+      "roomForImprovement": "📚 Place à l'amélioration !",
       "successRate": "Taux de réussite"
     },
     "stats": {
@@ -188,6 +229,11 @@
       "incorrect": "Incorrect",
       "totalCards": "Total Cartes",
       "bestStreak": "Meilleure Série"
+    },
+    "phase2": {
+      "title": "Progression",
+      "left": "restants",
+      "allMaxed": "Toutes vos cartes sont au niveau maximum !"
     },
     "modes": {
       "classic": {
@@ -201,69 +247,71 @@
         "totalSessions": "Sessions totales"
       },
       "speedrun": {
-        "firstRun": "⚡ Premier Speed Run!",
-        "firstRunSubtitle": "C'est votre premier speed run sur ce deck!",
-        "newRecord": "🎉 Nouveau Record!",
+        "firstRun": "⚡ Premier Speed Run !",
+        "firstRunSubtitle": "C'est votre premier speed run sur ce deck !",
+        "newRecord": "🎉 Nouveau Record !",
         "complete": "Speed Run Terminé",
         "yourTime": "Votre Temps",
         "previousBest": "Meilleur Précédent",
-        "beatRecord": "Vous avez battu votre record de {{seconds}} secondes!",
+        "beatRecord": "Vous avez battu votre record de {{seconds}} secondes !",
         "slower": "{{seconds}} secondes plus lent que votre meilleur",
         "penalties": "Pénalités",
         "netTime": "Temps Net",
         "attempts": "Tentatives"
       },
       "streak": {
-        "firstRun": "🔥 Première Série!",
+        "firstRun": "🔥 Première Série !",
         "bestStreak": "Meilleure Série",
         "yourStreak": "Votre Série",
-        "newRecord": "🔥 Nouveau Record de Série!",
+        "newRecord": "🔥 Nouveau Record de Série !",
         "complete": "Maître de Série",
         "livesLeft": "Vies Restantes",
-        "livesRemaining": "Vous avez gardé {{count}} vie!",
-        "livesRemaining_plural": "Vous avez gardé {{count}} vies!",
-        "beatRecord": "Vous avez battu votre record de {{count}}!",
+        "livesRemaining": "Vous avez gardé {{count}} vie !",
+        "livesRemaining_zero": "Aucune vie restante !",
+        "livesRemaining_plural": "Vous avez gardé {{count}} vies !",
+        "beatRecord": "Vous avez battu votre record de {{count}} !",
         "awayFromRecord": "{{count}} de votre record",
         "record": "Record",
         "cards": "Cartes"
       },
       "timeattack": {
-        "firstRun": "🎯 Première Attaque Temporelle!",
+        "firstRun": "🎯 Première Attaque Temporelle !",
         "avgPerCard": "Moy par Carte",
-        "firstAttempt": "Excellente première tentative!",
-        "newRecord": "🎯 Nouveau Record!",
+        "firstAttempt": "Excellente première tentative !",
+        "newRecord": "🎯 Nouveau Record !",
         "complete": "Attaque Temporelle Terminée",
-        "improved": "Vous avez amélioré votre temps moyen!",
-        "keepPracticing": "Continuez à pratiquer pour de meilleurs temps!",
+        "improved": "Vous avez amélioré votre temps moyen !",
+        "keepPracticing": "Continuez à pratiquer pour de meilleurs temps !",
         "totalTime": "Temps Total",
         "cards": "Cartes",
         "attempts": "Tentatives"
       },
       "perfect": {
-        "success": "💎 Course Parfaite!",
+        "success": "💎 Course Parfaite !",
         "flawless": "IMPECCABLE",
         "victory": "Victoire",
-        "runsCompleted": "{{count}} course parfaite terminée!",
-        "runsCompleted_plural": "{{count}} courses parfaites terminées!",
+        "runsCompleted": "{{count}} course parfaite terminée !",
+        "runsCompleted_plural": "{{count}} courses parfaites terminées !",
         "failed": "💔 Course Parfaite Échouée",
         "perfectRuns": "Courses Parfaites",
-        "tryAgain": "Continuez! Vous réussirez la prochaine fois.",
+        "tryAgain": "Continuez ! Vous réussirez la prochaine fois.",
         "successRate": "Taux de réussite",
         "totalAttempts": "Total Tentatives"
       }
     },
     "almostThere": {
-      "title": "Presque là! 🚀",
+      "title": "Presque là !",
       "more": "encore {{count}}"
     },
     "actions": {
       "viewDeck": "Voir le Deck",
       "trainAgain": "Réessayer",
-      "backToHome": "Retour à l'Accueil"
+      "quit": "Quitter"
     }
   },
   "decks": {
     "title": "Mes Decks",
+    "description": "Gérez vos decks",
     "empty": {
       "title": "Aucun deck",
       "subtitle": "Créez votre premier deck pour commencer à apprendre",
@@ -272,13 +320,26 @@
     "card": {
       "cards": "{{count}} carte",
       "cards_plural": "{{count}} cartes",
+      "cards_short": "carte",
+      "cards_plural_short": "cartes",
       "lastStudied": "Étudié {{date}}",
       "notStudied": "Pas encore étudié"
     },
     "create": "Créer un deck",
     "search": "Rechercher un deck...",
+    "actions": {
+      "rename": "Renommer",
+      "delete": "Supprimer",
+      "deleteTitle": "Supprimer le deck",
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cette action est irréversible.",
+      "renamePlaceholder": "Nom du deck",
+      "renameConfirm": "RENOMMER"
+    },
     "createDeck": {
       "title": "Créer un deck",
+      "description": "Créer un nouveau deck pour organiser vos cartes",
+      "cancelTitle": "Abandonner",
+      "cancelMessage": "Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?",
       "form": {
         "nameLabel": "Nom du deck",
         "namePlaceholder": "ex: Vocabulaire espagnol",
@@ -300,6 +361,7 @@
     "deckDetail": {
       "cards": "{{count}} carte",
       "cards_plural": "{{count}} cartes",
+      "search": "Rechercher une carte...",
       "empty": {
         "title": "Aucune carte",
         "subtitle": "Ajoutez votre première carte pour commencer",
@@ -323,24 +385,32 @@
     }
   },
   "cards": {
+    "detail": {
+      "title": "Carte",
+      "editing": "ÉDITION",
+      "flipToQuestion": "VOIR QUESTION",
+      "flipToAnswer": "VOIR RÉPONSE",
+      "deleteTitle": "Supprimer la carte",
+      "deleteMessage": "Êtes-vous sûr ? Cette action est irréversible.",
+      "deleteButton": "SUPPRIMER",
+      "newCard": "Nouvelle carte ! Entraînez-vous pour suivre votre progression."
+    },
     "addCard": {
       "title": "Ajouter une carte",
-      "instructions": "Touchez la carte pour basculer entre recto et verso",
-      "flipToFront": "Retour au recto",
-      "flipToBack": "Voir le verso",
-      "hint": "Touchez n'importe où sur la carte pour la retourner",
+      "button": "Ajouter la carte",
       "form": {
         "wordLabel": "Recto",
-        "wordPlaceholder": "Hello",
+        "wordPlaceholder": "Question",
         "wordRequired": "Le recto est requis",
         "translationLabel": "Verso",
-        "translationPlaceholder": "Bonjour",
+        "translationPlaceholder": "Réponse",
         "translationRequired": "Le verso est requis",
-        "front": "Recto",
-        "back": "Verso"
+        "front": "Question",
+        "back": "Réponse"
       },
       "buttons": {
         "addAnother": "Ajouter une autre",
+        "addAndContinue": "Ajouter et continuer",
         "addAndFinish": "Ajouter et terminer",
         "helpText": "Ajoutez une autre carte ou terminez pour revenir au deck"
       },
@@ -355,6 +425,187 @@
         "tip2": "Utilisez des exemples si nécessaire",
         "tip3": "Ajoutez du contexte si utile"
       }
+    }
+  },
+  "achievements": {
+    "title": "Trophées",
+    "new": "NOUVEAU",
+    "secret": "Trophée secret",
+    "unlocked": "DÉBLOQUÉ",
+    "hidden": "SECRET",
+    "empty": "Aucun trophée dans cette catégorie",
+    "completed_one": "Trophée obtenu",
+    "completed_other": "Trophées obtenus",
+    "toast": {
+      "singular": "Vous avez débloqué 1 trophée !",
+      "plural": "Vous avez débloqué {{count}} trophées !"
+    },
+    "filters": {
+      "all": "TOUS",
+      "cards": "CARTES",
+      "train": "RÉVISIONS",
+      "streak": "SÉRIES",
+      "collect": "COLLECTION"
+    },
+    "first_card": {
+      "name": "Première Carte",
+      "description": "Créer votre première carte"
+    },
+    "card_collector_10": {
+      "name": "Collectionneur Débutant",
+      "description": "Créer 10 cartes"
+    },
+    "card_collector_50": {
+      "name": "Collectionneur Confirmé",
+      "description": "Créer 50 cartes"
+    },
+    "card_collector_100": {
+      "name": "Collectionneur Expert",
+      "description": "Créer 100 cartes"
+    },
+    "card_collector_500": {
+      "name": "Bibliothécaire",
+      "description": "Créer 500 cartes"
+    },
+    "first_deck": {
+      "name": "Premier Deck",
+      "description": "Créer votre premier deck"
+    },
+    "deck_creator_5": {
+      "name": "Organisateur",
+      "description": "Créer 5 decks"
+    },
+    "deck_creator_10": {
+      "name": "Archiviste",
+      "description": "Créer 10 decks"
+    },
+    "first_silver": {
+      "name": "Première Étoile",
+      "description": "Obtenir votre première carte Argent"
+    },
+    "silver_collector_10": {
+      "name": "Argentier",
+      "description": "Obtenir 10 cartes Argent"
+    },
+    "first_gold": {
+      "name": "Touche d'Or",
+      "description": "Obtenir votre première carte Or"
+    },
+    "gold_collector_10": {
+      "name": "Chercheur d'Or",
+      "description": "Obtenir 10 cartes Or"
+    },
+    "first_platinum": {
+      "name": "Platine Parfait",
+      "description": "Obtenir votre première carte Platine"
+    },
+    "platinum_collector_5": {
+      "name": "Platine Club",
+      "description": "Obtenir 5 cartes Platine"
+    },
+    "first_ruby": {
+      "name": "Rubis Éclatant",
+      "description": "Obtenir votre première carte Ruby"
+    },
+    "ruby_collector_5": {
+      "name": "Chasseur de Rubis",
+      "description": "Obtenir 5 cartes Ruby"
+    },
+    "ruby_collector_25": {
+      "name": "Maître des Rubis",
+      "description": "Obtenir 25 cartes Ruby"
+    },
+    "first_training": {
+      "name": "Premier Pas",
+      "description": "Compléter votre première session d'entraînement"
+    },
+    "training_10": {
+      "name": "Habitué",
+      "description": "Compléter 10 sessions d'entraînement"
+    },
+    "training_50": {
+      "name": "Athlète Mental",
+      "description": "Compléter 50 sessions d'entraînement"
+    },
+    "training_100": {
+      "name": "Machine à Apprendre",
+      "description": "Compléter 100 sessions d'entraînement"
+    },
+    "training_500": {
+      "name": "Légende Vivante",
+      "description": "Compléter 500 sessions d'entraînement"
+    },
+    "speedrun_10": {
+      "name": "Sprinter",
+      "description": "Compléter 10 sessions en mode Speed Run"
+    },
+    "speedrun_50": {
+      "name": "Éclair",
+      "description": "Compléter 50 sessions en mode Speed Run"
+    },
+    "perfect_5": {
+      "name": "Sans Faute",
+      "description": "Compléter 5 sessions parfaites en mode Perfect"
+    },
+    "perfect_25": {
+      "name": "Perfectionniste",
+      "description": "Compléter 25 sessions parfaites en mode Perfect"
+    },
+    "streak_mode_10": {
+      "name": "Survivant",
+      "description": "Compléter 10 sessions en mode Streak"
+    },
+    "timeattack_10": {
+      "name": "Contre la Montre",
+      "description": "Compléter 10 sessions en mode Time Attack"
+    },
+    "streak_10": {
+      "name": "En Forme",
+      "description": "Atteindre une série de 10 bonnes réponses"
+    },
+    "streak_25": {
+      "name": "En Feu",
+      "description": "Atteindre une série de 25 bonnes réponses"
+    },
+    "streak_50": {
+      "name": "Inarrêtable",
+      "description": "Atteindre une série de 50 bonnes réponses"
+    },
+    "streak_100": {
+      "name": "Infaillible",
+      "description": "Atteindre une série de 100 bonnes réponses"
+    },
+    "correct_100": {
+      "name": "Bon Début",
+      "description": "Répondre correctement à 100 cartes"
+    },
+    "correct_500": {
+      "name": "Érudit",
+      "description": "Répondre correctement à 500 cartes"
+    },
+    "correct_1000": {
+      "name": "Savant",
+      "description": "Répondre correctement à 1000 cartes"
+    },
+    "correct_5000": {
+      "name": "Génie",
+      "description": "Répondre correctement à 5000 cartes"
+    },
+    "night_owl": {
+      "name": "Oiseau de Nuit",
+      "description": "Étudier entre minuit et 5h du matin"
+    },
+    "early_bird": {
+      "name": "Lève-Tôt",
+      "description": "Étudier entre 5h et 7h du matin"
+    },
+    "marathon": {
+      "name": "Marathonien",
+      "description": "S'entraîner avec 10 decks différents en une journée"
+    },
+    "comeback": {
+      "name": "Le Retour",
+      "description": "Revenir après 7 jours d'absence"
     }
   }
 }

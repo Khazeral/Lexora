@@ -19,12 +19,9 @@ export default class CardProgressSeeder extends BaseSeeder {
       return
     }
 
-    // Les 9 premières cartes seront Silver (successCount = 15)
     const silverCards = cards.slice(0, 9)
-    // Les 9 suivantes seront Bronze (successCount = 5)
     const bronzeCards = cards.slice(9, 18)
 
-    // Créer les progressions Silver
     for (const card of silverCards) {
       await CardProgress.firstOrCreate(
         {
@@ -34,16 +31,15 @@ export default class CardProgressSeeder extends BaseSeeder {
         {
           userId: user.id,
           cardId: card.id,
-          successCount: 15,
+          successCount: 105,
           failureCount: 2,
           currentStreak: 3,
           maxStreak: 8,
-          status: 'silver',
+          status: 'ruby',
         }
       )
     }
 
-    // Créer les progressions Bronze
     for (const card of bronzeCards) {
       await CardProgress.firstOrCreate(
         {

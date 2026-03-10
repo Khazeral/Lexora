@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-
+import { pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../../ui/AnimatedTouchable";
 type DeckDetailHeaderProps = {
   name: string;
   cardCount: number;
@@ -16,60 +17,35 @@ export default function DeckDetailHeader({
   const { t } = useTranslation();
 
   const cardCountText =
-    cardCount === 1
+    cardCount <= 1
       ? t("decks.deckDetail.cards", { count: cardCount })
       : t("decks.deckDetail.cards_plural", { count: cardCount });
 
   return (
-    <View style={styles.header}>
-      <TouchableOpacity
+    <View className="flex-row items-center justify-between px-6 py-4 ">
+      <AnimatedTouchable
         onPress={onBack}
-        style={styles.backButton}
+        className="w-12 h-12 rounded-xl bg-card border-2 border-border items-center justify-center"
+        style={pillShadow.sm}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        activeOpacity={0.7}
       >
-        <Ionicons name="arrow-back" size={24} color="#1e293b" />
-      </TouchableOpacity>
-      <View style={styles.headerInfo}>
-        <Text style={styles.title} numberOfLines={1}>
-          {name}
+        <Ionicons name="arrow-back" size={22} color="#e8edf5" />
+      </AnimatedTouchable>
+
+      <View className="flex-1 items-center px-4">
+        <Text
+          className="text-foreground text-lg font-bold tracking-wider"
+          numberOfLines={1}
+        >
+          {name.toUpperCase()}
         </Text>
-        <Text style={styles.cardCount}>{cardCountText}</Text>
+        <Text className="text-muted-foreground text-xs mt-1">
+          {cardCountText}
+        </Text>
       </View>
-      <View style={styles.placeholder} />
+
+      <View className="w-12" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerInfo: {
-    flex: 1,
-    alignItems: "center",
-    paddingHorizontal: 8,
-  },
-  placeholder: {
-    width: 32,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1e293b",
-  },
-  cardCount: {
-    fontSize: 13,
-    color: "#64748b",
-    marginTop: 2,
-  },
-});

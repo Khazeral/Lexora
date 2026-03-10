@@ -1,13 +1,9 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { deckColors, pillShadow } from "../ui/GlowStyles";
+import AnimatedTouchable from "../ui/AnimatedTouchable";
 
 type Deck = {
   id: number;
@@ -15,25 +11,29 @@ type Deck = {
   cardCount: number;
 };
 
-type RecentDecksSectionProps = {
-  decks: Deck[];
-  isLoading?: boolean;
+type DeckCardProps = {
+  deck: Deck;
+  index: number;
 };
 
-export default function RecentDecksSection({
-  decks,
-  isLoading,
-}: RecentDecksSectionProps) {
-  return (
-    <View style={styles.section}>
-      <SectionHeader />
+type RecentDecksSectionProps = {
+  decks: Deck[];
+};
 
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-        </View>
-      ) : decks.length > 0 ? (
-        decks.map((deck) => <DeckCard key={deck.id} deck={deck} />)
+export default function RecentDecksSection({ decks }: RecentDecksSectionProps) {
+  const { t } = useTranslation();
+  return (
+    <View className="mt-8 px-6">
+      <Text className="text-sm text-white font-semibold tracking-[3px] mb-4">
+        {t("home.recentDecks.title").toUpperCase()}
+      </Text>
+
+      {decks.length > 0 ? (
+        decks
+          .slice(0, 5)
+          .map((deck, index) => (
+            <DeckCard key={deck.id} deck={deck} index={index} />
+          ))
       ) : (
         <EmptyState />
       )}
@@ -41,145 +41,63 @@ export default function RecentDecksSection({
   );
 }
 
-const SectionHeader = () => {
+function DeckCard({ deck, index }: DeckCardProps) {
   const { t } = useTranslation();
+  const colorConfig = deckColors[index % deckColors.length];
 
   return (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{t("home.recentDecks.title")}</Text>
-      <TouchableOpacity onPress={() => router.push("/(tabs)/deck")}>
-        <Text style={styles.seeAll}>{t("home.recentDecks.seeAll")}</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-type DeckCardProps = {
-  deck: Deck;
-};
-
-const DeckCard = ({ deck }: DeckCardProps) => {
-  const { t } = useTranslation();
-
-  return (
-    <TouchableOpacity
-      style={styles.deckCard}
+    <AnimatedTouchable
+      className="flex-row items-center p-4 rounded-2xl bg-card border-2 border-border mb-5"
+      style={pillShadow.card}
       onPress={() => router.push(`/deck/${deck.id}`)}
       activeOpacity={0.7}
     >
-      <View style={styles.deckIcon}>
-        <Ionicons name="albums" size={24} color="#3b82f6" />
+      <View
+        className="w-14 h-14 rounded-xl items-center justify-center"
+        style={[{ backgroundColor: colorConfig.bg }]}
+      >
+        <Ionicons name="chatbubble-outline" size={26} color="#fff" />
       </View>
-      <View style={styles.deckInfo}>
-        <Text style={styles.deckName} numberOfLines={1}>
+
+      <View className="flex-1 ml-4">
+        <Text className="text-foreground font-bold tracking-wider text-base uppercase">
           {deck.name}
         </Text>
-        <Text style={styles.deckCards}>
-          {t("home.recentDecks.cards", { count: deck.cardCount })}
+        <Text className="text-muted-foreground text-sm mt-0.5">
+          {deck.cardCount <= 1
+            ? t("decks.card.cards", { count: deck.cardCount })
+            : t("decks.card.cards_plural", { count: deck.cardCount })}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={24} color="#94a3b8" />
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
-};
+}
 
-const EmptyState = () => {
+function EmptyState() {
   const { t } = useTranslation();
 
   return (
-    <View style={styles.emptyState}>
-      <Ionicons name="albums-outline" size={48} color="#cbd5e1" />
-      <Text style={styles.emptyText}>{t("home.recentDecks.noDecks")}</Text>
+    <View className="items-center py-10 rounded-2xl bg-card border-2 border-border">
+      <View className="w-16 h-16 rounded-2xl bg-secondary items-center justify-center mb-4">
+        <Ionicons name="albums-outline" size={32} color="#6e9e8a" />
+      </View>
+      <Text className="text-foreground text-base font-bold mb-1">
+        {t("home.recentDecks.noDecksTitle")}
+      </Text>
+      <Text className="text-muted-foreground text-sm mb-5">
+        {t("home.recentDecks.noDecksSubtitle")}
+      </Text>
       <TouchableOpacity
-        style={styles.createButton}
+        className="flex-row items-center gap-2 px-6 py-3 rounded-full"
+        style={[{ backgroundColor: "#5b8af5" }, pillShadow.default]}
         onPress={() => router.push("/deck/create")}
         activeOpacity={0.8}
       >
-        <Text style={styles.createButtonText}>
+        <Ionicons name="add" size={18} color="#fff" />
+        <Text className="text-white font-black tracking-wider">
           {t("home.recentDecks.createFirst")}
         </Text>
       </TouchableOpacity>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  section: {
-    padding: 16,
-  },
-  loadingContainer: {
-    paddingVertical: 40,
-    alignItems: "center",
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-  },
-  seeAll: {
-    fontSize: 14,
-    color: "#3b82f6",
-    fontWeight: "600",
-  },
-  deckCard: {
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  deckIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: "#eff6ff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  deckInfo: {
-    flex: 1,
-  },
-  deckName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  deckCards: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#64748b",
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  createButton: {
-    backgroundColor: "#3b82f6",
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  createButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-});
+}

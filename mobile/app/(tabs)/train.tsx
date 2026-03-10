@@ -1,12 +1,13 @@
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, FlatList } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { getDecks } from "@/services/decks.api";
 import { Deck } from "@/types";
 import LoadingScreen from "../components/LoadingScreen";
 import TrainHeader from "../components/train/TrainHeader";
 import TrainDeckCard from "../components/train/TrainDeckCard";
 import EmptyTrainDecks from "../components/train/EmptyTrainDeck";
+import EmptyTrainNoCards from "../components/train/EmptyTrainNoCards";
+import Scanlines from "../components/Scanlines";
 
 export default function TrainScreen() {
   const { data: decks = [], isLoading } = useQuery<Deck[]>({
@@ -20,38 +21,29 @@ export default function TrainScreen() {
     return b.cardCount - a.cardCount;
   });
 
+  const decksWithCards = sortedDecks.filter((d) => d.cardCount > 0);
+  const hasDecksButNoCards = decks.length > 0 && decksWithCards.length === 0;
+
   if (isLoading) {
     return <LoadingScreen loading />;
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View className="flex-1 bg-background">
+      <Scanlines />
       <TrainHeader />
 
       <FlatList
-        data={sortedDecks}
+        data={decksWithCards}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ padding: 24, paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<EmptyTrainDecks />}
+        ListEmptyComponent={
+          hasDecksButNoCards ? <EmptyTrainNoCards /> : <EmptyTrainDecks />
+        }
         renderItem={({ item }) => <TrainDeckCard deck={item} />}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
       />
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  list: {
-    padding: 16,
-    paddingBottom: 32,
-    flexGrow: 1,
-  },
-  separator: {
-    height: 12,
-  },
-});

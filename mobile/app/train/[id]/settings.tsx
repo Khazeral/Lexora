@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { StyleSheet, ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { getDeck } from "@/services/decks.api";
 import { GAME_MODES, GameMode } from "@/constants/gameMods";
 import LoadingScreen from "@/app/components/LoadingScreen";
 import TrainSettingsHeader from "@/app/components/train/settings/TrainSettingsHeader";
-import DeckInfoCard from "@/app/components/train/settings/DeckInfoCard";
+import CardOptions from "@/app/components/train/settings/CardOptions";
 import GameModeSelector from "@/app/components/train/settings/GameModeSelector";
 import { StartTrainingButton } from "@/app/components/train/settings/StartTrainingButton";
+import Scanlines from "@/app/components/Scanlines";
 
 export default function TrainingSettingsScreen() {
   const { id } = useLocalSearchParams();
@@ -53,24 +53,23 @@ export default function TrainingSettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View className="flex-1 bg-background">
+      <Scanlines />
       <TrainSettingsHeader onBack={() => router.back()} />
 
       <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
+        className="flex-1"
+        contentContainerClassName="pb-8"
         showsVerticalScrollIndicator={false}
       >
-        <DeckInfoCard deck={deck} />
-
-        <GameModeSelector
-          selectedMode={gameMode}
-          onSelectMode={setGameMode}
+        <CardOptions
           shuffleCards={shuffleCards}
           reverseMode={reverseMode}
           onShuffleChange={setShuffleCards}
           onReverseChange={setReverseMode}
         />
+
+        <GameModeSelector selectedMode={gameMode} onSelectMode={setGameMode} />
       </ScrollView>
 
       <StartTrainingButton
@@ -78,19 +77,6 @@ export default function TrainingSettingsScreen() {
         onStart={handleStart}
         disabled={deck.cards.length === 0}
       />
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 32,
-  },
-});

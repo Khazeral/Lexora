@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { CARD_LEVELS, getCardLevel } from "@/constants/cardLevels";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
+import AnimatedTouchable from "../ui/AnimatedTouchable";
 
 type Card = {
   id: number;
@@ -17,84 +19,48 @@ type CardItemProps = {
   onPress: () => void;
 };
 
+const LEVEL_COLORS = {
+  bronze: { bg: "#cd7f32", text: "#fff", shadow: "#8b4513" },
+  silver: { bg: "#c0c0c0", text: "#1a1a1a", shadow: "#808080" },
+  gold: { bg: "#f5c542", text: "#1a1a1a", shadow: "#b8860b" },
+  platinum: { bg: "#4fc3f7", text: "#0b3d2e", shadow: "#0288d1" },
+  new: { bg: "#6e9e8a", text: "#fff", shadow: "#3d5a4a" },
+};
+
 export default function CardItem({ card, onPress }: CardItemProps) {
   const { t } = useTranslation();
   const level = getCardLevel(card.progress?.status);
   const levelConfig = CARD_LEVELS[level];
+  const colors =
+    LEVEL_COLORS[level as keyof typeof LEVEL_COLORS] || LEVEL_COLORS.new;
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.cardContent}>
-        <View style={styles.textContent}>
-          <Text style={styles.word} numberOfLines={1}>
-            {card.word}
-          </Text>
-          <Text style={styles.translation} numberOfLines={1}>
-            {card.translation}
-          </Text>
-        </View>
-
-        <View
-          style={[styles.levelBadge, { backgroundColor: levelConfig.bgColor }]}
-        >
-          <Ionicons
-            name={levelConfig.icon}
-            size={16}
-            color={levelConfig.color}
-          />
-          <Text style={[styles.levelText, { color: levelConfig.color }]}>
-            {t(`decks.deckDetail.levels.${levelConfig.label}`)}
-          </Text>
-        </View>
+    <AnimatedTouchable
+      className="flex-row items-center p-4 rounded-2xl bg-card border-2 border-border"
+      style={pillShadow.card}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View
+        className="w-12 h-12 rounded-xl items-center justify-center mr-4"
+        style={[{ backgroundColor: colors.bg }]}
+      >
+        <Ionicons name={levelConfig.icon} size={24} color={colors.text} />
       </View>
 
-      <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
-    </TouchableOpacity>
+      <View className="flex-1 gap-1">
+        <Text
+          className="text-foreground text-base font-bold tracking-wider"
+          numberOfLines={1}
+        >
+          {card.word}
+        </Text>
+        <Text className="text-muted-foreground text-sm" numberOfLines={1}>
+          {card.translation}
+        </Text>
+      </View>
+
+      <Ionicons name="chevron-forward" size={20} color="#6e9e8a" />
+    </AnimatedTouchable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-  },
-  cardContent: {
-    flex: 1,
-    gap: 10,
-  },
-  textContent: {
-    gap: 4,
-  },
-  word: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  translation: {
-    fontSize: 15,
-    color: "#64748b",
-  },
-  levelBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    alignSelf: "flex-start",
-  },
-  levelText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-});

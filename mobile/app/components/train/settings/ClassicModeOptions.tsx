@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, Switch } from "react-native";
+import { View, Text, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { pillShadow } from "@/app/components/ui/GlowStyles";
 
 type ClassicModeOptionsProps = {
   shuffleCards: boolean;
@@ -18,17 +19,23 @@ export default function ClassicModeOptions({
   const { t } = useTranslation();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.optionRow}>
-        <View style={styles.optionLeft}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="shuffle" size={18} color="#3b82f6" />
+    <View
+      className="bg-secondary px-4 py-4 mb-4 border-2 border-t-0 rounded-b-2xl"
+      style={{ borderColor: "#5b8af5" }}
+    >
+      <View className="flex-row items-center justify-between py-2">
+        <View className="flex-row items-center flex-1 gap-3">
+          <View
+            className="w-10 h-10 rounded-xl bg-card border-2 border-border items-center justify-center"
+            style={pillShadow.sm}
+          >
+            <Ionicons name="shuffle" size={18} color="#5b8af5" />
           </View>
-          <View style={styles.optionText}>
-            <Text style={styles.optionTitle}>
+          <View className="flex-1">
+            <Text className="text-foreground text-sm font-semibold">
               {t("train.trainSettings.options.shuffle.title")}
             </Text>
-            <Text style={styles.optionDescription}>
+            <Text className="text-muted-foreground text-xs mt-0.5">
               {t("train.trainSettings.options.shuffle.description")}
             </Text>
           </View>
@@ -36,23 +43,27 @@ export default function ClassicModeOptions({
         <Switch
           value={shuffleCards}
           onValueChange={onShuffleChange}
-          trackColor={{ false: "#cbd5e1", true: "#bfdbfe" }}
-          thumbColor={shuffleCards ? "#3b82f6" : "#f1f5f9"}
+          trackColor={{ false: "#0a1f18", true: "#1a3a5c" }}
+          thumbColor={shuffleCards ? "#5b8af5" : "#6e9e8a"}
+          ios_backgroundColor="#0a1f18"
         />
       </View>
 
-      <View style={styles.divider} />
+      <View className="h-px bg-border my-3" />
 
-      <View style={styles.optionRow}>
-        <View style={styles.optionLeft}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="swap-horizontal" size={18} color="#10b981" />
+      <View className="flex-row items-center justify-between py-2">
+        <View className="flex-row items-center flex-1 gap-3">
+          <View
+            className="w-10 h-10 rounded-xl bg-card border-2 border-border items-center justify-center"
+            style={pillShadow.sm}
+          >
+            <Ionicons name="swap-horizontal" size={18} color="#44d9a0" />
           </View>
-          <View style={styles.optionText}>
-            <Text style={styles.optionTitle}>
+          <View className="flex-1">
+            <Text className="text-foreground text-sm font-semibold">
               {t("train.trainSettings.options.reverse.title")}
             </Text>
-            <Text style={styles.optionDescription}>
+            <Text className="text-muted-foreground text-xs mt-0.5">
               {t("train.trainSettings.options.reverse.description")}
             </Text>
           </View>
@@ -60,62 +71,11 @@ export default function ClassicModeOptions({
         <Switch
           value={reverseMode}
           onValueChange={onReverseChange}
-          trackColor={{ false: "#cbd5e1", true: "#a7f3d0" }}
-          thumbColor={reverseMode ? "#10b981" : "#f1f5f9"}
+          trackColor={{ false: "#0a1f18", true: "#1a3d2e" }}
+          thumbColor={reverseMode ? "#44d9a0" : "#6e9e8a"}
+          ios_backgroundColor="#0a1f18"
         />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#f8fafc",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderTopWidth: 0,
-    borderColor: "#3b82f6",
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-  },
-  optionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 4,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#e2e8f0",
-    marginVertical: 12,
-  },
-  optionLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    gap: 12,
-  },
-  iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  optionText: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-  optionDescription: {
-    fontSize: 12,
-    color: "#64748b",
-    marginTop: 2,
-  },
-});

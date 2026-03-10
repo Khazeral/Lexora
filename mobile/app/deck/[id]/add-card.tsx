@@ -1,24 +1,18 @@
 import React, { useState, useRef } from "react";
-import {
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { createCard, CreateCardResponse } from "@/services/cards.api";
+import { createCard } from "@/services/cards.api";
 import AddCardHeader from "@/app/components/cards/add-card/AddCardHeader";
-import AddCardTips from "@/app/components/cards/add-card/AddCardTips";
 import InteractiveCard, {
   InteractiveCardRef,
 } from "@/app/components/cards/add-card/InteractiveCard";
 import AddCardActions from "@/app/components/cards/add-card/AddCardActions";
-import AchievementUnlockedModal from "@/app/components/AchievementUnlockModal";
+import Scanlines from "@/app/components/Scanlines";
+import Toast from "@/app/components/ui/Toast";
 
 type AddCardFormData = {
   word: string;
@@ -29,12 +23,12 @@ export default function AddCardScreen() {
   const { id } = useLocalSearchParams();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [showTips, setShowTips] = useState(false);
-  const [unlockedAchievements, setUnlockedAchievements] = useState<
-    CreateCardResponse["unlockedAchievements"]
-  >([]);
-  const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [shouldGoBack, setShouldGoBack] = useState(false);
+  const [toast, setToast] = useState({
+    visible: false,
+    message: "",
+    type: "success" as "success" | "error" | "info",
+  });
 
   const cardRef = useRef<InteractiveCardRef>(null);
 
@@ -50,6 +44,13 @@ export default function AddCardScreen() {
     },
   });
 
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "success",
+  ) => {
+    setToast({ visible: true, message, type });
+  };
+
   const createCardMutation = useMutation({
     mutationFn: createCard,
     onSuccess: (response) => {
@@ -61,28 +62,26 @@ export default function AddCardScreen() {
         response.unlockedAchievements &&
         response.unlockedAchievements.length > 0
       ) {
-        setUnlockedAchievements(response.unlockedAchievements);
-        setShowAchievementModal(true);
       } else {
         if (shouldGoBack) {
-          Alert.alert("✅ " + t("cards.addCard.success"));
-          router.back();
+          showToast(t("cards.addCard.success"));
+          setTimeout(() => router.back(), 1200);
         } else {
           reset();
           cardRef.current?.resetFlip();
-          Alert.alert("✅ " + t("cards.addCard.success"));
+          showToast(t("cards.addCard.success"));
         }
       }
     },
     onError: (error) => {
       console.error("Error:", error);
-      Alert.alert("Error", t("cards.addCard.errors.createFailed"));
+      showToast(t("cards.addCard.errors.createFailed"), "error");
     },
   });
 
   const onSubmit = (data: AddCardFormData) => {
     if (!data.word || !data.translation) {
-      Alert.alert("Error", t("cards.addCard.errors.fillRequired"));
+      showToast(t("cards.addCard.errors.fillRequired"), "error");
       return;
     }
 
@@ -96,7 +95,7 @@ export default function AddCardScreen() {
 
   const onAddAnother = (data: AddCardFormData) => {
     if (!data.word || !data.translation) {
-      Alert.alert("Error", t("cards.addCard.errors.fillRequired"));
+      showToast(t("cards.addCard.errors.fillRequired"), "error");
       return;
     }
 
@@ -108,39 +107,27 @@ export default function AddCardScreen() {
     });
   };
 
-  const handleDismissAchievement = () => {
-    setShowAchievementModal(false);
-
-    if (shouldGoBack) {
-      Alert.alert("✅ " + t("cards.addCard.success"));
-      router.back();
-    } else {
-      reset();
-      cardRef.current?.resetFlip();
-      Alert.alert("✅ " + t("cards.addCard.success"));
-    }
-  };
-
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-background" edges={["top"]}>
+      <Scanlines />
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
       <KeyboardAvoidingView
-        style={styles.keyboardView}
+        className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <AddCardHeader
-          onBack={() => router.back()}
-          onToggleTips={() => setShowTips(!showTips)}
-          showingTips={showTips}
-        />
+        <AddCardHeader onBack={() => router.back()} />
 
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          className="flex-1"
+          contentContainerClassName="p-6 pb-10"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {showTips && <AddCardTips />}
-
           <InteractiveCard ref={cardRef} control={control} errors={errors} />
         </ScrollView>
 
@@ -150,29 +137,6 @@ export default function AddCardScreen() {
           isLoading={createCardMutation.isPending}
         />
       </KeyboardAvoidingView>
-
-      <AchievementUnlockedModal
-        visible={showAchievementModal}
-        achievements={unlockedAchievements}
-        onDismiss={handleDismissAchievement}
-      />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 24,
-    paddingBottom: 40,
-  },
-});

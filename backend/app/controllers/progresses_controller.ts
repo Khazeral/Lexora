@@ -21,7 +21,7 @@ export default class ProgressController {
     const { success } = request.only(['success'])
     const userId = Number.parseInt(params.userId)
 
-    const { progress, newStatus, firstTimeStatus, globalStreak } = await this.service.answer(
+    const { progress, firstTimeStatus, globalStreak } = await this.service.answer(
       userId,
       Number.parseInt(params.cardId),
       success

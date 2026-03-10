@@ -3,7 +3,7 @@ import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
 import { BaseModel, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
-import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
+import { AccessToken, DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import CardProgress from './card_progress.js'
 import Deck from './deck.js'
@@ -52,4 +52,6 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare achievements: ManyToMany<typeof Achievement>
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
+
+  currentAccessToken?: AccessToken
 }

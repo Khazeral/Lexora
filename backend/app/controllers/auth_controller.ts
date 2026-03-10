@@ -3,26 +3,26 @@ import User from '#models/user'
 
 export default class AuthController {
   async login({ request, response }: HttpContext) {
-  try {
-    const { email, password } = request.only(['email', 'password'])
-    
-    const user = await User.verifyCredentials(email, password)
-    const token = await User.accessTokens.create(user)
-    
-    return response.ok({
-      token: token.value!.release(),
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
-    })
-  } catch (error) {
-    return response.unauthorized({
-      message: 'Email ou mot de passe incorrect'
-    })
+    try {
+      const { email, password } = request.only(['email', 'password'])
+
+      const user = await User.verifyCredentials(email, password)
+      const token = await User.accessTokens.create(user)
+
+      return response.ok({
+        token: token.value!.release(),
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        },
+      })
+    } catch (error) {
+      return response.unauthorized({
+        message: 'Email ou mot de passe incorrect',
+      })
+    }
   }
-}
 
   async signup({ request, response }: HttpContext) {
     const { username, email, password } = request.only(['username', 'email', 'password'])
@@ -61,7 +61,7 @@ export default class AuthController {
   }
 
   async logout({ auth, response }: HttpContext) {
-    const user = auth.user as unknown as User
+    const user = auth.user!
     await User.accessTokens.delete(user, user.currentAccessToken.identifier)
     return response.ok({ message: 'Logged out' })
   }
@@ -69,7 +69,7 @@ export default class AuthController {
   async me({ auth, response }: HttpContext) {
     await auth.authenticate()
     const user = auth.user!
-    
+
     return response.ok({
       user: {
         id: user.id,

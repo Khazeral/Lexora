@@ -25,7 +25,7 @@ export default function RecentDecksSection({ decks }: RecentDecksSectionProps) {
   return (
     <View className="mt-8 px-6">
       <Text className="text-sm text-white font-semibold tracking-[3px] mb-4">
-        {t("home.recentDecks.categories").toUpperCase()}
+        {t("home.recentDecks.title").toUpperCase()}
       </Text>
 
       {decks.length > 0 ? (

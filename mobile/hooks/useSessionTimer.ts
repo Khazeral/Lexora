@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 export default function useSessionTimer(gameMode: string, isActive: boolean) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timePenalty, setTimePenalty] = useState(0);
+  const timePenaltyRef = useRef(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -23,7 +24,8 @@ export default function useSessionTimer(gameMode: string, isActive: boolean) {
   }, [gameMode, isActive]);
 
   const addPenalty = (seconds: number) => {
-    setTimePenalty((prev) => prev + seconds);
+    timePenaltyRef.current += seconds;
+    setTimePenalty(timePenaltyRef.current);
   };
 
   const stopTimer = () => {
@@ -32,11 +34,12 @@ export default function useSessionTimer(gameMode: string, isActive: boolean) {
     }
   };
 
-  const getTotalTime = () => elapsedTime + timePenalty;
+  const getTotalTime = () => elapsedTime + timePenaltyRef.current;
 
   return {
     elapsedTime,
     timePenalty,
+    timePenaltyRef,
     startTime,
     addPenalty,
     stopTimer,

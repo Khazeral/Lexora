@@ -695,20 +695,6 @@ export default function CardDetailScreen() {
                 value={progress.failureCount}
                 label="INCORRECT"
               />
-              <StatCard
-                icon="flash"
-                iconColor="#f5c542"
-                bgColor="#3d2e1a"
-                value={progress.currentStreak}
-                label="STREAK"
-              />
-              <StatCard
-                icon="trophy"
-                iconColor="#5b8af5"
-                bgColor="#1a3a5c"
-                value={progress.maxStreak}
-                label="BEST"
-              />
             </View>
 
             <View className="bg-card rounded-2xl p-4 border-2 border-border mb-4">

@@ -18,7 +18,8 @@
         "emailRequired": "L'email est requis",
         "emailInvalid": "Adresse email invalide",
         "passwordRequired": "Le mot de passe est requis",
-        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères"
+        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
+        "generic": "Identifiants invalides"
       }
     },
     "signup": {
@@ -39,20 +40,35 @@
         "passwordRequired": "Le mot de passe est requis",
         "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
         "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
-        "passwordsNotMatch": "Les mots de passe ne correspondent pas"
+        "passwordsNotMatch": "Les mots de passe ne correspondent pas",
+        "generic": "Impossible de créer le compte"
       }
     }
   },
+  "common": {
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "quit": "Quitter",
+    "stay": "Rester"
+  },
   "profile": {
     "title": "Profil",
+    "subtitle": "VOTRE PROFIL",
     "description": "Votre profil",
-    "achievements": "Achievements",
+    "achievements": "Trophées",
     "achievementsSubtitle": "Voir tous vos trophées",
     "language": "Langue",
     "logout": "Se déconnecter"
   },
   "home": {
     "description": "Mémorisez avec les cartes",
+    "continueTraining": {
+      "title": "Reprendre"
+    },
+    "achievements": {
+      "title": "Trophées",
+      "seeAll": "Voir tout"
+    },
     "recentDecks": {
       "categories": "Catégories",
       "title": "Decks récents",
@@ -108,6 +124,8 @@
         "subtitle": "Choisissez votre défi"
       },
       "options": {
+        "title": "Options",
+        "subtitle": "Personnalisez votre session",
         "shuffle": {
           "title": "Mélanger les cartes",
           "description": "Ordre aléatoire"
@@ -192,6 +210,7 @@
     "loading": "Chargement de la session..."
   },
   "trainComplete": {
+    "continue": "Continuer",
     "headers": {
       "perfect": "Course Parfaite !",
       "newRecord": "Nouveau Record !",
@@ -210,6 +229,11 @@
       "incorrect": "Incorrect",
       "totalCards": "Total Cartes",
       "bestStreak": "Meilleure Série"
+    },
+    "phase2": {
+      "title": "Progression",
+      "left": "restants",
+      "allMaxed": "Toutes vos cartes sont au niveau maximum !"
     },
     "modes": {
       "classic": {
@@ -243,6 +267,7 @@
         "complete": "Maître de Série",
         "livesLeft": "Vies Restantes",
         "livesRemaining": "Vous avez gardé {{count}} vie !",
+        "livesRemaining_zero": "Aucune vie restante !",
         "livesRemaining_plural": "Vous avez gardé {{count}} vies !",
         "beatRecord": "Vous avez battu votre record de {{count}} !",
         "awayFromRecord": "{{count}} de votre record",
@@ -275,7 +300,7 @@
       }
     },
     "almostThere": {
-      "title": "Presque là! 🚀",
+      "title": "Presque là !",
       "more": "encore {{count}}"
     },
     "actions": {
@@ -295,14 +320,26 @@
     "card": {
       "cards": "{{count}} carte",
       "cards_plural": "{{count}} cartes",
+      "cards_short": "carte",
+      "cards_plural_short": "cartes",
       "lastStudied": "Étudié {{date}}",
       "notStudied": "Pas encore étudié"
     },
     "create": "Créer un deck",
     "search": "Rechercher un deck...",
+    "actions": {
+      "rename": "Renommer",
+      "delete": "Supprimer",
+      "deleteTitle": "Supprimer le deck",
+      "deleteMessage": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cette action est irréversible.",
+      "renamePlaceholder": "Nom du deck",
+      "renameConfirm": "RENOMMER"
+    },
     "createDeck": {
       "title": "Créer un deck",
       "description": "Créer un nouveau deck pour organiser vos cartes",
+      "cancelTitle": "Abandonner",
+      "cancelMessage": "Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?",
       "form": {
         "nameLabel": "Nom du deck",
         "namePlaceholder": "ex: Vocabulaire espagnol",
@@ -348,6 +385,16 @@
     }
   },
   "cards": {
+    "detail": {
+      "title": "Carte",
+      "editing": "ÉDITION",
+      "flipToQuestion": "VOIR QUESTION",
+      "flipToAnswer": "VOIR RÉPONSE",
+      "deleteTitle": "Supprimer la carte",
+      "deleteMessage": "Êtes-vous sûr ? Cette action est irréversible.",
+      "deleteButton": "SUPPRIMER",
+      "newCard": "Nouvelle carte ! Entraînez-vous pour suivre votre progression."
+    },
     "addCard": {
       "title": "Ajouter une carte",
       "button": "Ajouter la carte",
@@ -382,7 +429,12 @@
   },
   "achievements": {
     "title": "Trophées",
-    "completed_one": "Trophée obtenus",
+    "new": "NOUVEAU",
+    "secret": "Trophée secret",
+    "unlocked": "DÉBLOQUÉ",
+    "hidden": "SECRET",
+    "empty": "Aucun trophée dans cette catégorie",
+    "completed_one": "Trophée obtenu",
     "completed_other": "Trophées obtenus",
     "toast": {
       "singular": "Vous avez débloqué 1 trophée !",
@@ -391,8 +443,8 @@
     "filters": {
       "all": "TOUS",
       "cards": "CARTES",
-      "train": "REVISIONS",
-      "streak": "SERIES",
+      "train": "RÉVISIONS",
+      "streak": "SÉRIES",
       "collect": "COLLECTION"
     },
     "first_card": {

@@ -18,7 +18,8 @@
         "emailRequired": "Email is required",
         "emailInvalid": "Invalid email address",
         "passwordRequired": "Password is required",
-        "passwordMinLength": "Password must be at least 6 characters"
+        "passwordMinLength": "Password must be at least 6 characters",
+        "generic": "Invalid credentials"
       }
     },
     "signup": {
@@ -39,12 +40,20 @@
         "passwordRequired": "Password is required",
         "passwordMinLength": "Password must be at least 6 characters",
         "confirmPasswordRequired": "Please confirm your password",
-        "passwordsNotMatch": "Passwords do not match"
+        "passwordsNotMatch": "Passwords do not match",
+        "generic": "Unable to create account"
       }
     }
   },
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "quit": "Quit",
+    "stay": "Stay"
+  },
   "profile": {
     "title": "Profile",
+    "subtitle": "YOUR PROFILE",
     "description": "Your profile",
     "achievements": "Achievements",
     "achievementsSubtitle": "View all your trophies",
@@ -60,6 +69,13 @@
       "cards": "{{count}} cards",
       "noDecks": "No decks yet",
       "createFirst": "Create Your First Deck"
+    },
+    "achievements": {
+      "title": "Trophes",
+      "seeAll": "See all"
+    },
+    "continueTraining": {
+      "title": "Continue"
     },
     "empty": {
       "welcome": "WELCOME {{name}}!",
@@ -108,6 +124,8 @@
         "subtitle": "Choose your challenge"
       },
       "options": {
+        "title": "Options",
+        "subtitle": "Customize your session",
         "shuffle": {
           "title": "Shuffle Cards",
           "description": "Randomize order"
@@ -192,17 +210,18 @@
     "loading": "Loading session..."
   },
   "trainComplete": {
+    "continue": "Continue",
     "headers": {
-      "perfect": "Perfect Run !",
-      "newRecord": "New Record !",
-      "complete": "Session Complete !"
+      "perfect": "Perfect Run!",
+      "newRecord": "New Record!",
+      "complete": "Session Complete!"
     },
     "performance": {
-      "outstanding": "🏆 Outstanding !",
-      "greatJob": "🌟 Great job !",
-      "goodEffort": "👍 Good effort !",
-      "keepPracticing": "💪 Keep practicing !",
-      "roomForImprovement": "📚 Room for improvement !",
+      "outstanding": "🏆 Outstanding!",
+      "greatJob": "🌟 Great job!",
+      "goodEffort": "👍 Good effort!",
+      "keepPracticing": "💪 Keep practicing!",
+      "roomForImprovement": "📚 Room for improvement!",
       "successRate": "Success Rate"
     },
     "stats": {
@@ -211,12 +230,17 @@
       "totalCards": "Total Cards",
       "bestStreak": "Best Streak"
     },
+    "phase2": {
+      "title": "Progression",
+      "left": "left",
+      "allMaxed": "All your cards are at maximum level!"
+    },
     "modes": {
       "classic": {
         "complete": "Session Complete",
-        "perfect": "Perfect Session !",
+        "perfect": "Perfect Session!",
         "cardsCompleted": "Cards completed",
-        "firstSession": "First session on this deck !",
+        "firstSession": "First session on this deck!",
         "sessionCount": "Session #{{count}}",
         "successRate": "Success rate",
         "bestStreak": "Best streak",
@@ -224,58 +248,59 @@
       },
       "speedrun": {
         "firstRun": "⚡ First Speed Run!",
-        "firstRunSubtitle": "This is your first speed run on this deck !",
-        "newRecord": "🎉 New Record !",
+        "firstRunSubtitle": "This is your first speed run on this deck!",
+        "newRecord": "🎉 New Record!",
         "complete": "Speed Run Complete",
         "yourTime": "Your Time",
         "previousBest": "Previous Best",
-        "beatRecord": "You beat your record by {{seconds}} seconds !",
+        "beatRecord": "You beat your record by {{seconds}} seconds!",
         "slower": "{{seconds}} seconds slower than your best",
         "penalties": "Penalties",
         "netTime": "Net Time",
         "attempts": "Attempts"
       },
       "streak": {
-        "firstRun": "🔥 First Streak Run !",
+        "firstRun": "🔥 First Streak Run!",
         "bestStreak": "Best Streak",
         "yourStreak": "Your Streak",
-        "newRecord": "🔥 New Streak Record !",
+        "newRecord": "🔥 New Streak Record!",
         "complete": "Streak Master",
         "livesLeft": "Lives Left",
-        "livesRemaining": "You kept {{count}} life remaining !",
-        "livesRemaining_plural": "You kept {{count}} lives remaining !",
-        "beatRecord": "You beat your record by {{count}} !",
+        "livesRemaining": "You kept {{count}} life remaining!",
+        "livesRemaining_zero": "No lives remaining!",
+        "livesRemaining_plural": "You kept {{count}} lives remaining!",
+        "beatRecord": "You beat your record by {{count}}!",
         "awayFromRecord": "{{count}} away from your record",
         "record": "Record",
         "cards": "Cards"
       },
       "timeattack": {
-        "firstRun": "🎯 First Time Attack !",
+        "firstRun": "🎯 First Time Attack!",
         "avgPerCard": "Avg per Card",
-        "firstAttempt": "Great first attempt !",
-        "newRecord": "🎯 New Record !",
+        "firstAttempt": "Great first attempt!",
+        "newRecord": "🎯 New Record!",
         "complete": "Time Attack Complete",
-        "improved": "You improved your average time !",
-        "keepPracticing": "Keep practicing for better times !",
+        "improved": "You improved your average time!",
+        "keepPracticing": "Keep practicing for better times!",
         "totalTime": "Total Time",
         "cards": "Cards",
         "attempts": "Attempts"
       },
       "perfect": {
-        "success": "💎 Perfect Run !",
+        "success": "💎 Perfect Run!",
         "flawless": "FLAWLESS",
         "victory": "Victory",
-        "runsCompleted": "{{count}} perfect run completed !",
-        "runsCompleted_plural": "{{count}} perfect runs completed !",
+        "runsCompleted": "{{count}} perfect run completed!",
+        "runsCompleted_plural": "{{count}} perfect runs completed!",
         "failed": "💔 Perfect Run Failed",
         "perfectRuns": "Perfect Runs",
-        "tryAgain": "Keep trying ! You'll get it next time.",
+        "tryAgain": "Keep trying! You'll get it next time.",
         "successRate": "Success Rate",
         "totalAttempts": "Total Attempts"
       }
     },
     "almostThere": {
-      "title": "Almost There !",
+      "title": "Almost There!",
       "more": "{{count}} more"
     },
     "actions": {
@@ -295,14 +320,26 @@
     "card": {
       "cards": "{{count}} card",
       "cards_plural": "{{count}} cards",
+      "cards_short": "card",
+      "cards_plural_short": "cards",
       "lastStudied": "Last studied {{date}}",
       "notStudied": "Not studied yet"
     },
     "create": "Create Deck",
     "search": "Search decks...",
+    "actions": {
+      "rename": "Rename",
+      "delete": "Delete",
+      "deleteTitle": "Delete deck",
+      "deleteMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+      "renamePlaceholder": "Deck name",
+      "renameConfirm": "RENAME"
+    },
     "createDeck": {
       "title": "Create Deck",
       "description": "Create a new deck to organize your flashcards",
+      "cancelTitle": "Discard",
+      "cancelMessage": "You have unsaved changes. Are you sure you want to leave?",
       "form": {
         "nameLabel": "Deck Name",
         "namePlaceholder": "e.g., Spanish Vocabulary",
@@ -321,7 +358,6 @@
         "fillRequired": "Please fill in all required fields"
       }
     },
-
     "deckDetail": {
       "cards": "{{count}} card",
       "cards_plural": "{{count}} cards",
@@ -349,6 +385,16 @@
     }
   },
   "cards": {
+    "detail": {
+      "title": "Card",
+      "editing": "EDITING",
+      "flipToQuestion": "VIEW QUESTION",
+      "flipToAnswer": "VIEW ANSWER",
+      "deleteTitle": "Delete card",
+      "deleteMessage": "Are you sure? This action cannot be undone.",
+      "deleteButton": "DELETE",
+      "newCard": "New card! Practice to track your progress."
+    },
     "addCard": {
       "title": "Add a card",
       "button": "Add the card",
@@ -357,7 +403,7 @@
         "wordPlaceholder": "Question",
         "wordRequired": "Front side is required",
         "translationLabel": "Back",
-        "translationPlaceholder": "Asnwer",
+        "translationPlaceholder": "Answer",
         "translationRequired": "Back side is required",
         "front": "Question",
         "back": "Answer"
@@ -383,6 +429,11 @@
   },
   "achievements": {
     "title": "Achievements",
+    "new": "NEW",
+    "secret": "Secret trophy",
+    "unlocked": "UNLOCKED",
+    "hidden": "SECRET",
+    "empty": "No achievements in this category",
     "completed_one": "Achievement unlocked",
     "completed_other": "Achievements unlocked",
     "toast": {

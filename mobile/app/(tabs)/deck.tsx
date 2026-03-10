@@ -17,9 +17,9 @@ import DecksHeader from "@/app/components/decks/DecksHeader";
 import DecksSearchBar from "@/app/components/decks/DecksSearchBar";
 import EmptyDecks from "../components/decks/EmptyDeck";
 import DeckListItem from "../components/decks/DeckListItem";
-import DeckActionSheet from "../components/decks/DeckActionSheet";
 import Scanlines from "../components/Scanlines";
 import AnimatedTouchable from "../components/ui/AnimatedTouchable";
+import DeckActionSheet from "../components/decks/DeckActionSheet";
 
 export default function DecksScreen() {
   const { t } = useTranslation();
@@ -51,7 +51,6 @@ export default function DecksScreen() {
 
   const handleSheetClose = () => {
     setSheetVisible(false);
-    setSelectedDeck(null);
   };
 
   if (isLoading) {

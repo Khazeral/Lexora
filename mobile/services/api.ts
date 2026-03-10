@@ -1,6 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_URL = "http://localhost:3333";
+const DEV_URL = "http://localhost:3333";
+const PROD_URL = "https://lexora-api-a8ae.onrender.com";
+
+const API_URL = __DEV__ ? DEV_URL : PROD_URL;
 
 export async function fetchAPI(endpoint: string, options?: RequestInit) {
   const token = await AsyncStorage.getItem("auth_token");
